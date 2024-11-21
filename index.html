@@ -7,11 +7,11 @@
         <title>Scripts de Vladi</title>
         <link rel="shortcut icon" href="./favicon.ico">
         <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css">
-        <link href="pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
+        <link href="../../../../../Users/vcampos.GU/miweb/pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="css/style.css">
     </head>
     <body>
-        <header>
+        <header id="encabezados">
             <nav class="bg-white navbar navbar-expand-lg navbar-light">
                 <div class="container">
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-1" aria-controls="navbarNavDropdown-1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
@@ -23,9 +23,7 @@
                             <li class="nav-item"> <a class="nav-link" href="#">Acerca de</a> 
                             </li>                             
                             <li class="nav-item"> 
-</li>                             
-                            <li class="nav-item"> <a class="nav-link" href="#">Servicios</a> 
-                            </li>                             
+</li>                                                          
                             <li class="nav-item"> <a class="nav-link" href="#">Contacto</a> 
                             </li>                             
                             <li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">                                     Otros</a> 
@@ -38,9 +36,21 @@
                 </div>                 
             </nav>
         </header>
-        <main role="main">
+        <main role="main" id="principal">
             <!-- Hero -->
-            <div class="container content-space-t-3 lib-hero">
+            <div class="align-content-start align-items-start align-self-start container content-space-t-3 flex-row justify-content-start lib-hero">
+                <h1 class="display-4 mb-5 text-secondary">Bienvenido a Mi Espacio de Scripts PowerShell</h1>
+                <div class="container">
+                    <p class="fs-3 text-wrap">Este sitio web está diseñado para compartir contigo los scripts de PowerShell que he desarrollado, acompañados de explicaciones detalladas sobre su funcionamiento. Aquí encontrarás:
+</p>
+                    <p class="fs-3 text-wrap"><b>Código disponible en GitHub:</b> Descarga y explora cada script con acceso directo a los repositorios.
+</p>
+                    <p class="fs-3 text-wrap"><b>Guías paso a paso:</b> Aprende cómo se implementan las diferentes funciones en los scripts.
+</p>
+                    <p class="fs-3 text-wrap"><b>Videos explicativos: </b>Próximamente, incluiré tutoriales en video que te guiarán en la creación y personalización de cada función.
+</p>
+                    <p class="fs-3 text-wrap">Si eres administrador de sistemas, desarrollador o simplemente un entusiasta de PowerShell, este espacio es para ti. ¡Espero que encuentres útil este contenido y te inspire a crear tus propias herramientas!</p>
+                </div>
                 <div class="row justify-content-lg-between align-items-lg-center">
                     <div class="col-lg-5 mb-5 mb-lg-0">
                         <div class="mb-5">
@@ -84,43 +94,43 @@
             <!-- End Clients -->
             <!-- Card Grid -->
             <!-- End Card Grid -->
-        </main>
-        <div class="container">
-            <div class="row">
-                <h1 class="display-4 text-dark mb-5">Beneficios de&nbsp;<span class="text-primary">PowerShell?</span></h1>
-            </div>
-        </div>
-        <div class="align-content-start container end-100 start-0" id="Beneficios">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-4">
-                        <h3>Automatización Avanzada</h3> 
-                        <p>Permite crear scripts complejos para automatizar tareas repetitivas como configuraciones, monitoreo, y administración de sistemas.</p> 
-                    </div>
-                    <div class="col-md-4">
-                        <h3>Multiplataforma</h3> 
-                        <p>PowerShell Core (basado en .NET Core) es multiplataforma y compatible con Windows, macOS y Linux.</p> 
-                    </div>
-                    <div class="col-md-4">
-                        <h3>Integración con Herramientas y Servicios</h3> 
-                        <p>Puede interactuar fácilmente con Active Directory, Azure, Exchange Server, Microsoft 365 y otras herramientas de Microsoft, así como servicios externos mediante módulos específicos.</p> 
-                    </div>
+                    <h1 class="display-4 text-dark mb-5">Beneficios de&nbsp;<span class="text-primary">PowerShell?</span></h1>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <h3>Extensibilidad</h3> 
-                        <p>Los usuarios pueden crear módulos personalizados y funciones reutilizables, además de aprovechar una vasta comunidad que comparte scripts y módulos en sitios como PowerShell Gallery.</p> 
+            </div>
+            <div class="align-content-start container end-100 start-0" id="Beneficios">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Automatización Avanzada</h3> 
+                            <p>Permite crear scripts complejos para automatizar tareas repetitivas como configuraciones, monitoreo, y administración de sistemas.</p> 
+                        </div>
+                        <div class="col-md-4">
+                            <h3>Multiplataforma</h3> 
+                            <p>PowerShell Core (basado en .NET Core) es multiplataforma y compatible con Windows, macOS y Linux.</p> 
+                        </div>
+                        <div class="col-md-4">
+                            <h3>Integración con Herramientas y Servicios</h3> 
+                            <p>Puede interactuar fácilmente con Active Directory, Azure, Exchange Server, Microsoft 365 y otras herramientas de Microsoft, así como servicios externos mediante módulos específicos.</p> 
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <h3>Soporte para APIs y Cmdlets</h3> 
-                        <p>Incluye una amplia colección de cmdlets que permiten interactuar con el sistema operativo, manejar archivos, procesos, servicios y más.</p> 
-                    </div>
-                    <div class="col-md-4">
-                        <h3>Facilidad de Aprendizaje para Administradores</h3> 
-                        <p>Su sintaxis intuitiva y orientada a objetos facilita a los administradores de sistemas migrar desde scripts tradicionales (como Batch o VBScript).</p> 
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h3>Extensibilidad</h3> 
+                            <p>Los usuarios pueden crear módulos personalizados y funciones reutilizables, además de aprovechar una vasta comunidad que comparte scripts y módulos en sitios como PowerShell Gallery.</p> 
+                        </div>
+                        <div class="col-md-4">
+                            <h3>Soporte para APIs y Cmdlets</h3> 
+                            <p>Incluye una amplia colección de cmdlets que permiten interactuar con el sistema operativo, manejar archivos, procesos, servicios y más.</p> 
+                        </div>
+                        <div class="col-md-4">
+                            <h3>Facilidad de Aprendizaje para Administradores</h3> 
+                            <p>Su sintaxis intuitiva y orientada a objetos facilita a los administradores de sistemas migrar desde scripts tradicionales (como Batch o VBScript).</p> 
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </body>
 </html>
