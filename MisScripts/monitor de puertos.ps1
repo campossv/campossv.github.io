@@ -1,5 +1,6 @@
 ﻿Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+
 $ImagenBytes = [Convert]::FromBase64String('AAABAAEAAAAAAAEAIADgMQAAFgAAAIlQTkcNChoKAAAADUlIRFIAAAEAAAABAAgGAAAAXHKoZgAAMadJREFUeNrtnXe8nVWZ77/Penc5vaSSBAiQSkuDkAACoQWxK2AZx7GMOo5XHfXOjNfx6ow6llFn7jgWRu+oo4LXBjYklAABKaGkQiAV0kgvp+/6ruf
 +8e7T9jknjeScvc95vp/PTvbeZ5d3r3f9fu9az1rrWWAYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYRhkiVgSGcXLQzUWq0sLDqaV7zDE7beXFLb9Udk6EijRoP/YtAnjQAJZdbf4++C5ADGFx4f59CPlSPlyrIWXENQ8oYztgTzUEITHvmKowW6
 AROCSwVoTNXsnHE5DPwUPX2CkeNO1vAeA0YFnhqUXAHplSusdsLYAyYdFDSoXC7ipwypne8TfAzQITgDiQU9ityq+A/8hm2S5VcPmjymOvMhMYZE3VlYu+zADKhRA6BBycBXwXuBE4CNwL7AImAZcC/xM4T4S/lna2VWes6IYALZcDNQMoF6KLeAL4u4L4n
@@ -93,7 +94,7 @@ YhmEYhmEYhmEYhmEYhmEYxinm/wNTGjSChws+YAAAAABJRU5ErkJggg==')
 
 
 $pictureBox.SizeMode = [System.Windows.Forms.PictureBoxSizeMode]::StretchImage
-$ldevelpng = "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIE
+$LPNG = "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIE
 NvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9t
 bS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcm
 cvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMt
@@ -164,7 +165,7 @@ iUBN6MYOSzCAazo/3XFi51rsESozJlUa22P4vPvchtMUgLWliuRR1YHgiqURHTwNVvwfPtU0a2KtTJNy
 dZWiFYQG2kuJQ+lPSRxKnLrQ7skyEZzApTCvVds3Ifa5Ue3zFJrjHcw3lFdWVaBdANjmf6AjneowBLJlZEBGkWQyRdrq1wpS5UciuDoczQSpQxB2sBIL0GxFi9pWnkJDXVQTAjFS6hn91qBHO4PQiPYf1uh83g1Du7j7arkiGZlyoGlUA9oFzL5za0TDmU6dj0xsypCuDOHKd1toG7/SJwxFMFkk2lVG0gGXgQH5cap96v3ayhtepOko99gXP7KGSZ
 7ZkGF3qYn1PuuSdVFt4VDxwWETWrbeoM7HQvCqCd8+5J42+81D7qOsO2urvSyavIz3tv4LNuk4SWfN1xb2+HyuJZrlDwZ10ma0DZETvJbElZxLCK0vKZZRLqnV/B0w35yNfE86gPKZwefTVoLMN7ojx5V96f36CDQ3uBK/Evzxe7VojJx3CFr4Wq5XSnOZEHXT+v9g9N1nf1zKdxWf9+V7cr6+uPRdl3xH79PWHwLh0Nen9cWNlP6BnGw5X//SGT2t
 aTfQPAK1l2vxtsUg/50QKDvbVhjxOlw7BCKEnxMyvQ4EMbGuw3W4DgL+lVqs63Ad/r+H6wxyHa5DG/B/AcCNEwMfhlGVAAAAAElFTkSuQmCC"
-$lenbytes = [Convert]::FromBase64String($ldevelpng)
+$lenbytes = [Convert]::FromBase64String($LPNG)
 $lenmemoria = New-Object System.IO.MemoryStream
 $lenmemoria.Write($lenbytes, 0, $lenbytes.Length)
 $lenmemoria.Position = 0
@@ -177,7 +178,9 @@ $iconHandle = $bitmap.GetHicon()
 $icon = [System.Drawing.Icon]::FromHandle($iconHandle)
 $image.Dispose()
 $bitmap.Dispose()
-function CheckConnection {
+
+#monitorea un puerto y registra resultados
+function CheckConeccion {
     param($targetHost, $port, $logFile)
     while ($true) {
         $startTime = [DateTime]::Now
@@ -210,21 +213,20 @@ function CheckConnection {
     }
 }
 
+#actualiza la interfaz gráfica con nuevas líneas del log.
 function ReadLogFile {
     param($logFile)
     $lastPosition = 0
     while ($true) {
         if (Test-Path $logFile) {
-            $fileContent = Get-Content $logFile
+            $fileContent = Get-Content $logFile -Raw
             if ($fileContent.Length -gt $lastPosition) {
-                $newLines = $fileContent[$lastPosition..($fileContent.Length-1)]
-                foreach ($line in $newLines) {
-                    Write-Output $line
-                }
+                $newContent = $fileContent.Substring($lastPosition)
                 $lastPosition = $fileContent.Length
+                Write-Output $newContent
             }
         }
-        Start-Sleep -Seconds 1
+        Start-Sleep -Milliseconds 500
         if ($script:stopFlag) { break }
     }
 }
@@ -239,42 +241,42 @@ $Formulario.FormBorderStyle = 'FixedDialog'
 $Formulario.ControlBox = $false
 
 $pictureBox = New-Object System.Windows.Forms.PictureBox
-$pictureBox.Size = New-Object System.Drawing.Size(200, 50)
-$pictureBox.Location = New-Object System.Drawing.Point(5, 10)
+$pictureBox.Size = New-Object System.Drawing.Size(200, 40)
+$pictureBox.Location = New-Object System.Drawing.Point(10, 10)
 $pictureBox.Image = $imagenl
 
 $Formulario.Controls.Add($pictureBox)
 $LObjetivo = New-Object System.Windows.Forms.Label
-$LObjetivo.Location = New-Object System.Drawing.Point(250,20)
+$LObjetivo.Location = New-Object System.Drawing.Point(240,23)
 $LObjetivo.Size = New-Object System.Drawing.Size(20,20)
 $LObjetivo.Text = "IP:"
 $Formulario.Controls.Add($LObjetivo)
 
 $TBObjetivo = New-Object System.Windows.Forms.TextBox
-$TBObjetivo.Location = New-Object System.Drawing.Point(280,20)
+$TBObjetivo.Location = New-Object System.Drawing.Point(260,20)
 $TBObjetivo.Size = New-Object System.Drawing.Size(150,20)
 $Formulario.Controls.Add($TBObjetivo)
 
 $LPuerto = New-Object System.Windows.Forms.Label
-$LPuerto.Location = New-Object System.Drawing.Point(458,20)
-$LPuerto.Size = New-Object System.Drawing.Size(41,20)
+$LPuerto.Location = New-Object System.Drawing.Point(430,20)
+$LPuerto.Size = New-Object System.Drawing.Size(45,23)
 $LPuerto.Text = "Puerto:"
 $Formulario.Controls.Add($LPuerto)
 
 $TBPuerto = New-Object System.Windows.Forms.TextBox
-$TBPuerto.Location = New-Object System.Drawing.Point(500,20)
+$TBPuerto.Location = New-Object System.Drawing.Point(480,20)
 $TBPuerto.Size = New-Object System.Drawing.Size(50,20)
 $Formulario.Controls.Add($TBPuerto)
 
 $LArchivo = New-Object System.Windows.Forms.Label
-$LArchivo.Location = New-Object System.Drawing.Point(250,53)
-$LArchivo.Size = New-Object System.Drawing.Size(83,20)
+$LArchivo.Location = New-Object System.Drawing.Point(175,53)
+$LArchivo.Size = New-Object System.Drawing.Size(85,20)
 $LArchivo.Text = "Archivo de Log:"
 $Formulario.Controls.Add($LArchivo)
 
 $TBArchivo = New-Object System.Windows.Forms.TextBox
-$TBArchivo.Location = New-Object System.Drawing.Point(335,50)
-$TBArchivo.Size = New-Object System.Drawing.Size(215,20)
+$TBArchivo.Location = New-Object System.Drawing.Point(260,50)
+$TBArchivo.Size = New-Object System.Drawing.Size(270,20)
 $TBArchivo.Text = "error.log"
 $Formulario.Controls.Add($TBArchivo)
 
@@ -320,33 +322,47 @@ $BSalir.Add_Click({
 })
 
 $script:stopFlag = $false
-$script:job = $null
-$script:logJob = $null
+$Global:script:job = $null
+$Global:script:logJob = $null
 $script:allLines = @()
+$timer = New-Object System.Windows.Forms.Timer
+$timer.Interval = 1000 
 
 $startButton.Add_Click({
+    # Validar entradas
+    if ([string]::IsNullOrWhiteSpace($TBObjetivo.Text) -or [string]::IsNullOrWhiteSpace($TBPuerto.Text)) {
+        [System.Windows.Forms.MessageBox]::Show("Debe ingresar una IP y un puerto válidos.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
     $script:stopFlag = $false
     $targetHost = $TBObjetivo.Text
     $port = [int]$TBPuerto.Text
     $logFile = $TBArchivo.Text
-    $script:job = Start-Job -ScriptBlock ${function:CheckConnection} -ArgumentList $targetHost, $port, $logFile
-    $script:logJob = Start-Job -ScriptBlock ${function:ReadLogFile} -ArgumentList $logFile
+    if($targetHost -eq ""){}
+    # Limpiar el archivo de log antes de comenzar
+    Clear-Content -Path $logFile -ErrorAction SilentlyContinue
+
+    $Global:script:job = Start-Job -ScriptBlock ${function:CheckConeccion} -ArgumentList $targetHost, $port, $logFile
+    $Global:script:logJob = Start-Job -ScriptBlock ${function:ReadLogFile} -ArgumentList $logFile
     $startButton.Enabled = $false
     $BDetener.Enabled = $true
+    
+    # Limpiar la salida en la GUI
+    $SalidaResultados.Clear()
     $script:allLines = @()
 })
 
 $BDetener.Add_Click({
     $script:stopFlag = $true
-    if ($null -ne $script:job) {
-        Stop-Job $script:job
-        Remove-Job $script:job
-        $script:job = $null
+    if ($null -ne $Global:script:job) {
+        Stop-Job $Global:script:job
+        Remove-Job $Global:script:job
+        $Global:script:job = $null
     }
-    if ($null -ne $script:logJob) {
-        Stop-Job $script:logJob
-        Remove-Job $script:logJob
-        $script:logJob = $null
+    if ($null -ne $Global:script:logJob) {
+        Stop-Job $Global:script:logJob
+        Remove-Job $Global:script:logJob
+        $Global:script:logJob = $null
     }
     $startButton.Enabled = $true
     $BDetener.Enabled = $false
@@ -382,16 +398,17 @@ $BMostrarTodo.Add_Click({
     $SalidaResultados.ScrollToCaret()
 })
 
-$timer = New-Object System.Windows.Forms.Timer
-$timer.Interval = 1000
+
 $timer.Add_Tick({
-    if ($null -ne $script:logJob) {
-        $output = Receive-Job $script:logJob
+    if ($null -ne $Global:script:logJob) {
+        $output = Receive-Job $Global:script:logJob
         if ($output) {
-            foreach ($line in $output) {
-                $script:allLines += $line
-                $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
-                $SalidaResultados.SelectionLength = 0
+            $SalidaResultados.SuspendLayout()
+            $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+            $SalidaResultados.SelectionLength = 0
+            
+            foreach ($line in $output.Split("`n")) {
+                $line = $line.Trim()
                 if ($line -match "No se pudo establecer la conexión") {
                     $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
                 } elseif ($line -match "Conexión exitosa") {
@@ -399,21 +416,26 @@ $timer.Add_Tick({
                 } else {
                     $SalidaResultados.SelectionColor = $SalidaResultados.ForeColor
                 }
-                $SalidaResultados.AppendText("$line`r`n")
-                $SalidaResultados.ScrollToCaret()
+                $SalidaResultados.AppendText($line + "`r`n")
             }
+            
+            $SalidaResultados.ScrollToCaret()
+            $SalidaResultados.ResumeLayout()
         }
     }
 })
+
 $timer.Start()
 
-$Formulario.ShowDialog()
+$Formulario.ShowDialog(
 
-if ($null -ne $script:job) {
-    Stop-Job $script:job
-    Remove-Job $script:job
+)
+
+if ($null -ne $Global:script:job) {
+    Stop-Job $Global:script:job
+    Remove-Job $Global:script:job
 }
-if ($null -ne $script:logJob) {
-    Stop-Job $script:logJob
-    Remove-Job $script:logJob
+if ($null -ne $Global:script:logJob) {
+    Stop-Job $Global:script:logJob
+    Remove-Job $Global:script:logJob
 }
