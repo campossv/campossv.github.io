@@ -36,7 +36,10 @@
             </div>             
         </nav>
         <h1 style="font-size: 55px; text-align: center; font-weight: bold;">Monitor de puertos</h1>
-        <div class="container fs-4 text-dark">Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.</div>
+        <div class="container fs-4 text-dark">
+            <code><iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/$/embed/Monitor:48?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe></code>Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.
+        </div>
+        <div class="container text-center"></div>
         <div class="container">
             <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Librerias:</p>
             <div class="container fs-4 text-dark text-wrap">1. Carga de Tipos de Ensamblado:
@@ -49,9 +52,11 @@
                     <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
                 </div>
                 <div class="container fs-3">
-                    <li><strong>Descripción</strong>: Estas líneas importan las bibliotecas necesarias para trabajar con controles de formularios de Windows (System.Windows.Forms) y gráficos (para mostrar imágenes e íconos).
+                    <li>
+                        <strong>Descripción</strong>: Estas líneas importan las bibliotecas necesarias para trabajar con controles de formularios de Windows (System.Windows.Forms) y gráficos (para mostrar imágenes e íconos).
                     </li>
-                    <li><strong>Propósito</strong>: Permiten crear y gestionar la interfaz gráfica.
+                    <li>
+                        <strong>Propósito</strong>: Permiten crear y gestionar la interfaz gráfica.
                     </li>
                 </div>
             </div>
@@ -81,15 +86,13 @@
                         <button class="copy-button" onclick="copyCode()">Copy</button>
                         <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
                     </div>
-                    <li>
-                        <strong>Descripción</strong>: Aquí se crea el formulario principal de la aplicación con las siguientes características:
+                    <li><strong>Descripción</strong>: Aquí se crea el formulario principal de la aplicación con las siguientes características:
                         <ul>
                             <li>Se define el título y la posición del formulario en la pantalla.</li>
                             <li>Se establece que no tendrá barra de título y que no podrá redimensionarse.</li>
                         </ul>
                     </li>
-                    <li>
-                        <strong>Propósito</strong>: Configurar el aspecto visual del formulario.
+                    <li><strong>Propósito</strong>: Configurar el aspecto visual del formulario.
                     </li>
                 </div>
             </div>
@@ -112,19 +115,25 @@ $BDetener = New-Object System.Windows.Forms.Button
                 </div>
                 <li><strong>Descripción</strong>: Se crean los controles del formulario:
                     <ul>
-                        <li><b>PictureBox </b>para mostrar la imagen o ícono cargado.
+                        <li>
+                            <b>PictureBox </b>para mostrar la imagen o ícono cargado.
                         </li>
-                        <li><b>TextBox </b>para que el usuario ingrese la IP del servidor y el puerto.
+                        <li>
+                            <b>TextBox </b>para que el usuario ingrese la IP del servidor y el puerto.
                         </li>
-                        <li><b>Button </b>para controlar el inicio y la detención del monitoreo de la conexión.
+                        <li>
+                            <b>Button </b>para controlar el inicio y la detención del monitoreo de la conexión.
                         </li>
-                        <li><b>RichTextBox </b>para mostrar el log y los resultados en tiempo real.
+                        <li>
+                            <b>RichTextBox </b>para mostrar el log y los resultados en tiempo real.
                         </li>
-                        <li><b>Botones adicionales</b> para filtrar los resultados (por ejemplo, mostrar solo los errores).
+                        <li>
+                            <b>Botones adicionales</b> para filtrar los resultados (por ejemplo, mostrar solo los errores).
                         </li>
                     </ul>
                 </li>
-                <li><strong>Propósito</strong>: Crear la interfaz de usuario con todos los elementos necesarios para interactuar con el script.
+                <li>
+                    <strong>Propósito</strong>: Crear la interfaz de usuario con todos los elementos necesarios para interactuar con el script.
                 </li>
             </div>
             <div class="container">
@@ -143,7 +152,8 @@ $BDetener = New-Object System.Windows.Forms.Button
                         <button class="copy-button" onclick="copyCode()">Copy</button>
                         <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
                     </div>
-                    <li><strong>Descripción</strong>: Esta función se encarga de realizar una conexión TCP a un servidor y puerto específicos. Si la conexión es exitosa, calcula el tiempo de respuesta y registra la conexión exitosa en un archivo de log. Si no se puede conectar, también lo registra en el log.
+                    <li>
+                        <strong>Descripción</strong>: Esta función se encarga de realizar una conexión TCP a un servidor y puerto específicos. Si la conexión es exitosa, calcula el tiempo de respuesta y registra la conexión exitosa en un archivo de log. Si no se puede conectar, también lo registra en el log.
                         <ul>
                             <li>Intenta establecer una conexión TCP con el host/puerto especificados.</li>
                             <li>Si tiene éxito, registra un mensaje con el tiempo de respuesta.</li>
@@ -151,7 +161,8 @@ $BDetener = New-Object System.Windows.Forms.Button
                             <li>El bucle se detiene si se establece una bandera global ($script:stopFlag).</li>
                         </ul>
                     </li>
-                    <li><strong>Propósito</strong>: Monitorear la conectividad a un puerto TCP en tiempo real y registrar los resultados.
+                    <li>
+                        <strong>Propósito</strong>: Monitorear la conectividad a un puerto TCP en tiempo real y registrar los resultados.
                     </li>
                 </div>
                 <div class="container fs-4 text-dark text-wrap">
@@ -186,7 +197,8 @@ $BDetener = New-Object System.Windows.Forms.Button
                         <button class="copy-button" onclick="copyCode()">Copy</button>
                         <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
                     </div>
-                    <li><strong>Descripción</strong>: Esta función está asociada al evento de clic de un botón llamado $BMostrarTodo.
+                    <li>
+                        <strong>Descripción</strong>: Esta función está asociada al evento de clic de un botón llamado $BMostrarTodo.
                         <ul>
                             <li>
                                 <p><strong>Verifica si el job de log está activo</strong>:</p>
@@ -237,7 +249,8 @@ $BDetener = New-Object System.Windows.Forms.Button
                             </li>
                         </ul>
                     </li>
-                    <li><strong>Propósito</strong>: Esta función actualiza el control de salida con las líneas recibidas del job de log, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde..
+                    <li>
+                        <strong>Propósito</strong>: Esta función actualiza el control de salida con las líneas recibidas del job de log, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde..
                     </li>
                 </div>
                 <div class="container fs-4 fw-bold text-dark text-wrap">
@@ -252,13 +265,15 @@ $BDetener = New-Object System.Windows.Forms.Button
                         <button class="copy-button" onclick="copyCode()">Copy</button>
                         <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
                     </div>
-                    <li class="fw-normal"><strong>Descripción</strong>: Esta función lee un archivo de log y muestra las nuevas líneas que se agregan al archivo en tiempo real.
+                    <li class="fw-normal">
+                        <strong>Descripción</strong>: Esta función lee un archivo de log y muestra las nuevas líneas que se agregan al archivo en tiempo real.
                         <ul>
                             <li>Mantiene un lastPosition para leer solo las líneas nuevas que se agregan.</li>
                             <li>Muestra cada línea nueva que se añade al archivo de log.</li>
                         </ul>
                     </li>
-                    <li class="fw-normal"><strong>Propósito</strong>: Leer y mostrar en tiempo real las entradas de un archivo de log.
+                    <li class="fw-normal">
+                        <strong>Propósito</strong>: Leer y mostrar en tiempo real las entradas de un archivo de log.
                     </li>
                 </div>
             </div>
@@ -300,8 +315,7 @@ $BDetener = New-Object System.Windows.Forms.Button
                 <p>Esta diseñada para iniciar un proceso de verificación de conexión y registrar los resultados en un archivo de log, mientras actualiza la interfaz de usuario para reflejar el estado del proceso</p>
                 <p></p>
                 <ol start="1" type="1">
-                    <li>
-                        <b>Validación
+                    <li><b>Validación
      de Entradas</b>:
                     </li>
                 </ol>
@@ -322,8 +336,7 @@ $BDetener = New-Object System.Windows.Forms.Button
                     </ul>
                 </ol>
                 <ol start="2" type="1">
-                    <li>
-                        <b>Inicialización
+                    <li><b>Inicialización
      de Variables</b>:
                     </li>
                 </ol>
@@ -342,8 +355,7 @@ $BDetener = New-Object System.Windows.Forms.Button
                     </ul>
                 </ol>
                 <ol start="3" type="1">
-                    <li>
-                        <b>Limpieza
+                    <li><b>Limpieza
      del Archivo de Log</b>:
                     </li>
                 </ol>
@@ -357,8 +369,7 @@ $BDetener = New-Object System.Windows.Forms.Button
                     </ul>
                 </ol>
                 <ol start="4" type="1">
-                    <li>
-                        <b>Inicio
+                    <li><b>Inicio
      de Jobs en Segundo Plano</b>:
                     </li>
                 </ol>
@@ -379,8 +390,7 @@ $BDetener = New-Object System.Windows.Forms.Button
                     </ul>
                 </ol>
                 <ol start="5" type="1">
-                    <li>
-                        <b>Actualización
+                    <li><b>Actualización
      de la Interfaz de Usuario</b>:
                     </li>
                 </ol>
@@ -937,9 +947,7 @@ if ($null -ne $Global:script:logJob) {
          </code></pre>
                 <button class="copy-button" onclick="copyCode()">Copy</button>
                 <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
-            </div><div class="container"></div><div class="container text-center">
-                <a href="../misscripts.html" target="_parent"><button type="button" class="btn btn-light">Atras</button></a>
-                <a href="../index.html" target="_parent"><button type="button" class="btn btn-light">Inicio</button></a>
+            </div><div class="container"></div><div class="container text-center"><a href="../misscripts.html" target="_parent"><button type="button" class="btn btn-light">Atras</button></a><a href="../index.html" target="_parent"><button type="button" class="btn btn-light">Inicio</button></a>
             </div></p>
         <!-- Prism.js Script -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
