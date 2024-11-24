@@ -1,4 +1,4 @@
-﻿
+﻿#Creado por Vladimir Campos
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $timer = New-Object System.Windows.Forms.Timer
