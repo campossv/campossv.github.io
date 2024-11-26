@@ -375,13 +375,17 @@ $mailMessage.IsBodyHtml = $true
         </div>
         <div>
             <div class="fs-3 fw-bold text-lowercase text-opacity-100 text-wrap"> 
-                <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">NotificacionCorreoCambioClave.xml</p>
+                <center>
+                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">NotificacionCorreoCambioClave.xml</p>
+                </center>
                 <div class="container fs-4 fw-normal text-dark text-wrap">Este archivo XML es una configuración para una tarea programada en <strong>Task Scheduler</strong> (Programador de Tareas) de Windows. Se utiliza para automatizar la ejecución de un script de PowerShell (ControlDeCambioClave.ps1) cuando se dispara un evento específico en los registros del sistema (logs). Aquí está el desglose de su propósito y componentes:<br><strong class="fs-3">Propósito</strong>
                     <br>
                     Este XML configura una tarea llamada NotificacionCorreoCambioClave. Su función es monitorear eventos del tipo 4724 (Intento de restablecimiento de contraseña) en el registro de eventos de seguridad de Windows y ejecutar automáticamente un script de PowerShell para gestionar dicho evento, probablemente enviando una notificación o realizando una acción administrativa.
                 </div>
                 <div class="container"></div>
-                <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Descarga los archivos</p>
+                <center>
+                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Descarga los archivos</p>
+                </center>
                 <div class="container float-none text-center">
                     <a href="ConfigurarControl.ps1"><img src="../assets/2024-11-26_113305.png"></a>
                     <a href="ControlDeCambioClave.ps1"><img src="../assets/2024-11-26_113319.png"></a>
