@@ -4,40 +4,44 @@
         <meta charset="UTF-8">
         <!-- Estilos de Prism.js -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="robots" content="index, follow">
+        <meta content="Automatización con PowerShell" property="og:title">
+        <meta name="keywords" content="PowerShell, scripts, formularios, automatización, administración">
+		<meta name="description" content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes.">
         <title>PowerShell Code Viewer</title>
         <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
         <style>body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; } .code-container { position: relative; margin: 20px 0; background-color: #2d2d2d; border-radius: 5px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); } .copy-button { position: absolute; top: 10px; right: 10px; background-color: #61dafb; border: none; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer; padding: 5px 10px; transition: background-color 0.3s; } .copy-button:hover { background-color: #21a1f1; } .copy-confirmation { display: none; position: absolute; top: 10px; right: 80px; background-color: #28a745; color: #fff; padding: 5px; border-radius: 4px; font-size: 12px; } .copy-confirmation.show { display: inline-block; }</style>
         <script>/* Pinegrow Interactions, do not remove */ (function(){try{if(!document.documentElement.hasAttribute('data-pg-ia-disabled')) { window.pgia_small_mq=typeof pgia_small_mq=='string'?pgia_small_mq:'(max-width:767px)';window.pgia_large_mq=typeof pgia_large_mq=='string'?pgia_large_mq:'(min-width:768px)';var style = document.createElement('style');var pgcss='html:not(.pg-ia-no-preview) [data-pg-ia-hide=""] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show=""] {opacity:1;visibility:visible;display:block;}';if(document.documentElement.hasAttribute('data-pg-id') && document.documentElement.hasAttribute('data-pg-mobile')) {pgia_small_mq='(min-width:0)';pgia_large_mq='(min-width:99999px)'} pgcss+='@media ' + pgia_small_mq + '{ html:not(.pg-ia-no-preview) [data-pg-ia-hide="mobile"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="mobile"] {opacity:1;visibility:visible;display:block;}}';pgcss+='@media ' + pgia_large_mq + '{html:not(.pg-ia-no-preview) [data-pg-ia-hide="desktop"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="desktop"] {opacity:1;visibility:visible;display:block;}}';style.innerHTML=pgcss;document.querySelector('head').appendChild(style);}}catch(e){console&&console.log(e);}})()</script>
-        <link href="../../../../pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
-        <link href="pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
+        <link href="../pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
+        
     </head>
     <body>
-        <nav class="bg-white navbar navbar-expand-lg navbar-light">
+         <nav class="bg-white navbar navbar-expand-lg navbar-light">
             <div class="container">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-1" aria-controls="navbarNavDropdown-1" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span> 
+                <button type="button" class="navbar-toggler" aria-controls="navbarNavDropdown-1" aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-1"> <span class="navbar-toggler-icon"></span> 
                 </button>
                 <div class="collapse navbar-collapse " id="navbarNavDropdown-1"> 
                     <ul class="ms-auto navbar-nav"> 
-                        <li class="nav-item"> <a class="active nav-link" aria-current="page" href="../index.html" target="_parent">Inicio</a> 
+                        <li class="nav-item"> <a href="../index.html" target="_parent" class="active nav-link" aria-current="page">Inicio</a> 
                         </li>                         
-                        <li class="nav-item"> <a class="nav-link" href="../MisScripts.html" target="_parent">Mis Scripts</a> 
+                        <li class="nav-item"> <a href="../MisScripts.html" target="_parent" class="nav-link">Mis Scripts</a> 
                         </li>                         
                         <li class="nav-item"> 
 </li>                         
-                        <li class="nav-item"> <a class="nav-link" href="#">Contacto</a> 
+                        <li class="nav-item"> <a href="#" class="nav-link">Contacto</a> 
                         </li>                         
-                        <li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">                                     Otros</a> 
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"> <a class="dropdown-item" href="#">Action</a> <a class="dropdown-item" href="#">Another action</a> <a class="dropdown-item" href="#">Something else here</a> 
+                        <li class="nav-item dropdown"> <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" aria-expanded="false" role="button" data-bs-toggle="dropdown">                                     Otros</a> 
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"> <a href="#" class="dropdown-item">Action</a> <a href="#" class="dropdown-item">Another action</a> <a href="#" class="dropdown-item">Something else here</a> 
                             </div>                             
                         </li>                         
                     </ul>                     
                 </div>
-                <img src="../logo.png" width="174">
+                <img src="../logo.png" width="174" alt="Logo de powershell">
             </div>             
         </nav>
         <h1 style="font-size: 55px; text-align: center; font-weight: bold;">Control de cambio de contraseñas en cuentas locales</h1>
         <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank"><center>
-                <img src="../assets/Linkedin-Logo-e1660320077673.png" class="w-25">
+                <img src="../assets/Linkedin-Logo-e1660320077673.png" class="w-25" alt="Logo de Linkedin">
             </center></a>
         <div class="container fs-4 text-dark">Este script en PowerShell revela un enfoque sofisticado para gestionar eventos de seguridad relacionados con cambios de contraseña en Windows. El script extrae detalles de eventos, genera un informe en HTML y lo envía por correo electrónico, utilizando configuración cifrada para mayor seguridad.
             <p></p>
@@ -45,7 +49,7 @@
         </div>
         <div class="container text-center"></div>
         <div class="container">
-            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Elementos que componen esta solución:</p><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts" target="_blank"><img src="../assets/2024-11-25_162602.png" class="text-center"></a>
+            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Elementos que componen esta solución:</p><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts" target="_blank"><img src="../assets/2024-11-25_162602.png" class="text-center" alt="Archivos"></a>
             <div class="container fs-4 text-dark text-wrap">
                 <p>1. ConfigurarControl.ps1 </p>
                 <p>2.&nbsp;ControlDeCambioClave.ps1</p>
@@ -387,9 +391,9 @@ $mailMessage.IsBodyHtml = $true
                     <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Descarga los archivos</p>
                 </center>
                 <div class="container float-none text-center">
-                    <a href="ConfigurarControl.ps1"><img src="../assets/2024-11-26_113305.png"></a>
-                    <a href="ControlDeCambioClave.ps1"><img src="../assets/2024-11-26_113319.png"></a>
-                    <a href="NotificacionCorreoCambioClave.xml"><img src="../assets/2024-11-26_113330.png"></a>
+                    <a href="ConfigurarControl.ps1"><img src="../assets/2024-11-26_113305.png" alt="ConfigurarControl.ps1"></a>
+                    <a href="ControlDeCambioClave.ps1"><img src="../assets/2024-11-26_113319.png" alt="ControlDeCambiosClave.ps1"></a>
+                    <a href="NotificacionCorreoCambioClave.xml"><img src="../assets/2024-11-26_113330.png" alt="Tarea"></a>
                 </div>                 
                 <div class="container text-center"> <a href="../MisScripts.html" target="_parent"><button type="button" class="btn btn-light">Atras</button></a> <a href="../index.html" target="_parent"><button type="button" class="btn btn-light">Inicio</button></a> 
                 </div>                 
