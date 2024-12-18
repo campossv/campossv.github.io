@@ -181,24 +181,24 @@ $buttonBuscar.Add_Click({
             $buttonExportJSON.Location = New-Object System.Drawing.Point(140, 570)
             $buttonExportJSON.Size = New-Object System.Drawing.Size(120, 30)
             $buttonExportJSON.Add_Click({
-                Buscar-Evento = New-Object System.Windows.Forms.SaveFileDialog
-                $DialogoGuardar.Filter = "JSON Files (*.json)|*.json"
-                $DialogoGuardar.Title = "Guardar resultados como JSON"
-                $DialogoGuardar.ShowDialog()
-
-                if ($DialogoGuardar.FileName -ne "") {
+                $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+                $saveFileDialog.Filter = "JSON Files (*.json)|*.json"
+                $saveFileDialog.Title = "Guardar resultados como JSON"
+                if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
                     $jsonData = $eventos | ForEach-Object {
                         @{
                             Log = $_.LogName
                             ID = $_.Id
-                            Fecha = $_.TimeCreated
+                            Fecha = $_.TimeCreated.ToString("o")
                             Mensaje = $_.Message
                         }
                     }
-                    $jsonData | ConvertTo-Json -Depth 4 | Out-File -FilePath $DialogoGuardar.FileName -Encoding UTF8
+                    $jsonData | ConvertTo-Json -Depth 4 | Out-File -FilePath $saveFileDialog.FileName -Encoding UTF8
                     [System.Windows.Forms.MessageBox]::Show("Resultados exportados a JSON exitosamente.", "Éxito", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
                 }
             })
+            
+            
 
             $resultForm.Controls.Add($textBoxResultados)
             $resultForm.Controls.Add($buttonExportCSV)
