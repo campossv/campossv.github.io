@@ -1,4 +1,5 @@
-﻿param(
+﻿#Vladimir Campos
+param(
     [Parameter(Mandatory=$false)]  # Cambiar a false para hacer el parámetro opcional
     [ValidateSet(4732, 4725, 4722, 4731, 4734, 4733, 4726, 4720)]
     [int]$NumeroDeEvento = 0      # Valor predeterminado de 0 para indicar ejecución inicial
