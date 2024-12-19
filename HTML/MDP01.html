@@ -418,31 +418,188 @@ $startButton.Add_Click({
     <li>Establece $script:stopFlag en false, lo que probablemente indica que un proceso no debe detenerse.</li>
     <li>Asigna los valores de los campos de texto a las variables $targetHost, $port y $logFile.</li>
 </ul>
+<li>Limpieza del Archivo de Log:</li>
+<ul>
+    <li>Limpia el contenido del archivo de log especificado en $logFile antes de comenzar, ignorando cualquier error que pueda ocurrir si el archivo no existe.</li>
+</ul>
+<li>Inicio de Jobs en Segundo Plano:</li>
+<ul>
+    <li>Inicia un job en segundo plano para ejecutar la función CheckConeccion con los argumentos $targetHost, $port y $logFile.</li>
+    <li>Inicia otro job en segundo plano para ejecutar la función ReadLogFile con el argumento $logFile.</li>
+</ul>
+<li>Actualización de la Interfaz de Usuario:</li>
+<ul>
+    <li>Deshabilita el botón $startButton para evitar múltiples clics.</li>
+    <li>Habilita el botón $BDetener para permitir detener el proceso.</li>
+    <li>Limpia el contenido del control $SalidaResultados en la interfaz de usuario.</li>
+    <li>Inicializa $script:allLines como un array vacío, probablemente para almacenar líneas de salida o log.</li>
+</ul>
+</section>
 
-
-Limpieza del Archivo de Log:
-
-Limpia el contenido del archivo de log especificado en $logFile antes de comenzar, ignorando cualquier error que pueda ocurrir si el archivo no existe.
-
-Inicio de Jobs en Segundo Plano:
-
-Inicia un job en segundo plano para ejecutar la función CheckConeccion con los argumentos $targetHost, $port y $logFile.
-
-Inicia otro job en segundo plano para ejecutar la función ReadLogFile con el argumento $logFile.
-
-Actualización de la Interfaz de Usuario:
-
-Deshabilita el botón $startButton para evitar múltiples clics.
-
-Habilita el botón $BDetener para permitir detener el proceso.
-
-Limpia el contenido del control $SalidaResultados en la interfaz de usuario.
-
-Inicializa $script:allLines como un array vacío, probablemente para almacenar líneas de salida o log.
+<section id="codigo-$BDetener">
+    <h2>Funcion $BDetener.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock5">
+$BDetener.Add_Click({
+    $script:stopFlag = $true
+    if ($null -ne $Global:script:job) {
+        Stop-Job $Global:script:job
+        Remove-Job $Global:script:job
+        $Global:script:job = $null
+    }
+    if ($null -ne $Global:script:logJob) {
+        Stop-Job $Global:script:logJob
+        Remove-Job $Global:script:logJob
+        $Global:script:logJob = $null
+    }
+    $startButton.Enabled = $true
+    $BDetener.Enabled = $false
+    $BFiltrarRojo.Enabled = $true
+    $BMostrarTodo.Enabled = $true
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock5')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation5" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BDetener" class="instructions">
+<strong>Descripcion:</strong>Esta función asegura que todos los jobs en segundo plano se detengan y se eliminen correctamente, y actualiza la interfaz de usuario para reflejar que el proceso ha sido detenido.
+<li>Establece la bandera de parada:</li>
+<ul>
+    <li>Cambia $script:stopFlag a true, lo que probablemente indica a otros procesos o scripts que deben detenerse.</li>
+</ul>
+<li>Detiene y elimina el job principal:</li>
+<ul>
+    <li>Verifica si $Global:script:job no es nulo.</li>
+    <li>Si el job existe, lo detiene usando Stop-Job.</li>
+    <li>Luego, elimina el job con Remove-Job.</li>
+    <li>Finalmente, establece $Global:script:job a null para limpiar la referencia.</li>
+</ul>
+<li>Detiene y elimina el job de log:</li>
+<ul>
+    <li>Verifica si $Global:script:logJob no es nulo.</li>
+    <li>Si el job existe, lo detiene usando Stop-Job.</li>
+    <li>Luego, elimina el job con Remove-Job.</li>
+    <li>Finalmente, establece $Global:script:logJob a null para limpiar la referencia.</li>
+</ul>
+<li>Actualiza la interfaz de usuario:</li>
+<ul>
+    <li>Habilita el botón $startButton para permitir iniciar el proceso nuevamente.</li>
+    <li>Deshabilita el botón $BDetener para evitar múltiples clics mientras no hay jobs en ejecución.</li>
+</ul>
 
 <strong>Proposito:</strong>Leer y mostrar en tiempo real las entradas de un archivo de log. 
 </section>
 
+<section id="codigo-$BFiltrarRojo">
+    <h2>Funcion $BDetener.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock6">
+$BFiltrarRojo.Add_Click({
+    $SalidaResultados.Clear()
+    $logContent = Get-Content $TBArchivo.Text
+    foreach ($line in $logContent) {
+        if ($line -match "No se pudo establecer la conexión") {
+            $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+            $SalidaResultados.SelectionLength = 0
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+            $SalidaResultados.AppendText("$line`r`n")
+        }
+    }
+    $SalidaResultados.ScrollToCaret()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock6')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation6" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BFiltrarRojo" class="instructions">
+<strong>Descripcion:</strong>Esta función filtra y resalta en rojo las líneas que contienen el mensaje "No se pudo establecer la conexión" en el control de salida, proporcionando una manera visual de identificar rápidamente los errores de conexión.
+<li>Limpia el contenido del control $SalidaResultados:</li>
+<ul>
+    <li>Llama al método Clear() para vaciar cualquier texto existente en el control de salida.</li>
+</ul>
+<li>Itera sobre las líneas almacenadas en $script:allLines:</li>
+<ul>
+    <li>Utiliza un bucle foreach para recorrer cada línea en el array $script:allLines.</li>
+</ul>
+<li>Filtra las líneas que contienen un mensaje específico:</li>
+<ul>
+    <li>Verifica si la línea contiene la cadena "No se pudo establecer la conexión" usando el operador -match.</li>
+</ul>
+<li>Configura el color de selección y añade la línea al control de salida:</li>
+<ul>
+    <li>Habilita el botón $startButton para permitir iniciar el proceso nuevamente.</li>
+    <li>Si la línea coincide con el filtro, ajusta las propiedades de selección del control $SalidaResultados: </li>
+    <ul>
+        <li>SelectionStart se establece en la longitud actual del texto, para añadir el nuevo texto al final.</li>
+        <li>SelectionLength se establece en 0, para que no haya selección previa.</li>
+        <li>SelectionColor se establece en rojo ([System.Drawing.Color]::Red).</li>
+    </ul>
+    <li>Añade la línea filtrada al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+</ul>
+<li>Desplaza el control de salida hasta el final:</li>
+<ul>
+    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+</ul>
+</section>
+
+<section id="codigo-$BMostrarTodo">
+    <h2>Funcion $BDetener.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock7">
+$BMostrarTodo.Add_Click({
+    $SalidaResultados.Clear()
+    $logContent = Get-Content $TBArchivo.Text
+    foreach ($line in $logContent) {
+        $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+        $SalidaResultados.SelectionLength = 0
+        if ($line -match "No se pudo establecer la conexión") {
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+        } elseif ($line -match "Conexión exitosa") {
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Green
+        } else {
+            $SalidaResultados.SelectionColor = $SalidaResultados.ForeColor
+        }
+        $SalidaResultados.AppendText("$line`r`n")
+    }
+    $SalidaResultados.ScrollToCaret()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock7')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation7" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BMostrarTodo" class="instructions">
+<strong>Descripcion:</strong>Esta función muestra todas las líneas almacenadas en $script:allLines, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde.
+<li>Limpia el contenido del control $SalidaResultados:</li>
+<ul>
+    <li>Llama al método Clear() para vaciar cualquier texto existente en el control de salida.</li>
+</ul>
+<li>Itera sobre las líneas almacenadas en $script:allLines:</li>
+<ul>
+    <li>Utiliza un bucle foreach para recorrer cada línea en el array $script:allLines.</li>
+</ul>
+<li>Configura el color de selección y añade la línea al control de salida:</li>
+<ul>
+    <li>Ajusta las propiedades de selección del control $SalidaResultados: </li>
+    <ul>
+        <li>SelectionStart se establece en la longitud actual del texto, para añadir el nuevo texto al final.</li>
+        <li>SelectionLength se establece en 0, para que no haya selección previa.</li>
+    </ul>
+    <li>Dependiendo del contenido de la línea, establece el color de selección:</li>
+    <ul>
+        <li>Si la línea contiene "No se pudo establecer la conexión", el color de selección se establece en rojo ([System.Drawing.Color]::Red).</li>
+        <li>Si la línea contiene "Conexión exitosa", el color de selección se establece en verde ([System.Drawing.Color]::Green).</li>
+        <li>Para cualquier otra línea, el color de selección se establece en el color de texto predeterminado del control ($SalidaResultados.ForeColor).</li>
+    </ul>
+    <li>Añade la línea al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+</ul>
+<li>Desplaza el control de salida hasta el final:</li>
+<ul>
+    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+</ul>
+</section>
 
   </main> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
