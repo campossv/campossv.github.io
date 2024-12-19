@@ -245,6 +245,16 @@ function CheckConeccion {
                 <div id="copyConfirmation1" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
             </div>
     </section>
+    <section id="CheckConnection" class="instructions">
+        <strong>Descripcion:</strong> Esta función se encarga de realizar una conexión TCP a un servidor y puerto específicos. Si la conexión es exitosa, calcula el tiempo de respuesta y registra la conexión exitosa en un archivo de log. Si no se puede conectar, también lo registra en el log.
+
+        <li>Intenta establecer una conexión TCP con el host/puerto especificados.</li>
+        <li>Si tiene éxito, registra un mensaje con el tiempo de respuesta.</li>
+        <li>Si falla, registra un error (distinguiendo entre un error de socket o desconocido).</li>
+        <li>El bucle se detiene si se establece una bandera global ($script:stopFlag).</li>
+    
+    <strong>Propósito:</strong> Monitorear la conectividad a un puerto TCP en tiempo real y registrar los resultados. 
+    </section>
     <section id="codigo-timer">
         <h2>$timer.Add_Tick:</h2>
         <div class="code-container">
@@ -279,6 +289,160 @@ $timer.Add_Tick({
 <div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
 </div>
     </section>
+    <section id="timer" class="instructions">
+        
+        <li>
+            <strong>Descripcion:</strong> Esta función está asociada al evento de clic de un botón llamado $BMostrarTodo.
+            <ul>
+                <li>Verifica si el job de log está activo:</li>
+                <ul>
+                    <li>Comprueba si $Global:script:logJob no es nulo.</li>
+                </ul>
+                <li>Recibe la salida del job de log:</li>
+                <ul>
+                    <li>Usa Receive-Job para obtener la salida del job de log.</li>
+                </ul>
+                <li>Si hay salida disponible:</li>
+                <ul>
+                    <li>Suspende el diseño del control $SalidaResultados para mejorar el rendimiento mientras se actualiza el contenido.</li>
+                    <li>Establece el punto de inicio de la selección en la longitud actual del texto del control.</li>
+                    <li>Establece la longitud de la selección en 0 para asegurarse de que no haya texto seleccionado previamente.</li>
+                </ul>
+                <li>Procesa cada línea de la salida:</li>
+                <ul>
+                    <li>Divide la salida en líneas usando Split("n")`.</li>
+                    <li>Para cada línea, elimina los espacios en blanco al principio y al final con Trim().</li>
+                    <li>Dependiendo del contenido de la línea, establece el color de selección:</li>
+                    <ul>
+                        <li>Si la línea contiene "No se pudo establecer la conexión", el color de selección se establece en rojo ([System.Drawing.Color]::Red).</li>
+                        <li>Si la línea contiene "Conexión exitosa", el color de selección se establece en verde ([System.Drawing.Color]::Green).</li>
+                        <li>Si no coincide con ninguna de las condiciones anteriores, el color de selección se establece en el color de texto predeterminado del control ($SalidaResultados.ForeColor).</li>
+                    </ul>
+                    <li>Añade la línea al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+                </ul>
+                <li>Desplaza el cursor al final del texto:</li>
+                    <ul>
+                        <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+                    </ul>
+                </li>
+                <li>Desplaza el control de salida hasta el final:
+                    <ul>
+                    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+                    </ul>
+                </li>
+                <li>Reanuda el diseño del control:
+                    <ul>
+                        <li>Llama a ResumeLayout() para reanudar el diseño del control después de haber añadido todas las líneas.</li>
+                    </ul>
+        
+            </ul>
+        </li> 
+        <li><strong>Proposito:</strong> Esta función actualiza el control de salida con las líneas recibidas del job de log, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde.</li>
+    </section>
+
+    <section id="codigo-ReadLogFile">
+        <h2>Funcion ReadLogFile:</h2>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock3">
+#actualiza la interfaz gráfica con nuevas líneas del log.
+function ReadLogFile {
+    param($logFile)
+    $lastPosition = 0
+    while ($true) {
+        if (Test-Path $logFile) {
+            $fileContent = Get-Content $logFile -Raw
+            if ($fileContent.Length -gt $lastPosition) {
+                $newContent = $fileContent.Substring($lastPosition)
+                $lastPosition = $fileContent.Length
+                Write-Output $newContent
+            }
+        }
+        Start-Sleep -Milliseconds 500
+        if ($script:stopFlag) { break }
+    }
+}
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock3')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+    </section>
+    <section id="ReadLogFile" class="instructions">
+    <strong>Descripcion:</strong>Esta función lee un archivo de log y muestra las nuevas líneas que se agregan al archivo en tiempo real. 
+    <li>Mantiene un lastPosition para leer solo las líneas nuevas que se agregan.</li>
+    <li>Muestra cada línea nueva que se añade al archivo de log.</li>
+    
+<strong>Proposito:</strong>Leer y mostrar en tiempo real las entradas de un archivo de log. 
+</section>
+
+<section id="codigo-$startButton">
+    <h2>Funcion $startButton.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock4">
+$startButton.Add_Click({
+    # Validar entradas
+    if ([string]::IsNullOrWhiteSpace($TBObjetivo.Text) -or [string]::IsNullOrWhiteSpace($TBPuerto.Text)) {
+        [System.Windows.Forms.MessageBox]::Show("Debe ingresar una IP y un puerto válidos.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    $script:stopFlag = $false
+    $targetHost = $TBObjetivo.Text
+    $port = [int]$TBPuerto.Text
+    $logFile = $TBArchivo.Text
+    if($targetHost -eq ""){}
+    # Limpiar el archivo de log antes de comenzar
+    Clear-Content -Path $logFile -ErrorAction SilentlyContinue
+
+    $Global:script:job = Start-Job -ScriptBlock ${function:CheckConeccion} -ArgumentList $targetHost, $port, $logFile
+    $Global:script:logJob = Start-Job -ScriptBlock ${function:ReadLogFile} -ArgumentList $logFile
+    $startButton.Enabled = $false
+    $BDetener.Enabled = $true
+    
+    # Limpiar la salida en la GUI
+    $SalidaResultados.Clear()
+    $script:allLines = @()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock4')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation4" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$startButton" class="instructions">
+<strong>Descripcion:</strong>Esta diseñada para iniciar un proceso de verificación de conexión y registrar los resultados en un archivo de log, mientras actualiza la interfaz de usuario para reflejar el estado del proceso.
+<li>Validación de Entradas:</li>
+<ul>
+    <li>Verifica si los campos de texto $TBObjetivo (para la IP) y $TBPuerto (para el puerto) están vacíos o contienen solo espacios en blanco.</li>
+    <li>Si alguno de los campos está vacío, muestra un mensaje de error y termina la ejecución de la función.</li>
+</ul>
+<li>Inicialización de Variables:</li>
+<ul>
+    <li>Establece $script:stopFlag en false, lo que probablemente indica que un proceso no debe detenerse.</li>
+    <li>Asigna los valores de los campos de texto a las variables $targetHost, $port y $logFile.</li>
+</ul>
+
+
+Limpieza del Archivo de Log:
+
+Limpia el contenido del archivo de log especificado en $logFile antes de comenzar, ignorando cualquier error que pueda ocurrir si el archivo no existe.
+
+Inicio de Jobs en Segundo Plano:
+
+Inicia un job en segundo plano para ejecutar la función CheckConeccion con los argumentos $targetHost, $port y $logFile.
+
+Inicia otro job en segundo plano para ejecutar la función ReadLogFile con el argumento $logFile.
+
+Actualización de la Interfaz de Usuario:
+
+Deshabilita el botón $startButton para evitar múltiples clics.
+
+Habilita el botón $BDetener para permitir detener el proceso.
+
+Limpia el contenido del control $SalidaResultados en la interfaz de usuario.
+
+Inicializa $script:allLines como un array vacío, probablemente para almacenar líneas de salida o log.
+
+<strong>Proposito:</strong>Leer y mostrar en tiempo real las entradas de un archivo de log. 
+</section>
+
 
   </main> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
