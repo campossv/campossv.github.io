@@ -1,6 +1,8 @@
-function copyCode() {
-  const codeBlock = document.querySelector("#codeBlock");
-  const confirmation = document.getElementById("copyConfirmation");
+function copyCode(blockId) {
+  const codeBlock = document.getElementById(blockId);
+  const confirmation = document.getElementById(
+    `copyConfirmation${blockId.slice(-1)}`
+  );
 
   // Crear un elemento de texto temporal
   const textArea = document.createElement("textarea");
