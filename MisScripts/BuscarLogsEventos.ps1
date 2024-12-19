@@ -9,61 +9,75 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
 # Crear el formulario
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Buscador de Logs en Event Viewer'
-$form.Size = New-Object System.Drawing.Size(500,420)
+$form.Size = New-Object System.Drawing.Size(700, 550)
 $form.StartPosition = 'CenterScreen'
-$form.BackColor = [System.Drawing.Color]::LightSteelBlue
+$form.BackColor = [System.Drawing.Color]::WhiteSmoke
 $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
+$form.MinimizeBox = $true
+$form.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon((Get-Command powershell).Source)
+
+
+# Añadir imagen en la cabecera
 $pictureBox = New-Object System.Windows.Forms.PictureBox
-$pictureBox.Size = New-Object System.Drawing.Size(200, 60)
-$pictureBox.Location = New-Object System.Drawing.Point(0, 10)
+$pictureBox.Size = New-Object System.Drawing.Size(310, 50)
+$pictureBox.Location = New-Object System.Drawing.Point(10, 10)
 $pictureBox.Image = $imagenl
 $form.Controls.Add($pictureBox)
 
-# Crear la etiqueta y el cuadro de texto para la palabra a buscar
+# Sección: Parámetros de búsqueda
+$groupBoxBusqueda = New-Object System.Windows.Forms.GroupBox
+$groupBoxBusqueda.Text = "Parametros de Busqueda"
+$groupBoxBusqueda.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$groupBoxBusqueda.Location = New-Object System.Drawing.Point(10, 70)
+$groupBoxBusqueda.Size = New-Object System.Drawing.Size(660, 150)
+$form.Controls.Add($groupBoxBusqueda)
+
+# Etiqueta y TextBox: Palabra clave
 $labelPalabra = New-Object System.Windows.Forms.Label
-$labelPalabra.Location = New-Object System.Drawing.Point(10,70)
-$labelPalabra.Size = New-Object System.Drawing.Size(280,20)
-$labelPalabra.Text = 'Palabra a buscar:'
-$form.Controls.Add($labelPalabra)
+$labelPalabra.Text = "Palabra clave:"
+$labelPalabra.Location = New-Object System.Drawing.Point(20, 30)
+$labelPalabra.Size = New-Object System.Drawing.Size(100, 20)
+$groupBoxBusqueda.Controls.Add($labelPalabra)
 
 $textBoxPalabra = New-Object System.Windows.Forms.TextBox
-$textBoxPalabra.Location = New-Object System.Drawing.Point(10,90)
-$textBoxPalabra.Size = New-Object System.Drawing.Size(460,20)
-$form.Controls.Add($textBoxPalabra)
+$textBoxPalabra.Location = New-Object System.Drawing.Point(130, 30)
+$textBoxPalabra.Size = New-Object System.Drawing.Size(500, 20)
+$groupBoxBusqueda.Controls.Add($textBoxPalabra)
 
-# Crear la etiqueta y el ListBox para los logs
-$labelLog = New-Object System.Windows.Forms.Label
-$labelLog.Location = New-Object System.Drawing.Point(10,120)
-$labelLog.Size = New-Object System.Drawing.Size(280,20)
-$labelLog.Text = 'Seleccione los logs (Ctrl+clic para selección múltiple):'
-$form.Controls.Add($labelLog)
+# Etiqueta y TextBox: Número de días
+$labelDias = New-Object System.Windows.Forms.Label
+$labelDias.Text = "Numero de dias (0 para todos):"
+$labelDias.Location = New-Object System.Drawing.Point(20, 70)
+$labelDias.Size = New-Object System.Drawing.Size(220, 20)
+$groupBoxBusqueda.Controls.Add($labelDias)
+
+$textBoxDias = New-Object System.Windows.Forms.TextBox
+$textBoxDias.Location = New-Object System.Drawing.Point(240, 70)
+$textBoxDias.Size = New-Object System.Drawing.Size(80, 20)
+$textBoxDias.Text = '7'
+$groupBoxBusqueda.Controls.Add($textBoxDias)
+
+# Sección: Lista de Logs
+$groupBoxLogs = New-Object System.Windows.Forms.GroupBox
+$groupBoxLogs.Text = "Seleccionar Logs"
+$groupBoxLogs.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$groupBoxLogs.Location = New-Object System.Drawing.Point(10, 230)
+$groupBoxLogs.Size = New-Object System.Drawing.Size(660, 200)
+$form.Controls.Add($groupBoxLogs)
 
 $listBoxLog = New-Object System.Windows.Forms.ListBox
-$listBoxLog.Location = New-Object System.Drawing.Point(10,140)
-$listBoxLog.Size = New-Object System.Drawing.Size(460,150)
+$listBoxLog.Location = New-Object System.Drawing.Point(20, 30)
+$listBoxLog.Size = New-Object System.Drawing.Size(620, 150)
 $listBoxLog.SelectionMode = 'MultiExtended'
 
 # Obtener todos los logs disponibles
 $logs = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | Where-Object { $_.RecordCount } | Select-Object -ExpandProperty LogName | Sort-Object
 $listBoxLog.Items.AddRange($logs)
-
-$form.Controls.Add($listBoxLog)
-
-# Crear la etiqueta y el cuadro de texto para el número de días
-$labelDias = New-Object System.Windows.Forms.Label
-$labelDias.Location = New-Object System.Drawing.Point(10,300)
-$labelDias.Size = New-Object System.Drawing.Size(280,20)
-$labelDias.Text = 'Número de días a buscar (0 para todos):'
-$form.Controls.Add($labelDias)
-
-$textBoxDias = New-Object System.Windows.Forms.TextBox
-$textBoxDias.Location = New-Object System.Drawing.Point(10,320)
-$textBoxDias.Size = New-Object System.Drawing.Size(100,20)
-$textBoxDias.Text = '7'
-$form.Controls.Add($textBoxDias)
+$groupBoxLogs.Controls.Add($listBoxLog)
 
 # Función para buscar en un log específico
-function Buscar-Evento {
+function BuscarEvento {
     param (
         [string]$LogName,
         [string]$SearchString,
@@ -82,11 +96,24 @@ function Buscar-Evento {
     }
 }
 
-# Crear el botón de búsqueda
+# Botón salir
+$buttonSalir = New-Object System.Windows.Forms.Button
+$buttonSalir.Location = New-Object System.Drawing.Point(180, 450)
+$buttonSalir.Size = New-Object System.Drawing.Size(150, 40)
+$buttonSalir.Text = 'Salir'
+$buttonSalir.BackColor = [System.Drawing.Color]::LightSkyBlue
+$buttonSalir.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$form.Controls.Add($buttonSalir)
+$buttonSalir.Add_Click({ $form.Close() })
+
+# Botón de búsqueda
 $buttonBuscar = New-Object System.Windows.Forms.Button
-$buttonBuscar.Location = New-Object System.Drawing.Point(10,350)
-$buttonBuscar.Size = New-Object System.Drawing.Size(75,23)
-$buttonBuscar.Text = 'Buscar'
+$buttonBuscar.Location = New-Object System.Drawing.Point(10, 450)
+$buttonBuscar.Size = New-Object System.Drawing.Size(150, 40)
+$buttonBuscar.Text = 'Iniciar Busqueda'
+$buttonBuscar.BackColor = [System.Drawing.Color]::LightSkyBlue
+$buttonBuscar.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$form.Controls.Add($buttonBuscar)
 $buttonBuscar.Add_Click({
     $palabra = $textBoxPalabra.Text
     $logsSeleccionados = $listBoxLog.SelectedItems
@@ -108,7 +135,7 @@ $buttonBuscar.Add_Click({
         $errores = @()
         
         foreach ($log in $logsSeleccionados) {
-            $eventosLog = Buscar-Evento -LogName $log -SearchString $palabra -StartTime $startDate
+            $eventosLog = BuscarEvento -LogName $log -SearchString $palabra -StartTime $startDate
             if ($eventosLog -ne $null) {
                 $eventos += $eventosLog
             }
@@ -138,7 +165,7 @@ $buttonBuscar.Add_Click({
             
             # Crear un formulario para mostrar los resultados con scroll
             $resultForm = New-Object System.Windows.Forms.Form
-            $resultForm.Text = "Resultados de la búsqueda"
+            $resultForm.Text = "Resultados de la busqueda"
             $resultForm.Size = New-Object System.Drawing.Size(800,650)
             $resultForm.StartPosition = 'CenterScreen'
 
@@ -155,6 +182,8 @@ $buttonBuscar.Add_Click({
             $buttonExportCSV.Text = "Exportar a CSV"
             $buttonExportCSV.Location = New-Object System.Drawing.Point(10, 570)
             $buttonExportCSV.Size = New-Object System.Drawing.Size(120, 30)
+            $buttonExportCSV.BackColor = [System.Drawing.Color]::LightSkyBlue
+            $buttonExportCSV.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
             $buttonExportCSV.Add_Click({
                 $DialogoGuardar = New-Object System.Windows.Forms.SaveFileDialog
                 $DialogoGuardar.Filter = "CSV Files (*.csv)|*.csv"
@@ -180,6 +209,8 @@ $buttonBuscar.Add_Click({
             $buttonExportJSON.Text = "Exportar a JSON"
             $buttonExportJSON.Location = New-Object System.Drawing.Point(140, 570)
             $buttonExportJSON.Size = New-Object System.Drawing.Size(120, 30)
+            $buttonExportJSON.BackColor = [System.Drawing.Color]::LightSkyBlue
+            $buttonExportJSON.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
             $buttonExportJSON.Add_Click({
                 $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
                 $saveFileDialog.Filter = "JSON Files (*.json)|*.json"
