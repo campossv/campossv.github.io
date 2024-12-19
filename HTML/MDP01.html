@@ -206,7 +206,7 @@
     </section>
     <section id="codigo">
         <h2>Función CheckConnection:</h2>
-        <div id="code-container">
+        <div class="code-container">
             <pre><code class="language-powershell" id="codeBlock">
 function CheckConeccion {
     param($targetHost, $port, $logFile)
@@ -240,34 +240,15 @@ function CheckConeccion {
         if ($script:stopFlag) { break }
     }
 }
-            </code></pre>
-            <button class="copy-button" onclick="copyCode()">Copy</button>
-            <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
-        </div>
+</code></pre>
+<button class="copy-button" onclick="copyCode()" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
     </section>
   </main> 
-  <!-- Prism.js Script -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
-  <script>
-  function copyCode() {
-      const codeBlock = document.getElementById("codeBlock");
-      const confirmation = document.getElementById("copyConfirmation");
-
-      // Copy code to clipboard
-      const textArea = document.createElement("textarea");
-      textArea.value = codeBlock.textContent;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-
-      // Show confirmation message
-      confirmation.classList.add("show");
-      setTimeout(() => {
-          confirmation.classList.remove("show");
-      }, 2000);
-  }
-</script>
-  <script src="pgia/lib/pgia.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
 </body>
+
+</html>
