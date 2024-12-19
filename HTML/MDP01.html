@@ -1,0 +1,229 @@
+<head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f2f5;
+      }
+      header {
+        background-color: #4267b2;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo {
+        width: 100px;
+        height: auto;
+        margin-right: 20px;
+      }
+      .header-text {
+        text-align: left;
+      }
+      nav {
+        background-color: #365899;
+        padding: 10px;
+      }
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+      nav ul li {
+        margin: 0 10px;
+      }
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      nav ul li a:hover {
+        background-color: #4267b2;
+      }
+      main {
+        background-color: white;
+        padding: 20px;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      h2 {
+        color: #4267b2;
+      }
+      .instructions {
+        background-color: #e9ebee;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .instructions ol {
+        margin-bottom: 0;
+      }
+      .code-block {
+        background-color: #f1f3f4;
+        border-left: 4px solid #4267b2;
+        padding: 15px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4267b2;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .button:hover {
+        background-color: #365899;
+      }
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+        }
+        .logo {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+        .header-text {
+          text-align: center;
+        }
+      }
+    </style>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Automatización con PowerShell" />
+    <meta
+      name="keywords"
+      content="PowerShell, scripts, formularios, automatización, administración"
+    />
+    <meta
+      name="description"
+      content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+    />
+    <title>Scripts de Vladi</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link
+      rel="stylesheet"
+      href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <img src="..\assets\logo.png" style="width: 25%;" alt="Campos SV Logo" class="logo" />
+    <header>
+      <div class="header-text">
+        <h1>Bienvenido a Mi Espacio de Scripts PowerShell</h1>
+      </div>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="index.html">Inicio</a></li>
+        <li><a href="MisScripts.html">Mis scripts</a></li>
+        <li><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts">Código</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+     <a
+      href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+      target="_blank"
+      ><center>
+        <img
+          src="../assets/Linkedin-Logo-e1660320077673.png"
+          style="width: 25%;"/></center
+    ></a>
+    
+    </h1>
+  <main>
+    <section id="inicio">
+        <h2>Monitor de puertos</h2>
+        <p>Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.
+            
+            <code><iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/$/embed/Monitor:48?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe></code></p>
+         </section>
+    <section id="instrucciones" class="instructions">
+        <h1>Funciones principales</h1>
+        <p>Voy a describir las funciones principales que componene este script</p>
+    </section>
+    <section id="codigo">
+        <h2>Función CheckConnection:</h2>
+        <pre class="code-block">
+            <pre><code class="language-powershell" id="codeBlock">
+function CheckConeccion {
+    param($targetHost, $port, $logFile)
+    while ($true) {
+        $startTime = [DateTime]::Now
+        try {
+            $tcpClient = New-Object System.Net.Sockets.TcpClient
+            $tcpClient.ReceiveTimeout = 320
+            $tcpClient.SendTimeout = 320
+            $tcpClient.Connect($targetHost, $port)
+            if ($tcpClient.Connected) {
+                $endTime = [DateTime]::Now
+                $responseTime = ($endTime - $startTime).TotalMilliseconds
+                $logMessage = "[$(Get-Date -Format "HH:mm:ss")] Conexión exitosa al puerto $port en $targetHost - Tiempo de respuesta: $responseTime ms"
+                Add-Content -Path $logFile -Value $logMessage
+                $tcpClient.Close()
+            }
+        } catch [System.Net.Sockets.SocketException] {
+            $logMessage = "[$(Get-Date -Format "HH:mm:ss")] No se pudo establecer la conexión al puerto $port en $targetHost (error de socket)"
+            Add-Content -Path $logFile -Value $logMessage
+        } catch {
+            $logMessage = "[$(Get-Date -Format "HH:mm:ss")] No se pudo establecer la conexión al puerto $port en $targetHost (error desconocido)"
+            Add-Content -Path $logFile -Value $logMessage
+        } finally {
+            if ($null -ne $tcpClient) {
+                $tcpClient.Close()
+                $tcpClient = $null
+            }
+        }
+        Start-Sleep -Seconds 2
+        if ($script:stopFlag) { break }
+    }
+}
+            </code></pre>
+        </div>
+    </section>
+  </main> 
+  <!-- Prism.js Script -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+  <script>
+  function copyCode() {
+      const codeBlock = document.getElementById("codeBlock");
+      const confirmation = document.getElementById("copyConfirmation");
+
+      // Copy code to clipboard
+      const textArea = document.createElement("textarea");
+      textArea.value = codeBlock.textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      // Show confirmation message
+      confirmation.classList.add("show");
+      setTimeout(() => {
+          confirmation.classList.remove("show");
+      }, 2000);
+  }
+</script>
+  <script src="pgia/lib/pgia.js"></script> 
+</body>
