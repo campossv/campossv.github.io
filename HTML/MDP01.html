@@ -245,6 +245,41 @@ function CheckConeccion {
 <div id="copyConfirmation" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
 </div>
     </section>
+    <section id="codigo">
+        <h2>$timer.Add_Tick:</h2>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock">
+$timer.Add_Tick({
+    if ($null -ne $Global:script:logJob) {
+        $output = Receive-Job $Global:script:logJob
+        if ($output) {
+            $SalidaResultados.SuspendLayout()
+            $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+            $SalidaResultados.SelectionLength = 0
+            
+            foreach ($line in $output.Split("`n")) {
+                $line = $line.Trim()
+                if ($line -match "No se pudo establecer la conexión") {
+                    $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+                } elseif ($line -match "Conexión exitosa") {
+                    $SalidaResultados.SelectionColor = [System.Drawing.Color]::Green
+                } else {
+                    $SalidaResultados.SelectionColor = $SalidaResultados.ForeColor
+                }
+                $SalidaResultados.AppendText($line + "`r`n")
+            }
+            
+            $SalidaResultados.ScrollToCaret()
+            $SalidaResultados.ResumeLayout()
+        }
+    }
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode()" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+    </section>
+
   </main> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
