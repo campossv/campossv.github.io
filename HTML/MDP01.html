@@ -103,6 +103,46 @@
           text-align: center;
         }
       }
+      .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .code-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4267B2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .copy-confirmation {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 80px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .copy-confirmation.show {
+            display: block;
+        }
     </style>
     <meta charset="utf-8" />
     <meta
@@ -121,6 +161,7 @@
     />
     <title>Scripts de Vladi</title>
     <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
     <link
       rel="stylesheet"
       href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
@@ -130,8 +171,8 @@
     <img src="..\assets\logo.png" style="width: 25%;" alt="Campos SV Logo" class="logo" />
     <header>
       <div class="header-text">
-        <h1>Bienvenido a Mi Espacio de Scripts PowerShell</h1>
-      </div>
+        <h1>Monitor de puertos</h1>
+      
     </header>
     <nav>
       <ul>
@@ -153,18 +194,19 @@
     </h1>
   <main>
     <section id="inicio">
-        <h2>Monitor de puertos</h2>
+        <h2>monitor de puertos.ps1</h2>
         <p>Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.
-            
+            <div class="video-container">  
             <code><iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/$/embed/Monitor:48?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe></code></p>
-         </section>
-    <section id="instrucciones" class="instructions">
+            </div>
+        </section>
+    <section id="funciones" class="instructions">
         <h1>Funciones principales</h1>
         <p>Voy a describir las funciones principales que componene este script</p>
     </section>
     <section id="codigo">
         <h2>Función CheckConnection:</h2>
-        <pre class="code-block">
+        <div id="code-container">
             <pre><code class="language-powershell" id="codeBlock">
 function CheckConeccion {
     param($targetHost, $port, $logFile)
@@ -199,6 +241,8 @@ function CheckConeccion {
     }
 }
             </code></pre>
+            <button class="copy-button" onclick="copyCode()">Copy</button>
+            <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
         </div>
     </section>
   </main> 
