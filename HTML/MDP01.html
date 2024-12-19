@@ -207,7 +207,7 @@
     <section id="codigo">
         <h2>Función CheckConnection:</h2>
         <div class="code-container">
-            <pre><code class="language-powershell" id="codeBlock">
+            <pre><code class="language-powershell" id="codeBlock1">
 function CheckConeccion {
     param($targetHost, $port, $logFile)
     while ($true) {
@@ -248,7 +248,7 @@ function CheckConeccion {
     <section id="codigo-timer">
         <h2>$timer.Add_Tick:</h2>
         <div class="code-container">
-            <pre><code class="language-powershell" id="codeBlock">
+            <pre><code class="language-powershell" id="codeBlock2">
 $timer.Add_Tick({
     if ($null -ne $Global:script:logJob) {
         $output = Receive-Job $Global:script:logJob
