@@ -6,36 +6,42 @@
         font-family: Arial, sans-serif;
         line-height: 1.6;
         color: #000000;
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
         background-color: #f0f2f5;
       }
       header {
         background-color: #2d59b3;
         color: white;
-        padding: 1rem;
+        padding: 10px 1rem;
         border-radius: 0px;
         display: flex;
-        align-items: center;
-        justify-content: space-between; /* Alinea el logo a la izquierda y el menu centrado */
+        align-items: center; /* Centra el contenido verticalmente */
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        width: 100%;
+        min-height: 60px; /* Altura mínima */
+        max-height: 80px; /* Altura máxima */
+        z-index: 100;
       }
       .logo {
         width: 100px;
         height: auto;
       }
       nav {
+        display: flex;
+        justify-content: center; /* Centra los elementos del menú */
         flex-grow: 1;
-        text-align: center;
       }
       nav ul {
         list-style-type: none;
         padding: 0;
         margin: 0;
-        display: inline-flex; /* Cambié esto para que el menú se quede centrado */
+        display: flex;
       }
       nav ul li {
-        margin: 0 10px;
+        margin-top: 0;
       }
       nav ul li a {
         color: white;
@@ -90,14 +96,14 @@
       @media (max-width: 600px) {
         header {
           flex-direction: column;
-          text-align: center; /* Asegura que los elementos estén centrados en pantallas pequeñas */
+          text-align: center;
         }
         .logo {
           margin-right: 0;
           margin-bottom: 10px;
         }
         nav ul {
-          display: block; /* Para el menú en móviles, se muestra en bloque */
+          display: block;
         }
       }
     </style>
@@ -113,20 +119,22 @@
         class="logo"
       />
       <nav>
-        <ul>
-          <li><a href="/index.html" target="content-frame">Inicio</a></li>
-          <li>
-            <a href="/MisScripts.html" target="content-frame">Mis scripts</a>
-          </li>
-          <li>
-            <a
-              href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
-              target="content-frame"
-              >Código</a
-            >
-          </li>
-          <li><a href="/HTML/Videos.html">Videos</a></li>
-        </ul>
+        <h2>
+          <ul>
+            <li><a href="/index.html" target="content-frame">Inicio</a></li>
+            <li>
+              <a href="/MisScripts.html" target="content-frame">Mis scripts</a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
+                target="content-frame"
+                >Código</a
+              >
+            </li>
+            <li><a href="/HTML/Videos.html">Videos</a></li>
+          </ul>
+        </h2>
       </nav>
     </header>
   </body>
