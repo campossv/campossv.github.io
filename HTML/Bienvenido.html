@@ -107,6 +107,34 @@
           text-align: center;
         }
       }
+      /* Estilo global para la barra de desplazamiento */
+      * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        /* Webkit browsers like Chrome and Safari */
+        *::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        /* Contenedor de ejemplo */
+        .scroll-container {
+            height: 200px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
     </style>
     <meta charset="utf-8" />
     <meta
@@ -131,6 +159,7 @@
     />
   </head>
   <body>
+    
         <header>
       <div class="header-text">
         <h1>Bienvenido a Mi Espacio de Scripts PowerShell</h1>
@@ -143,13 +172,7 @@
       </a>
     </div>
   </center>
-    
-    
-    
-    
-    
-
-    <section id="instrucciones" class="instructions">
+        <section id="instrucciones" class="instructions">
   
       <p>Este sitio web está diseñado para compartir contigo los scripts de PowerShell que he desarrollado, acompañados de explicaciones detalladas sobre su funcionamiento. Aquí encontrarás:
         <p><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts" target="_blank"><b>Código disponible en GitHub:</b></a> Descarga y explora cada script con acceso directo a los repositorios.</p>

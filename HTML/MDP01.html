@@ -143,6 +143,34 @@
         .copy-confirmation.show {
             display: block;
         }
+              /* Estilo global para la barra de desplazamiento */
+      * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        /* Webkit browsers like Chrome and Safari */
+        *::-webkit-scrollbar {
+            width: 22px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        /* Contenedor de ejemplo */
+        .scroll-container {
+            height: 200px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
     </style>
     <meta charset="utf-8" />
     <meta
@@ -174,14 +202,6 @@
         <h1>Monitor de puertos</h1>
       
     </header>
-    <nav>
-      <ul>
-        <li><a href="https://campossv.github.io">Inicio</a></li>
-        <li><a href="https://campossv.github.io/HTML/MDP01.html">Mis scripts</a></li>
-        <li><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts">Código</a></li>
-        <li><a href="#contacto">Contacto</a></li>
-      </ul>
-    </nav>
      <a
       href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
       target="_blank"

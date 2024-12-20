@@ -123,6 +123,34 @@
           text-align: center;
         }
       }
+            /* Estilo global para la barra de desplazamiento */
+            * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        /* Webkit browsers like Chrome and Safari */
+        *::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        /* Contenedor de ejemplo */
+        .scroll-container {
+            height: 200px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
     </style>
     <meta charset="utf-8" />
     <meta
@@ -147,20 +175,11 @@
     />
   </head>
   <body>
-    <img src="../assets/logo.png" style="width: 25%;" alt="Campos SV Logo" class="logo" />
     <header>
       <div class="header-text">
         <h1>Demostraciones de scripts</h1>
       </div>
     </header>
-    <nav>
-      <ul>
-        <li><a href="https://campossv.github.io/index.html">Inicio</a></li>
-        <li><a href="https://campossv.github.io/MisScripts.html">Mis scripts</a></li>
-        <li><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts">Código</a></li>
-        <li><a href="https://campossv.github.io/HTML/Videos.html">Videos</a></li>
-      </ul>
-    </nav>
      <a
       href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
       target="_blank"
