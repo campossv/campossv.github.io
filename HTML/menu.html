@@ -2,17 +2,43 @@
 <html lang="en">
   <head>
     <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 80%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f2f5;
+      }
+      header {
+        background-color: #4267b2;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo {
+        width: 100px;
+        height: auto;
+        margin-right: 20px;
+      }
+      .header-text {
+        text-align: left;
+      }
       nav {
         background-color: #365899;
         padding: 10px;
-        display: flex;
-        justify-content: center;
       }
       nav ul {
         list-style-type: none;
         padding: 0;
         margin: 0;
         display: flex;
+        justify-content: center;
       }
       nav ul li {
         margin: 0 10px;
@@ -27,6 +53,58 @@
       nav ul li a:hover {
         background-color: #4267b2;
       }
+      main {
+        background-color: white;
+        padding: 20px;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      h2 {
+        color: #4267b2;
+      }
+      .instructions {
+        background-color: #e9ebee;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .instructions ol {
+        margin-bottom: 0;
+      }
+      .code-block {
+        background-color: #f1f3f4;
+        border-left: 4px solid #4267b2;
+        padding: 15px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4267b2;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .button:hover {
+        background-color: #365899;
+      }
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+        }
+        .logo {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+        .header-text {
+          text-align: center;
+        }
+      }
     </style>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -34,31 +112,18 @@
   <body>
     <nav>
       <ul>
+        <li><a href="https://campossv.github.io/index.html">Inicio</a></li>
         <li>
-          <a href="https://campossv.github.io/index.html" target="content-frame"
-            >Inicio</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://campossv.github.io/MisScripts.html"
-            target="content-frame"
-            >Mis Scripts</a
-          >
+          <a href="https://campossv.github.io/MisScripts.html">Mis scripts</a>
         </li>
         <li>
           <a
             href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
-            target="content-frame"
             >Código</a
           >
         </li>
         <li>
-          <a
-            href="https://campossv.github.io/HTML/Videos.html"
-            target="content-frame"
-            >Videos</a
-          >
+          <a href="https://campossv.github.io/HTML/Videos.html">Videos</a>
         </li>
       </ul>
     </nav>
