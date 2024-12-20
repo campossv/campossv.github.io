@@ -5,40 +5,34 @@
       body {
         font-family: Arial, sans-serif;
         line-height: 1.6;
-        color: #333;
-        max-width: 80%;
+        color: #000000;
+        max-width: 100%;
         margin: 0 auto;
-        padding: 20px;
+        padding: 0px;
         background-color: #f0f2f5;
       }
       header {
-        background-color: #4267b2;
+        background-color: #2d59b3;
         color: white;
-        text-align: center;
         padding: 1rem;
-        border-radius: 8px 8px 0 0;
+        border-radius: 0px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between; /* Alinea el logo a la izquierda y el menu centrado */
       }
       .logo {
         width: 100px;
         height: auto;
-        margin-right: 20px;
-      }
-      .header-text {
-        text-align: left;
       }
       nav {
-        background-color: #365899;
-        padding: 10px;
+        flex-grow: 1;
+        text-align: center;
       }
       nav ul {
         list-style-type: none;
         padding: 0;
         margin: 0;
-        display: flex;
-        justify-content: center;
+        display: inline-flex; /* Cambié esto para que el menú se quede centrado */
       }
       nav ul li {
         margin: 0 10px;
@@ -96,13 +90,14 @@
       @media (max-width: 600px) {
         header {
           flex-direction: column;
+          text-align: center; /* Asegura que los elementos estén centrados en pantallas pequeñas */
         }
         .logo {
           margin-right: 0;
           margin-bottom: 10px;
         }
-        .header-text {
-          text-align: center;
+        nav ul {
+          display: block; /* Para el menú en móviles, se muestra en bloque */
         }
       }
     </style>
@@ -110,32 +105,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <nav>
-      <ul>
-        <li>
-          <a href="https://campossv.github.io/index.html" target="content-frame"
-            >Inicio</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://campossv.github.io/MisScripts.html"
-            target="content-frame"
-            target="content-frame"
-            >Mis scripts</a
-          >
-        </li>
-        <li>
-          <a
-            href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
-            target="content-frame"
-            >Código</a
-          >
-        </li>
-        <li>
-          <a href="https://campossv.github.io/HTML/Videos.html">Videos</a>
-        </li>
-      </ul>
-    </nav>
+    <header>
+      <img
+        src="https://campossv.github.io/assets/logo.png"
+        style="width: 25%"
+        alt="Campos SV Logo"
+        class="logo"
+      />
+      <nav>
+        <ul>
+          <li><a href="/index.html" target="content-frame">Inicio</a></li>
+          <li>
+            <a href="/MisScripts.html" target="content-frame">Mis scripts</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
+              target="content-frame"
+              >Código</a
+            >
+          </li>
+          <li><a href="/HTML/Videos.html">Videos</a></li>
+        </ul>
+      </nav>
+    </header>
   </body>
 </html>
