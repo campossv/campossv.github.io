@@ -129,20 +129,12 @@
     />
   </head>
   <body>
-    <img src="assets\logo.png" style="width: 25%;" alt="Campos SV Logo" class="logo" />
     <header>
       <div class="header-text">
         <h1>Listado de scripts</h1>
       </div>
     </header>
-    <nav>
-      <ul>
-        <li><a href="https://campossv.github.io/index.html">Inicio</a></li>
-        <li><a href="https://campossv.github.io/MisScripts.html">Mis scripts</a></li>
-        <li><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts">Código</a></li>
-        <li><a href="https://campossv.github.io/HTML/Videos.html">Videos</a></li>
-      </ul>
-    </nav>
+    
      <a
       href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
       target="_blank"
@@ -156,14 +148,13 @@
     <section id="instrucciones" class="instructions">
   
       <p>
-        <a href="HTML\MDP01.html" target="_parent"
-          ><b>01- Monitor de puertos:</b></a
-        >
+        <a href="/HTML/MDP01.html" onclick="handleNavigation(event, this.href)"> 
+          <b>01- Monitor de puertos:</b></a>
         monitorear la conectividad a un puerto TCP en un servidor remoto, al finalizar te permite ver todas las caidas.
       </p>
       <p>
-        <a href="MisScripts/ControlDeCambioClave.html"
-          ><b>02- Control de cambio de contraseña: </b></a
+        <a href="MisScripts/ControlDeCambioClave.html" onclick="handleNavigation(event, this.href)"> 
+          <b>02- ControlDeCambioClave:</b></a>
         >Controla el cambio de contraseña de cuentas locales. Funciona para equipos que no tienen ningun control o estan fuera del dominio. 
       </p>
       <p>
@@ -182,7 +173,7 @@
       </p>
    
 </section>
-<a href="index.html" class="button">Inicio</a>
+
     
     <script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   </body>

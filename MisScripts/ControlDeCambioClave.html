@@ -1,120 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <!-- Estilos de Prism.js -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
-		<meta name="robots" content="index, follow">
-        <meta content="Automatización con PowerShell" property="og:title">
-        <meta name="keywords" content="PowerShell, scripts, formularios, automatización, administración">
-		<meta name="description" content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes.">
-=======
-        <meta name="robots" content="index, follow">
-        <meta property="og:title" content="Automatización con PowerShell">
-        <meta name="keywords" content="PowerShell, scripts, formularios, automatización, administración">
-        <meta name="description" content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes.">
->>>>>>> 20a13b0916f87dc01bc67e13dd2c1c4ce59d663d
-        <title>PowerShell Code Viewer</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
-        <style>body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; } .code-container { position: relative; margin: 20px 0; background-color: #2d2d2d; border-radius: 5px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); } .copy-button { position: absolute; top: 10px; right: 10px; background-color: #61dafb; border: none; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer; padding: 5px 10px; transition: background-color 0.3s; } .copy-button:hover { background-color: #21a1f1; } .copy-confirmation { display: none; position: absolute; top: 10px; right: 80px; background-color: #28a745; color: #fff; padding: 5px; border-radius: 4px; font-size: 12px; } .copy-confirmation.show { display: inline-block; }</style>
-        <script>/* Pinegrow Interactions, do not remove */ (function(){try{if(!document.documentElement.hasAttribute('data-pg-ia-disabled')) { window.pgia_small_mq=typeof pgia_small_mq=='string'?pgia_small_mq:'(max-width:767px)';window.pgia_large_mq=typeof pgia_large_mq=='string'?pgia_large_mq:'(min-width:768px)';var style = document.createElement('style');var pgcss='html:not(.pg-ia-no-preview) [data-pg-ia-hide=""] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show=""] {opacity:1;visibility:visible;display:block;}';if(document.documentElement.hasAttribute('data-pg-id') && document.documentElement.hasAttribute('data-pg-mobile')) {pgia_small_mq='(min-width:0)';pgia_large_mq='(min-width:99999px)'} pgcss+='@media ' + pgia_small_mq + '{ html:not(.pg-ia-no-preview) [data-pg-ia-hide="mobile"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="mobile"] {opacity:1;visibility:visible;display:block;}}';pgcss+='@media ' + pgia_large_mq + '{html:not(.pg-ia-no-preview) [data-pg-ia-hide="desktop"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="desktop"] {opacity:1;visibility:visible;display:block;}}';style.innerHTML=pgcss;document.querySelector('head').appendChild(style);}}catch(e){console&&console.log(e);}})()</script>
-        <link href="../pinekit_theme/pinekit.css" rel="stylesheet" type="text/css">
-        
-    </head>
-    <body>
-         <nav class="bg-white navbar navbar-expand-lg navbar-light">
-            <div class="container">
-                <button type="button" class="navbar-toggler" aria-controls="navbarNavDropdown-1" aria-expanded="false" aria-label="Toggle navigation" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown-1"> <span class="navbar-toggler-icon"></span> 
-                </button>
-                <div class="collapse navbar-collapse " id="navbarNavDropdown-1"> 
-                    <ul class="ms-auto navbar-nav"> 
-                        <li class="nav-item"> <a href="../index.html" target="_parent" class="active nav-link" aria-current="page">Inicio</a> 
-                        </li>                         
-                        <li class="nav-item"> <a href="../MisScripts.html" target="_parent" class="nav-link">Mis Scripts</a> 
-                        </li>                         
-                        <li class="nav-item"> 
-</li>                         
-                        <li class="nav-item"> <a href="#" class="nav-link">Contacto</a> 
-                        </li>                         
-                        <li class="nav-item dropdown"> <a href="#" class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" aria-expanded="false" role="button" data-bs-toggle="dropdown">                                     Otros</a> 
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"> <a href="#" class="dropdown-item">Action</a> <a href="#" class="dropdown-item">Another action</a> <a href="#" class="dropdown-item">Something else here</a> 
-                            </div>                             
-                        </li>                         
-                    </ul>                     
-                </div>
-                <img src="../logo.png" width="174" alt="Logo de powershell">
-            </div>             
-        </nav>
-        <h1 style="font-size: 55px; text-align: center; font-weight: bold;">Control de cambio de contraseñas en cuentas locales</h1>
-        <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank"><center>
-                <img src="../assets/Linkedin-Logo-e1660320077673.png" class="w-25" alt="Logo de Linkedin">
-            </center></a>
-        <div class="container fs-4 text-dark">Este script en PowerShell revela un enfoque sofisticado para gestionar eventos de seguridad relacionados con cambios de contraseña en Windows. El script extrae detalles de eventos, genera un informe en HTML y lo envía por correo electrónico, utilizando configuración cifrada para mayor seguridad.
-            <p></p>
-            <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/$/embed/Control-de-cambio-de-contraseñas-para-cuentas-locales:5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Estilos de Prism.js -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Automatización con PowerShell" />
+    <meta
+      name="keywords"
+      content="PowerShell, scripts, formularios, automatización, administración"
+    />
+    <meta
+      name="description"
+      content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+    />
+    <title>PowerShell Code Viewer</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f4f4f9;
+      }
+      .code-container {
+        position: relative;
+        margin: 20px 0;
+        background-color: #2d2d2d;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .copy-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: #61dafb;
+        border: none;
+        color: #000;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        padding: 5px 10px;
+        transition: background-color 0.3s;
+      }
+      .copy-button:hover {
+        background-color: #21a1f1;
+      }
+      .copy-confirmation {
+        display: none;
+        position: absolute;
+        top: 10px;
+        right: 80px;
+        background-color: #28a745;
+        color: #fff;
+        padding: 5px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .copy-confirmation.show {
+        display: inline-block;
+      }
+    </style>
+    <script>
+      /* Pinegrow Interactions, do not remove */ (function () {
+        try {
+          if (!document.documentElement.hasAttribute("data-pg-ia-disabled")) {
+            window.pgia_small_mq =
+              typeof pgia_small_mq == "string"
+                ? pgia_small_mq
+                : "(max-width:767px)";
+            window.pgia_large_mq =
+              typeof pgia_large_mq == "string"
+                ? pgia_large_mq
+                : "(min-width:768px)";
+            var style = document.createElement("style");
+            var pgcss =
+              'html:not(.pg-ia-no-preview) [data-pg-ia-hide=""] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show=""] {opacity:1;visibility:visible;display:block;}';
+            if (
+              document.documentElement.hasAttribute("data-pg-id") &&
+              document.documentElement.hasAttribute("data-pg-mobile")
+            ) {
+              pgia_small_mq = "(min-width:0)";
+              pgia_large_mq = "(min-width:99999px)";
+            }
+            pgcss +=
+              "@media " +
+              pgia_small_mq +
+              '{ html:not(.pg-ia-no-preview) [data-pg-ia-hide="mobile"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="mobile"] {opacity:1;visibility:visible;display:block;}}';
+            pgcss +=
+              "@media " +
+              pgia_large_mq +
+              '{html:not(.pg-ia-no-preview) [data-pg-ia-hide="desktop"] {opacity:0;visibility:hidden;}html:not(.pg-ia-no-preview) [data-pg-ia-show="desktop"] {opacity:1;visibility:visible;display:block;}}';
+            style.innerHTML = pgcss;
+            document.querySelector("head").appendChild(style);
+          }
+        } catch (e) {
+          console && console.log(e);
+        }
+      })();
+    </script>
+    <link
+      href="../pinekit_theme/pinekit.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <h1 style="font-size: 55px; text-align: center; font-weight: bold">
+      Control de cambio de contraseñas en cuentas locales
+    </h1>
+    <a
+      href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+      target="_blank"
+      ><center>
+        <img
+          src="../assets/Linkedin-Logo-e1660320077673.png"
+          class="w-25"
+          alt="Logo de Linkedin"
+        /></center
+    ></a>
+    <div class="container fs-4 text-dark">
+      Este script en PowerShell revela un enfoque sofisticado para gestionar
+      eventos de seguridad relacionados con cambios de contraseña en Windows. El
+      script extrae detalles de eventos, genera un informe en HTML y lo envía
+      por correo electrónico, utilizando configuración cifrada para mayor
+      seguridad.
+      <p></p>
+      <iframe
+        id="odysee-iframe"
+        style="width: 100%; aspect-ratio: 16 / 9"
+        src="https://odysee.com/$/embed/Control-de-cambio-de-contraseñas-para-cuentas-locales:5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <div class="container text-center"></div>
+    <div class="container">
+      <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+        Elementos que componen esta solución:
+      </p>
+      <a
+        href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
+        target="_blank"
+        ><img
+          src="../assets/2024-11-25_162602.png"
+          class="text-center"
+          alt="Archivos"
+      /></a>
+      <div class="container fs-4 text-dark text-wrap">
+        <p>1. ConfigurarControl.ps1</p>
+        <p>2.&nbsp;ControlDeCambioClave.ps1</p>
+        <p>3.&nbsp;NotificacionCorreoCambioClave.xml</p>
+      </div>
+    </div>
+    <div class="container">
+      <p class="fs-1 fw-bold text-lowercase text-opacity-100 text-wrap">
+        ConfigurarControl.ps1:
+      </p>
+      <div class="container fs-4 text-dark text-wrap">
+        <div class="container fs-4 fw-normal text-dark text-wrap">
+          Este script de PowerShell crea una aplicación gráfica para configurar
+          un sistema de notificación de correo electrónico, enfocado en el envío
+          seguro y cifrado de las configuraciones. A continuación, se desglosan
+          sus partes:
         </div>
-        <div class="container text-center"></div>
-        <div class="container">
-            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Elementos que componen esta solución:</p><a href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts" target="_blank"><img src="../assets/2024-11-25_162602.png" class="text-center" alt="Archivos"></a>
-            <div class="container fs-4 text-dark text-wrap">
-                <p>1. ConfigurarControl.ps1 </p>
-                <p>2.&nbsp;ControlDeCambioClave.ps1</p>
-                <p>3.&nbsp;NotificacionCorreoCambioClave.xml</p> 
-            </div>
-        </div>
-        <div class="container">
-            <p class="fs-1 fw-bold text-lowercase text-opacity-100 text-wrap">ConfigurarControl.ps1:</p>
-            <div class="container fs-4 text-dark text-wrap">
-                <div class="container fs-4 fw-normal text-dark text-wrap">Este script de PowerShell crea una aplicación gráfica para configurar un sistema de notificación de correo electrónico, enfocado en el envío seguro y cifrado de las configuraciones. A continuación, se desglosan sus partes:</div>
-            </div>
-            <div class="container">
-</div>
-            <div class="container fs-4 fw-normal text-dark text-wrap">
-                <div>
-                    <p><strong class="fs-2">1. Importación de Ensamblados</strong><span style="font-size: 1rem; background-color: var(--bs-body-bg); font-family: var(--bs-body-font-family); text-align: var(--bs-body-text-align);">&nbsp;</span></p>
-                    <div class="code-container me-md-6 ms-6">
-                        <pre><code class="language-powershell code-block">
+      </div>
+      <div class="container"></div>
+      <div class="container fs-4 fw-normal text-dark text-wrap">
+        <div>
+          <p>
+            <strong class="fs-2">1. Importación de Ensamblados</strong
+            ><span
+              style="
+                font-size: 1rem;
+                background-color: var(--bs-body-bg);
+                font-family: var(--bs-body-font-family);
+                text-align: var(--bs-body-text-align);
+              "
+              >&nbsp;</span
+            >
+          </p>
+          <div class="code-container me-md-6 ms-6">
+            <pre><code class="language-powershell code-block">
         Add-Type -AssemblyName System.Windows.Forms
         Add-Type -AssemblyName System.Drawing
         Add-Type -AssemblyName System.Security
         ... 
 </code></pre>
-                        <button class="copy-button">Copy</button>
-                        <div class="copy-confirmation">Copied!</div>
-                    </div>
-                    <li><strong>Descripción</strong>: Estos comandos cargan los ensamblados necesarios para:
-                        <ul>
-                            <li>Crear formularios y controles gráficos (System.Windows.Forms).</li>
-                            <li>Manejar gráficos e imágenes (System.Drawing).</li>
-                            <li>Usar funciones de seguridad, como cifrado (System.Security).</li>
-                        </ul>
-                        <ul>
-</ul>
-                    </li>
-                </div>
-            </div>
-            <div class="container">
-                <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Funciones:</p>
-                <div class="container fs-4 fw-normal text-wrap">
-                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">2. Creación del Directorio de Configuración</p>
-                    <div class="code-container me-md-6 ms-6">
-                        <pre><code class="language-powershell code-block">
+            <button class="copy-button">Copy</button>
+            <div class="copy-confirmation">Copied!</div>
+          </div>
+          <li>
+            <strong>Descripción</strong>: Estos comandos cargan los ensamblados
+            necesarios para:
+            <ul>
+              <li>
+                Crear formularios y controles gráficos (System.Windows.Forms).
+              </li>
+              <li>Manejar gráficos e imágenes (System.Drawing).</li>
+              <li>
+                Usar funciones de seguridad, como cifrado (System.Security).
+              </li>
+            </ul>
+            <ul></ul>
+          </li>
+        </div>
+      </div>
+      <div class="container">
+        <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+          Funciones:
+        </p>
+        <div class="container fs-4 fw-normal text-wrap">
+          <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+            2. Creación del Directorio de Configuración
+          </p>
+          <div class="code-container me-md-6 ms-6">
+            <pre><code class="language-powershell code-block">
             $path = "C:\Windows\PowerShell\"
     if (-Not (Test-Path -Path $path)) {
         New-Item -Path $path -ItemType Directory
     }
  </code></pre>
-                        <button class="copy-button" onclick="copyCode()">Copy</button>
-                        <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
-                    </div>
-                    <li>Verifica si el directorio C:\Windows\PowerShell\ existe.&nbsp;</li>
-                    <li>&nbsp;Si no, lo crea para almacenar configuraciones relacionadas.</li>
-                </div>
-                <div class="container fs-4 text-dark text-wrap">
-                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">3. Carga de Imagen Base64</p>
-                    <div class="code-container me-md-6 ms-6">
-                        <pre><code class="language-powershell code-block">
+            <button class="copy-button" onclick="copyCode()">Copy</button>
+            <div id="copyConfirmation" class="copy-confirmation">Copied!</div>
+          </div>
+          <li>
+            Verifica si el directorio C:\Windows\PowerShell\ existe.&nbsp;
+          </li>
+          <li>
+            &nbsp;Si no, lo crea para almacenar configuraciones relacionadas.
+          </li>
+        </div>
+        <div class="container fs-4 text-dark text-wrap">
+          <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+            3. Carga de Imagen Base64
+          </p>
+          <div class="code-container me-md-6 ms-6">
+            <pre><code class="language-powershell code-block">
 $LPNG = "Imagen64"
 $lenbytes = [Convert]::FromBase64String($LPNG)
 $lenmemoria = New-Object System.IO.MemoryStream
@@ -122,19 +246,18 @@ $lenmemoria.Write($lenbytes, 0, $lenbytes.Length)
 $lenmemoria.Position = 0
 $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
  </code></pre>
-                        <button class="copy-button">Copy</button>
-                        <div class="copy-confirmation">Copied!</div>
-                    </div>
-                    <li>
-                        Decodifica una imagen codificada en Base64 ($LPNG).
-</li>
-                    <li>La convierte a un objeto Image para su uso en el formulario.
-</li>
-                </div>
-                <div class="container fs-4 fw-bold text-dark text-wrap">
-                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">4. Gestión de Claves de Cifrado</p>
-                    <div class="code-container me-md-6 ms-6">
-                        <pre><code class="language-powershell code-block">
+            <button class="copy-button">Copy</button>
+            <div class="copy-confirmation">Copied!</div>
+          </div>
+          <li>Decodifica una imagen codificada en Base64 ($LPNG).</li>
+          <li>La convierte a un objeto Image para su uso en el formulario.</li>
+        </div>
+        <div class="container fs-4 fw-bold text-dark text-wrap">
+          <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+            4. Gestión de Claves de Cifrado
+          </p>
+          <div class="code-container me-md-6 ms-6">
+            <pre><code class="language-powershell code-block">
         function Get-EncryptionKey {
     if (-not (Test-Path $keyFile)) {
         $key = New-Object byte[] 32
@@ -144,17 +267,19 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
     return Get-Content $keyFile -Encoding Byte
 }
  </code></pre>
-                        <button class="copy-button">Copy</button>
-                        <div class="copy-confirmation">Copied!</div>
-                    </div>
-                    <li class="fw-normal">
-                        Genera una clave de cifrado de 32 bytes si no existe.
-</li>
-                    <li>La guarda en un archivo (email_config_key.txt) para su reutilización.
-</li>
-                    <div class="container fs-4 text-dark text-wrap">
-                        <div class="code-container me-md-6 ms-6">
-                            <pre><code class="language-powershell code-block">
+            <button class="copy-button">Copy</button>
+            <div class="copy-confirmation">Copied!</div>
+          </div>
+          <li class="fw-normal">
+            Genera una clave de cifrado de 32 bytes si no existe.
+          </li>
+          <li>
+            La guarda en un archivo (email_config_key.txt) para su
+            reutilización.
+          </li>
+          <div class="container fs-4 text-dark text-wrap">
+            <div class="code-container me-md-6 ms-6">
+              <pre><code class="language-powershell code-block">
        function Protect-EmailConfig {
     param ([PSCustomObject]$Config)
     ...
@@ -164,14 +289,14 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
     ...
 }
 </code></pre>
-                            <button class="copy-button">Copy</button>
-                            <div class="copy-confirmation">Copied!</div>
-                        </div>
-                        <div class="container fs-4 text-dark text-wrap">
-                            <li>Convierte las configuraciones del correo a JSON.</li>                             
-                            <li>Cifra los datos usando AES con la clave generada.</li>                             
-                            <div class="code-container me-md-6 ms-6">
-                                <pre><code class="language-powershell code-block">
+              <button class="copy-button">Copy</button>
+              <div class="copy-confirmation">Copied!</div>
+            </div>
+            <div class="container fs-4 text-dark text-wrap">
+              <li>Convierte las configuraciones del correo a JSON.</li>
+              <li>Cifra los datos usando AES con la clave generada.</li>
+              <div class="code-container me-md-6 ms-6">
+                <pre><code class="language-powershell code-block">
     function Unprotect-EmailConfig {
     $key = Get-EncryptionKey
     ...
@@ -180,45 +305,62 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
     ...
     }
 </code></pre>
-                                <button class="copy-button">Copy</button>
-                                <div class="copy-confirmation">Copied!</div>
-                            </div>
-                        </div>
-                        <div class="container fs-4 text-dark text-wrap">
-                            <ul> 
-</ul>
-                        </div>
-                    </div>
-                    <div class="container fs-4 text-dark text-wrap">
-                        <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">5. Creación del Formulario Gráfico</p>El formulario (System.Windows.Forms.Form) incluye:<br>
-                        Propiedades Generales:
-                        <li>Tamaño: 440x600.</li>
-                        <li>Color de fondo: LightSteelBlue.</li>
-                        <li>Posición: Centrada en pantalla.</li>
-                        <li>Estilo de borde: FixedDialog.</li><br>
-                        <p class="fs-3 fw-bold text-lowercase text-opacity-100 text-wrap"> Componentes Principales</p>
-                        <div class="code-container me-md-6 ms-6">
-                            <pre><code class="language-powershell code-block">
+                <button class="copy-button">Copy</button>
+                <div class="copy-confirmation">Copied!</div>
+              </div>
+            </div>
+            <div class="container fs-4 text-dark text-wrap">
+              <ul></ul>
+            </div>
+          </div>
+          <div class="container fs-4 text-dark text-wrap">
+            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+              5. Creación del Formulario Gráfico
+            </p>
+            El formulario (System.Windows.Forms.Form) incluye:<br />
+            Propiedades Generales:
+            <li>Tamaño: 440x600.</li>
+            <li>Color de fondo: LightSteelBlue.</li>
+            <li>Posición: Centrada en pantalla.</li>
+            <li>Estilo de borde: FixedDialog.</li>
+            <br />
+            <p class="fs-3 fw-bold text-lowercase text-opacity-100 text-wrap">
+              Componentes Principales
+            </p>
+            <div class="code-container me-md-6 ms-6">
+              <pre><code class="language-powershell code-block">
     $pictureBox = New-Object System.Windows.Forms.PictureBox
     $pictureBox.Image = $imagenl
 
 </code></pre>
-                            <button class="copy-button">Copy</button>
-                            <div class="copy-confirmation">Copied!</div>
-                        </div>
-                        Muestra la imagen decodificada en la parte superior.<br>
-                        Campos de Entrada
-                        <li>Servidor de correo: TextBox.</li>
-                        <li>Puerto y Protocolo: RadioButton para seleccionar SSL o STARTTLS.</li>
-                        <li>Autenticación: Configuración anónima o con usuario/contraseña.</li>
-                        Botones
-                        <li>Probar conexión: Verifica la configuración mediante un correo de prueba.</li>
-                        <li>Configurar: Guarda los datos cifrados en el archivo de configuración.</li>
-                    </div>
-                    <div class="container fs-4 text-dark text-wrap">
-                        <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">6. Prueba de Conexión</p>
-                        <div class="code-container me-md-6 ms-6">
-                            <pre><code class="language-powershell code-block">
+              <button class="copy-button">Copy</button>
+              <div class="copy-confirmation">Copied!</div>
+            </div>
+            Muestra la imagen decodificada en la parte superior.<br />
+            Campos de Entrada
+            <li>Servidor de correo: TextBox.</li>
+            <li>
+              Puerto y Protocolo: RadioButton para seleccionar SSL o STARTTLS.
+            </li>
+            <li>
+              Autenticación: Configuración anónima o con usuario/contraseña.
+            </li>
+            Botones
+            <li>
+              Probar conexión: Verifica la configuración mediante un correo de
+              prueba.
+            </li>
+            <li>
+              Configurar: Guarda los datos cifrados en el archivo de
+              configuración.
+            </li>
+          </div>
+          <div class="container fs-4 text-dark text-wrap">
+            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+              6. Prueba de Conexión
+            </p>
+            <div class="code-container me-md-6 ms-6">
+              <pre><code class="language-powershell code-block">
     $botonProbar.Add_Click({
     try {
         ...
@@ -232,16 +374,18 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
 
 
 </code></pre>
-                            <button class="copy-button">Copy</button>
-                            <div class="copy-confirmation">Copied!</div>
-                        </div>
-                        <li>Intenta enviar un correo de prueba.</li>
-                        <li>Muestra un mensaje en caso de éxito o error.</li>
-                    </div>
-                    <div class="container fs-4 text-dark text-wrap">
-                        <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">7. Configuración Final</p>
-                        <div class="code-container me-md-6 ms-6">
-                            <pre><code class="language-powershell code-block">
+              <button class="copy-button">Copy</button>
+              <div class="copy-confirmation">Copied!</div>
+            </div>
+            <li>Intenta enviar un correo de prueba.</li>
+            <li>Muestra un mensaje en caso de éxito o error.</li>
+          </div>
+          <div class="container fs-4 text-dark text-wrap">
+            <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+              7. Configuración Final
+            </p>
+            <div class="code-container me-md-6 ms-6">
+              <pre><code class="language-powershell code-block">
    $botonConfigurar.Add_Click({
     $configuracion = @{
         Servidor = $textoServidor.Text
@@ -252,28 +396,54 @@ $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
     })
 
 </code></pre>
-                            <button class="copy-button">Copy</button>
-                            <div class="copy-confirmation">Copied!</div>
-                        </div>
-                        <li>Guarda las configuraciones ingresadas como un objeto cifrado.</li>
-                        <li>Intenta importar una tarea programada desde un archivo XML para automatizar notificaciones.</li>
-                    </div>
-                </div>
+              <button class="copy-button">Copy</button>
+              <div class="copy-confirmation">Copied!</div>
             </div>
+            <li>
+              Guarda las configuraciones ingresadas como un objeto cifrado.
+            </li>
+            <li>
+              Intenta importar una tarea programada desde un archivo XML para
+              automatizar notificaciones.
+            </li>
+          </div>
         </div>
-        <div class="container">
-            <p class="fs-1 fw-bold text-lowercase text-opacity-100 text-wrap">ConfigurarControl.ps1:</p>
-            <div class="container fs-4 text-dark text-wrap">
-                <div class="container fs-4 fw-normal text-dark text-wrap">Este script monitorea eventos relacionados con cambios de contraseña en Windows (ID 4724). Genera un informe en HTML con los detalles del evento y lo envía por correo electrónico utilizando configuraciones seguras.</div>
-            </div>
-            <div class="container">
-</div>
-            <div class="container fs-4 fw-normal text-dark text-wrap">
-                <div>
-                    <p><strong class="fs-2">1. Componentes Principales</strong><br> <strong class="fs-3">a) Cifrado y Descifrado</strong><br> 
-El cifrado asegura que las credenciales de correo electrónico estén protegidas. Utiliza AES para descifrar las configuraciones almacenadas.<br> <li class="fw-bold">Obtención de la clave de cifrado:</li><span style="font-size: 1rem; background-color: var(--bs-body-bg); font-family: var(--bs-body-font-family); text-align: var(--bs-body-text-align);">&nbsp;</span></p>
-                    <div class="code-container me-md-6 ms-6">
-                        <pre><code class="language-powershell code-block">
+      </div>
+    </div>
+    <div class="container">
+      <p class="fs-1 fw-bold text-lowercase text-opacity-100 text-wrap">
+        ConfigurarControl.ps1:
+      </p>
+      <div class="container fs-4 text-dark text-wrap">
+        <div class="container fs-4 fw-normal text-dark text-wrap">
+          Este script monitorea eventos relacionados con cambios de contraseña
+          en Windows (ID 4724). Genera un informe en HTML con los detalles del
+          evento y lo envía por correo electrónico utilizando configuraciones
+          seguras.
+        </div>
+      </div>
+      <div class="container"></div>
+      <div class="container fs-4 fw-normal text-dark text-wrap">
+        <div>
+          <p>
+            <strong class="fs-2">1. Componentes Principales</strong><br />
+            <strong class="fs-3">a) Cifrado y Descifrado</strong><br />
+            El cifrado asegura que las credenciales de correo electrónico estén
+            protegidas. Utiliza AES para descifrar las configuraciones
+            almacenadas.<br />
+            <li class="fw-bold">Obtención de la clave de cifrado:</li>
+            <span
+              style="
+                font-size: 1rem;
+                background-color: var(--bs-body-bg);
+                font-family: var(--bs-body-font-family);
+                text-align: var(--bs-body-text-align);
+              "
+              >&nbsp;</span
+            >
+          </p>
+          <div class="code-container me-md-6 ms-6">
+            <pre><code class="language-powershell code-block">
         function Get-EncryptionKey {
     if (-not (Test-Path $keyFile)) {
         Write-Log "No se encontró el archivo de clave. Asegúrese de que existe en $keyFile" -Level "ERROR"
@@ -282,13 +452,13 @@ El cifrado asegura que las credenciales de correo electrónico estén protegidas
     return Get-Content $keyFile -Encoding Byte
     } 
 </code></pre>
-                        <button class="copy-button">Copy</button>
-                        <div class="copy-confirmation">Copied!</div>
-                    </div>
-                    <li class="fw-bold">Descifrado del archivo de configuración:</li>
-                </div>
-                <div class="code-container me-md-6 ms-6">
-                    <pre><code class="language-powershell code-block">
+            <button class="copy-button">Copy</button>
+            <div class="copy-confirmation">Copied!</div>
+          </div>
+          <li class="fw-bold">Descifrado del archivo de configuración:</li>
+        </div>
+        <div class="code-container me-md-6 ms-6">
+          <pre><code class="language-powershell code-block">
      function Unprotect-EmailConfig {
     $key = Get-EncryptionKey
     $encryptedData = Get-Content $emailConfigFile -Encoding Byte
@@ -305,17 +475,17 @@ El cifrado asegura que las credenciales de correo electrónico estén protegidas
 }
 
 </code></pre>
-                    <button class="copy-button">Copy</button>
-                    <div class="copy-confirmation">Copied!</div>
-                </div>
-            </div>
-            <strong class="fs-3">b) Gestión de Logs</strong>
-            <br>
-            El script registra eventos en un archivo de log y los muestra en la consola:
-            <div class="container">
-</div>
-            <div class="code-container me-md-6 ms-6">
-                <pre><code class="language-powershell code-block">
+          <button class="copy-button">Copy</button>
+          <div class="copy-confirmation">Copied!</div>
+        </div>
+      </div>
+      <strong class="fs-3">b) Gestión de Logs</strong>
+      <br />
+      El script registra eventos en un archivo de log y los muestra en la
+      consola:
+      <div class="container"></div>
+      <div class="code-container me-md-6 ms-6">
+        <pre><code class="language-powershell code-block">
         function Write-Log {
     param (
         [string]$Message,
@@ -328,41 +498,38 @@ El cifrado asegura que las credenciales de correo electrónico estén protegidas
     }
 
 </code></pre>
-                <button class="copy-button">Copy</button>
-                <div class="copy-confirmation">Copied!</div>
-            </div>
-            <strong class="fs-3">c) Detección del Evento</strong>
-            <br>
-            Busca el evento más reciente con ID 4724 en el registro de seguridad:
-            <div class="container">
-</div>
-            <div class="code-container me-md-6 ms-6">
-                <pre><code class="language-powershell code-block">
+        <button class="copy-button">Copy</button>
+        <div class="copy-confirmation">Copied!</div>
+      </div>
+      <strong class="fs-3">c) Detección del Evento</strong>
+      <br />
+      Busca el evento más reciente con ID 4724 en el registro de seguridad:
+      <div class="container"></div>
+      <div class="code-container me-md-6 ms-6">
+        <pre><code class="language-powershell code-block">
         $event = Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4724} -MaxEvents 1
 </code></pre>
-                <button class="copy-button">Copy</button>
-                <div class="copy-confirmation">Copied!</div>
-            </div>
-            Si no se encuentra, registra un mensaje de advertencia:
-            <div class="container">
-</div>
-            <div class="code-container me-md-6 ms-6">
-                <pre><code class="language-powershell code-block">
+        <button class="copy-button">Copy</button>
+        <div class="copy-confirmation">Copied!</div>
+      </div>
+      Si no se encuentra, registra un mensaje de advertencia:
+      <div class="container"></div>
+      <div class="code-container me-md-6 ms-6">
+        <pre><code class="language-powershell code-block">
         catch {
     Write-Log "No se encontraron eventos 4724 (cambio de contraseña)." -Level "WARN"
     exit
 }
 </code></pre>
-                <button class="copy-button">Copy</button>
-                <div class="copy-confirmation">Copied!</div>
-            </div>
-            <strong class="fs-3">d) Envío del Correo Electrónico</strong>
-            <br>
-            <li>Configura y envía el correo con los detalles del evento:</li>
-            <div class="container">
-</div>
-            <div class="code-container me-md-6 ms-6">
-                <pre><code class="language-powershell code-block">
+        <button class="copy-button">Copy</button>
+        <div class="copy-confirmation">Copied!</div>
+      </div>
+      <strong class="fs-3">d) Envío del Correo Electrónico</strong>
+      <br />
+      <li>Configura y envía el correo con los detalles del evento:</li>
+      <div class="container"></div>
+      <div class="code-container me-md-6 ms-6">
+        <pre><code class="language-powershell code-block">
         $smtpClient = New-Object Net.Mail.SmtpClient($smtpServer, $smtpPort)
 $smtpClient.EnableSsl = $emailConfig.Protocolo -in @("SSL", "STARTTLS")
 
@@ -380,80 +547,115 @@ $mailMessage.Body = $htmlBody
 $mailMessage.IsBodyHtml = $true
 
 </code></pre>
-                <button class="copy-button">Copy</button>
-                <div class="copy-confirmation">Copied!</div>
-            </div>
+        <button class="copy-button">Copy</button>
+        <div class="copy-confirmation">Copied!</div>
+      </div>
+    </div>
+    <div>
+      <div class="fs-3 fw-bold text-lowercase text-opacity-100 text-wrap">
+        <center>
+          <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+            NotificacionCorreoCambioClave.xml
+          </p>
+        </center>
+        <div class="container fs-4 fw-normal text-dark text-wrap">
+          Este archivo XML es una configuración para una tarea programada en
+          <strong>Task Scheduler</strong> (Programador de Tareas) de Windows. Se
+          utiliza para automatizar la ejecución de un script de PowerShell
+          (ControlDeCambioClave.ps1) cuando se dispara un evento específico en
+          los registros del sistema (logs). Aquí está el desglose de su
+          propósito y componentes:<br /><strong class="fs-3">Propósito</strong>
+          <br />
+          Este XML configura una tarea llamada NotificacionCorreoCambioClave. Su
+          función es monitorear eventos del tipo 4724 (Intento de
+          restablecimiento de contraseña) en el registro de eventos de seguridad
+          de Windows y ejecutar automáticamente un script de PowerShell para
+          gestionar dicho evento, probablemente enviando una notificación o
+          realizando una acción administrativa.
         </div>
-        <div>
-            <div class="fs-3 fw-bold text-lowercase text-opacity-100 text-wrap"> 
-                <center>
-                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">NotificacionCorreoCambioClave.xml</p>
-                </center>
-                <div class="container fs-4 fw-normal text-dark text-wrap">Este archivo XML es una configuración para una tarea programada en <strong>Task Scheduler</strong> (Programador de Tareas) de Windows. Se utiliza para automatizar la ejecución de un script de PowerShell (ControlDeCambioClave.ps1) cuando se dispara un evento específico en los registros del sistema (logs). Aquí está el desglose de su propósito y componentes:<br><strong class="fs-3">Propósito</strong>
-                    <br>
-                    Este XML configura una tarea llamada NotificacionCorreoCambioClave. Su función es monitorear eventos del tipo 4724 (Intento de restablecimiento de contraseña) en el registro de eventos de seguridad de Windows y ejecutar automáticamente un script de PowerShell para gestionar dicho evento, probablemente enviando una notificación o realizando una acción administrativa.
-                </div>
-                <div class="container"></div>
-                <center>
-                    <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">Descarga los archivos</p>
-                </center>
-                <div class="container float-none text-center">
-                    <a href="ConfigurarControl.ps1"><img src="../assets/2024-11-26_113305.png" alt="ConfigurarControl.ps1"></a>
-                    <a href="ControlDeCambioClave.ps1"><img src="../assets/2024-11-26_113319.png" alt="ControlDeCambiosClave.ps1"></a>
-                    <a href="NotificacionCorreoCambioClave.xml"><img src="../assets/2024-11-26_113330.png" alt="Tarea"></a>
-                </div>                 
-                <div class="container text-center"> <a href="../MisScripts.html" target="_parent"><button type="button" class="btn btn-light">Atras</button></a> <a href="../index.html" target="_parent"><button type="button" class="btn btn-light">Inicio</button></a> 
-                </div>                 
-            </div>
+        <div class="container"></div>
+        <center>
+          <p class="fs-2 fw-bold text-lowercase text-opacity-100 text-wrap">
+            Descarga los archivos
+          </p>
+        </center>
+        <div class="container float-none text-center">
+          <a href="ConfigurarControl.ps1"
+            ><img
+              src="../assets/2024-11-26_113305.png"
+              alt="ConfigurarControl.ps1"
+          /></a>
+          <a href="ControlDeCambioClave.ps1"
+            ><img
+              src="../assets/2024-11-26_113319.png"
+              alt="ControlDeCambiosClave.ps1"
+          /></a>
+          <a href="NotificacionCorreoCambioClave.xml"
+            ><img src="../assets/2024-11-26_113330.png" alt="Tarea"
+          /></a>
         </div>
-        <!-- Prism.js Script -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
-        <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const copyButtons = document.querySelectorAll('.copy-button');
-        
-        copyButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const container = this.closest('.code-container');
-                const codeBlock = container.querySelector('.code-block');
-                const confirmation = container.querySelector('.copy-confirmation');
-                
-                if (codeBlock && confirmation) {
-                    let codeText = codeBlock.textContent.trim();
-                    
-                    // Reemplazar entidades HTML comunes
-                    codeText = codeText.replace(/&quot;/g, '"')
-                                       .replace(/&apos;/g, "'")
-                                       .replace(/&lt;/g, '<')
-                                       .replace(/&gt;/g, '>')
-                                       .replace(/&amp;/g, '&');
-                    
-                    if (codeText) {
-                        navigator.clipboard.writeText(codeText)
-                            .then(() => {
-                                console.log('Código copiado exitosamente');
-                                confirmation.classList.add("show");
-                                setTimeout(() => {
-                                    confirmation.classList.remove("show");
-                                }, 2000);
-                            })
-                            .catch(err => {
-                                console.error('Error al copiar el código:', err);
-                                alert('No se pudo copiar el código. Por favor, inténtelo de nuevo.');
-                            });
-                    } else {
-                        console.error('El bloque de código está vacío');
-                        alert('No hay código para copiar');
-                    }
-                } else {
-                    console.error('No se encontraron los elementos necesarios');
-                    alert('Hubo un problema al copiar el código');
-                }
-            });
+        <div class="container text-center">
+          <a href="../MisScripts.html" target="_parent"
+            ><button type="button" class="btn btn-light">Atras</button></a
+          >
+          <a href="../index.html" target="_parent"
+            ><button type="button" class="btn btn-light">Inicio</button></a
+          >
+        </div>
+      </div>
+    </div>
+    <!-- Prism.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const copyButtons = document.querySelectorAll(".copy-button");
+
+        copyButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            const container = this.closest(".code-container");
+            const codeBlock = container.querySelector(".code-block");
+            const confirmation = container.querySelector(".copy-confirmation");
+
+            if (codeBlock && confirmation) {
+              let codeText = codeBlock.textContent.trim();
+
+              // Reemplazar entidades HTML comunes
+              codeText = codeText
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&lt;/g, "<")
+                .replace(/&gt;/g, ">")
+                .replace(/&amp;/g, "&");
+
+              if (codeText) {
+                navigator.clipboard
+                  .writeText(codeText)
+                  .then(() => {
+                    console.log("Código copiado exitosamente");
+                    confirmation.classList.add("show");
+                    setTimeout(() => {
+                      confirmation.classList.remove("show");
+                    }, 2000);
+                  })
+                  .catch((err) => {
+                    console.error("Error al copiar el código:", err);
+                    alert(
+                      "No se pudo copiar el código. Por favor, inténtelo de nuevo."
+                    );
+                  });
+              } else {
+                console.error("El bloque de código está vacío");
+                alert("No hay código para copiar");
+              }
+            } else {
+              console.error("No se encontraron los elementos necesarios");
+              alert("Hubo un problema al copiar el código");
+            }
+          });
         });
-    });
-</script>
-        <script src="pgia/lib/pgia.js"></script>
-    </body>
+      });
+    </script>
+    <script src="pgia/lib/pgia.js"></script>
+  </body>
 </html>
