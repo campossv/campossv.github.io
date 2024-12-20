@@ -19,7 +19,7 @@ $emailConfigFile = "C:\Windows\PowerShell\emailconfig.secure"
 $keyFile = "C:\Windows\PowerShell\email_config_key.txt"
 
 # Function to get or generate encryption key
-function Get-EncryptionKey {
+function LlaveEncriptacion {
     if (-not (Test-Path $keyFile)) {
         $key = New-Object byte[] 32
         [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($key)
@@ -29,11 +29,11 @@ function Get-EncryptionKey {
 }
 
 # Function to encrypt email configuration
-function Protect-EmailConfig {
+function ProtegerConfig {
     param (
         [PSCustomObject]$Config
     )
-    $key = Get-EncryptionKey
+    $key = LlaveEncriptacion
     $jsonConfig = $Config | ConvertTo-Json
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($jsonConfig)
     
@@ -49,8 +49,8 @@ function Protect-EmailConfig {
 }
 
 # Function to decrypt email configuration
-function Unprotect-EmailConfig {
-    $key = Get-EncryptionKey
+function DesProtegerConfig {
+    $key = LlaveEncriptacion
     $encryptedData = Get-Content $emailConfigFile -Encoding Byte
     
     $aes = [System.Security.Cryptography.Aes]::Create()

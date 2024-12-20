@@ -230,6 +230,85 @@
         src="https://odysee.com/$/embed/Control-de-cambio-de-contraseñas-para-cuentas-locales:5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true"
         allowfullscreen
       ></iframe>
+    </div><br>
+    <section class="instructions">
+        <h2>Elementos que componen esta solucion:</h2>
+        <a
+        href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
+        target="_blank"
+        ><img
+          src="../assets/2024-11-25_162602.png"
+          class="text-center"
+          alt="Archivos"
+      /></a>
+      <p>Enfoquemonos en los scripts</p>
+    </section>
+    <section class="code-container">
+        <h2>Script: Configurar control</h2>
+        <p>Este script de PowerShell crea una aplicación gráfica para configurar un sistema de notificación de correo electrónico, enfocado en el envío seguro y cifrado de las configuraciones. A continuación, se desglosan sus partes: </p>
+        <section id="codigo-LlaveEncriptacion">
+        <h3>Funcion LlaveEncriptacion:</h3>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock1">
+function LlaveEncriptacion {
+    if (-not (Test-Path $keyFile)) {
+        $key = New-Object byte[] 32
+        [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($key)
+        $key | Set-Content $keyFile -Encoding Byte
+    }
+    return Get-Content $keyFile -Encoding Byte
+}
+    </code></pre>
+    <button class="copy-button" onclick="copyCode('codeBlock1')" aria-label="Copiar código">Copiar</button>
+    <div id="copyConfirmation1" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
     </div>
+    </section>
+    <section class="instructions">
+        <li>Genera una clave de cifrado de 32 bytes si no existe. </li>
+        <li>La guarda en un archivo (email_config_key.txt) para su reutilización. </li>
+    </section>
+<br>
+
+<section id="codigo-ProtegerConfig">
+    <h3>Funcion ProtegerConfig:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock1">
+function ProtegerConfig {
+    param (
+        [PSCustomObject]$Config
+    )
+    $key = LlaveEncriptacion
+    $jsonConfig = $Config | ConvertTo-Json
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($jsonConfig)
+    
+    $aes = [System.Security.Cryptography.Aes]::Create()
+    $aes.Key = $key
+    $aes.GenerateIV()
+
+    $encryptor = $aes.CreateEncryptor()
+    $encryptedBytes = $encryptor.TransformFinalBlock($bytes, 0, $bytes.Length)
+    $fullData = $aes.IV + $encryptedBytes
+
+    $fullData | Set-Content $emailConfigFile -Encoding Byte
+}
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock2')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+    <li>Convierte las configuraciones del correo a JSON.</li>
+    <li>Cifra los datos usando AES con la clave generada. </li>
+</section>
+<br>
+
+
+<br>
+    <section class="instructions">
+        <h2>Script: Control de cambios</h2>
+    </section>
   </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
 </body>
