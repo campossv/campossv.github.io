@@ -67,7 +67,7 @@ try {
 
     # Buscar el último evento 4724
     try {
-        $event = Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4724} -MaxEvents 1
+        $Evento = Get-WinEvent -FilterHashtable @{LogName='Security'; ID=4724} -MaxEvents 1
     }
     catch {
         Write-Log "No se encontraron eventos 4724 (cambio de contraseña)." -Level "WARN"
@@ -75,7 +75,7 @@ try {
     }
 
     # Procesar el mensaje completo para HTML
-    $formattedMessage = $event.Message
+    $formattedMessage = $Evento.Message
     if ($formattedMessage) {
         $formattedMessage = $formattedMessage -replace "\r\n", "<br>" `
                                                -replace "&", "&amp;" `
@@ -102,10 +102,10 @@ try {
         <img src="data:image/png;base64,$LPNG" alt="Logo" />
         <h2>Cambio de contraseña detectado</h2>
         <table>
-            <tr><th>Fecha y Hora</th><td>$($event.TimeCreated)</td></tr>
-            <tr><th>ID del Evento</th><td>$($event.Id)</td></tr>
-            <tr><th>Usuario que cambió la contraseña</th><td>$($event.Properties[4].Value)</td></tr>
-            <tr><th>Usuario cuya contraseña fue cambiada</th><td>$($event.Properties[0].Value)</td></tr>
+            <tr><th>Fecha y Hora</th><td>$($Evento.TimeCreated)</td></tr>
+            <tr><th>ID del Evento</th><td>$($Evento.Id)</td></tr>
+            <tr><th>Usuario que cambió la contraseña</th><td>$($Evento.Properties[4].Value)</td></tr>
+            <tr><th>Usuario cuya contraseña fue cambiada</th><td>$($Evento.Properties[0].Value)</td></tr>
             <tr><th>Evento completo</th><td>$formattedMessage</td></tr>
         </table>
     </body>

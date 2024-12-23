@@ -272,7 +272,7 @@ function LlaveEncriptacion {
 <section id="codigo-ProtegerConfig">
     <h3>Funcion ProtegerConfig:</h3>
     <div class="code-container">
-        <pre><code class="language-powershell" id="codeBlock1">
+        <pre><code class="language-powershell" id="codeBlock2">
 function ProtegerConfig {
     param (
         [PSCustomObject]$Config
@@ -299,6 +299,56 @@ function ProtegerConfig {
 <section class="instructions">
     <li>Convierte las configuraciones del correo a JSON.</li>
     <li>Cifra los datos usando AES con la clave generada. </li>
+</section>
+<br>
+
+<section id="codigo-ProbarConexion">
+    <h3>Funcion probar conexion:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock3">
+$botonProbar.Add_Click({
+    $ErrorActionPreference = 'Stop'
+    try {
+        $servidorSmtp = $textoServidor.Text
+        $puerto = $textoPuerto.Text
+        $remitente = $textoRemitente.Text
+        $destinatario = $textoDestinatario.Text
+        $asunto = "Prueba de Configuración de Correo"
+        
+        $cuerpo = "Configuración de correo:
+        Servidor: $servidorSmtp
+        Puerto: $puerto
+        Protocolo: $(if($botonSSL.Checked){'SSL'} elseif($botonSTARTTLS.Checked){'STARTTLS'} else{'NONE'})
+        Autenticación: $(if($botonAnonimo.Checked){'Anónima'} else{'Usuario/Contraseña'})
+        Usuario: $($textoUsuario.Text)
+        Remitente: $remitente
+        Destinatario: $destinatario"
+
+        $clienteSmtp = New-Object Net.Mail.SmtpClient($servidorSmtp, $puerto)
+        $clienteSmtp.EnableSsl = $botonSSL.Checked -or $botonSTARTTLS.Checked
+        
+        if (-not $botonAnonimo.Checked) {
+            $clienteSmtp.Credentials = New-Object System.Net.NetworkCredential($textoUsuario.Text, $textoContrasena.Text)
+        }
+
+        $mensajeCorreo = New-Object Net.Mail.MailMessage($remitente, $destinatario, $asunto, $cuerpo)
+        $clienteSmtp.Send($mensajeCorreo)
+
+        [System.Windows.Forms.MessageBox]::Show("Conexión exitosa. Se ha enviado un correo de prueba.", "Éxito", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        $botonConfigurar.Enabled = $true
+    }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show("Error al probar la conexión: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+    }
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock3')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+    <li>Intenta enviar un correo de prueba.</li>
+    <li>Muestra un mensaje en caso de éxito o error.</li>
 </section>
 <br>
 
