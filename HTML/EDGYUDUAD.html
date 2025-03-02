@@ -1,0 +1,630 @@
+<head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f0f2f5;
+      }
+      header {
+        background-color: #4267b2;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo {
+        width: 100px;
+        height: auto;
+        margin-right: 20px;
+      }
+      .header-text {
+        text-align: left;
+      }
+      nav {
+        background-color: #365899;
+        padding: 10px;
+      }
+      nav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+      nav ul li {
+        margin: 0 10px;
+      }
+      nav ul li a {
+        color: white;
+        text-decoration: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      nav ul li a:hover {
+        background-color: #4267b2;
+      }
+      main {
+        background-color: white;
+        padding: 20px;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      h2 {
+        color: #4267b2;
+      }
+      .instructions {
+        background-color: #e9ebee;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .instructions ol {
+        margin-bottom: 0;
+      }
+      .code-block {
+        background-color: #f1f3f4;
+        border-left: 4px solid #4267b2;
+        padding: 15px;
+        margin-bottom: 20px;
+        overflow-x: auto;
+      }
+      .button {
+        display: inline-block;
+        background-color: #4267b2;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+      }
+      .button:hover {
+        background-color: #365899;
+      }
+      @media (max-width: 600px) {
+        header {
+          flex-direction: column;
+        }
+        .logo {
+          margin-right: 0;
+          margin-bottom: 10px;
+        }
+        .header-text {
+          text-align: center;
+        }
+      }
+      .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .code-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4267B2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .copy-confirmation {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 80px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .copy-confirmation.show {
+            display: block;
+        }
+              /* Estilo global para la barra de desplazamiento */
+      * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        /* Webkit browsers like Chrome and Safari */
+        *::-webkit-scrollbar {
+            width: 22px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        /* Contenedor de ejemplo */
+        .scroll-container {
+            height: 200px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Automatización con PowerShell" />
+    <meta
+      name="keywords"
+      content="PowerShell, scripts, formularios, automatización, administración"
+    />
+    <meta
+      name="description"
+      content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+    />
+    <title>Scripts de Vladi</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link
+      rel="stylesheet"
+      href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+     <header>
+      <div class="header-text">
+        <h1>Monitor de puertos</h1>
+      
+    </header>
+     <a
+      href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+      target="_blank"
+      ><center>
+        <img
+          src="../assets/Linkedin-Logo-e1660320077673.png"
+          style="width: 25%;"/></center
+    ></a>
+    
+    </h1>
+  <main>
+    <section id="inicio">
+        <h2>monitor de puertos.ps1</h2>
+        <p>Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.
+            <div class="video-container">  
+            <code><iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/$/embed/Monitor:48?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe></code></p>
+            </div>
+        </section>
+    <section id="funciones" class="instructions">
+        <h1>Funciones principales</h1>
+        <p>Voy a describir las funciones principales que componene este script</p>
+    </section>
+    <section id="codigo">
+        <h2>Función CheckConnection:</h2>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock1">
+function CheckConeccion {
+    param($targetHost, $port, $logFile)
+    while ($true) {
+        $startTime = [DateTime]::Now
+        try {
+            $tcpClient = New-Object System.Net.Sockets.TcpClient
+            $tcpClient.ReceiveTimeout = 320
+            $tcpClient.SendTimeout = 320
+            $tcpClient.Connect($targetHost, $port)
+            if ($tcpClient.Connected) {
+                $endTime = [DateTime]::Now
+                $responseTime = ($endTime - $startTime).TotalMilliseconds
+                $logMessage = "[$(Get-Date -Format "HH:mm:ss")] Conexión exitosa al puerto $port en $targetHost - Tiempo de respuesta: $responseTime ms"
+                Add-Content -Path $logFile -Value $logMessage
+                $tcpClient.Close()
+            }
+        } catch [System.Net.Sockets.SocketException] {
+            $logMessage = "[$(Get-Date -Format "HH:mm:ss")] No se pudo establecer la conexión al puerto $port en $targetHost (error de socket)"
+            Add-Content -Path $logFile -Value $logMessage
+        } catch {
+            $logMessage = "[$(Get-Date -Format "HH:mm:ss")] No se pudo establecer la conexión al puerto $port en $targetHost (error desconocido)"
+            Add-Content -Path $logFile -Value $logMessage
+        } finally {
+            if ($null -ne $tcpClient) {
+                $tcpClient.Close()
+                $tcpClient = $null
+            }
+        }
+        Start-Sleep -Seconds 2
+        if ($script:stopFlag) { break }
+    }
+}
+</code></pre>
+                <button class="copy-button" onclick="copyCode('codeBlock1')" aria-label="Copiar código">Copiar</button>
+                <div id="copyConfirmation1" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
+    </section>
+    <section id="CheckConnection" class="instructions">
+        <strong>Descripcion:</strong> Esta función se encarga de realizar una conexión TCP a un servidor y puerto específicos. Si la conexión es exitosa, calcula el tiempo de respuesta y registra la conexión exitosa en un archivo de log. Si no se puede conectar, también lo registra en el log.
+
+        <li>Intenta establecer una conexión TCP con el host/puerto especificados.</li>
+        <li>Si tiene éxito, registra un mensaje con el tiempo de respuesta.</li>
+        <li>Si falla, registra un error (distinguiendo entre un error de socket o desconocido).</li>
+        <li>El bucle se detiene si se establece una bandera global ($script:stopFlag).</li>
+    
+    <strong>Propósito:</strong> Monitorear la conectividad a un puerto TCP en tiempo real y registrar los resultados. 
+    </section>
+    <section id="codigo-timer">
+        <h2>$timer.Add_Tick:</h2>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock2">
+$timer.Add_Tick({
+    if ($null -ne $Global:script:logJob) {
+        $output = Receive-Job $Global:script:logJob
+        if ($output) {
+            $SalidaResultados.SuspendLayout()
+            $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+            $SalidaResultados.SelectionLength = 0
+            
+            foreach ($line in $output.Split("`n")) {
+                $line = $line.Trim()
+                if ($line -match "No se pudo establecer la conexión") {
+                    $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+                } elseif ($line -match "Conexión exitosa") {
+                    $SalidaResultados.SelectionColor = [System.Drawing.Color]::Green
+                } else {
+                    $SalidaResultados.SelectionColor = $SalidaResultados.ForeColor
+                }
+                $SalidaResultados.AppendText($line + "`r`n")
+            }
+            
+            $SalidaResultados.ScrollToCaret()
+            $SalidaResultados.ResumeLayout()
+        }
+    }
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock2')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+    </section>
+    <section id="timer" class="instructions">
+        
+        <li>
+            <strong>Descripcion:</strong> Esta función está asociada al evento de clic de un botón llamado $BMostrarTodo.
+            <ul>
+                <li>Verifica si el job de log está activo:</li>
+                <ul>
+                    <li>Comprueba si $Global:script:logJob no es nulo.</li>
+                </ul>
+                <li>Recibe la salida del job de log:</li>
+                <ul>
+                    <li>Usa Receive-Job para obtener la salida del job de log.</li>
+                </ul>
+                <li>Si hay salida disponible:</li>
+                <ul>
+                    <li>Suspende el diseño del control $SalidaResultados para mejorar el rendimiento mientras se actualiza el contenido.</li>
+                    <li>Establece el punto de inicio de la selección en la longitud actual del texto del control.</li>
+                    <li>Establece la longitud de la selección en 0 para asegurarse de que no haya texto seleccionado previamente.</li>
+                </ul>
+                <li>Procesa cada línea de la salida:</li>
+                <ul>
+                    <li>Divide la salida en líneas usando Split("n")`.</li>
+                    <li>Para cada línea, elimina los espacios en blanco al principio y al final con Trim().</li>
+                    <li>Dependiendo del contenido de la línea, establece el color de selección:</li>
+                    <ul>
+                        <li>Si la línea contiene "No se pudo establecer la conexión", el color de selección se establece en rojo ([System.Drawing.Color]::Red).</li>
+                        <li>Si la línea contiene "Conexión exitosa", el color de selección se establece en verde ([System.Drawing.Color]::Green).</li>
+                        <li>Si no coincide con ninguna de las condiciones anteriores, el color de selección se establece en el color de texto predeterminado del control ($SalidaResultados.ForeColor).</li>
+                    </ul>
+                    <li>Añade la línea al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+                </ul>
+                <li>Desplaza el cursor al final del texto:</li>
+                    <ul>
+                        <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+                    </ul>
+                </li>
+                <li>Desplaza el control de salida hasta el final:
+                    <ul>
+                    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+                    </ul>
+                </li>
+                <li>Reanuda el diseño del control:
+                    <ul>
+                        <li>Llama a ResumeLayout() para reanudar el diseño del control después de haber añadido todas las líneas.</li>
+                    </ul>
+        
+            </ul>
+        </li> 
+        <li><strong>Proposito:</strong> Esta función actualiza el control de salida con las líneas recibidas del job de log, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde.</li>
+    </section>
+
+    <section id="codigo-ReadLogFile">
+        <h2>Funcion ReadLogFile:</h2>
+        <div class="code-container">
+            <pre><code class="language-powershell" id="codeBlock3">
+#actualiza la interfaz gráfica con nuevas líneas del log.
+function ReadLogFile {
+    param($logFile)
+    $lastPosition = 0
+    while ($true) {
+        if (Test-Path $logFile) {
+            $fileContent = Get-Content $logFile -Raw
+            if ($fileContent.Length -gt $lastPosition) {
+                $newContent = $fileContent.Substring($lastPosition)
+                $lastPosition = $fileContent.Length
+                Write-Output $newContent
+            }
+        }
+        Start-Sleep -Milliseconds 500
+        if ($script:stopFlag) { break }
+    }
+}
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock3')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+    </section>
+    <section id="ReadLogFile" class="instructions">
+    <strong>Descripcion:</strong>Esta función lee un archivo de log y muestra las nuevas líneas que se agregan al archivo en tiempo real. 
+    <li>Mantiene un lastPosition para leer solo las líneas nuevas que se agregan.</li>
+    <li>Muestra cada línea nueva que se añade al archivo de log.</li>
+    
+<strong>Proposito:</strong>Leer y mostrar en tiempo real las entradas de un archivo de log. 
+</section>
+
+<section id="codigo-$startButton">
+    <h2>Funcion $startButton.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock4">
+$startButton.Add_Click({
+    # Validar entradas
+    if ([string]::IsNullOrWhiteSpace($TBObjetivo.Text) -or [string]::IsNullOrWhiteSpace($TBPuerto.Text)) {
+        [System.Windows.Forms.MessageBox]::Show("Debe ingresar una IP y un puerto válidos.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
+    }
+    $script:stopFlag = $false
+    $targetHost = $TBObjetivo.Text
+    $port = [int]$TBPuerto.Text
+    $logFile = $TBArchivo.Text
+    if($targetHost -eq ""){}
+    # Limpiar el archivo de log antes de comenzar
+    Clear-Content -Path $logFile -ErrorAction SilentlyContinue
+
+    $Global:script:job = Start-Job -ScriptBlock ${function:CheckConeccion} -ArgumentList $targetHost, $port, $logFile
+    $Global:script:logJob = Start-Job -ScriptBlock ${function:ReadLogFile} -ArgumentList $logFile
+    $startButton.Enabled = $false
+    $BDetener.Enabled = $true
+    
+    # Limpiar la salida en la GUI
+    $SalidaResultados.Clear()
+    $script:allLines = @()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock4')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation4" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$startButton" class="instructions">
+<strong>Descripcion:</strong>Esta diseñada para iniciar un proceso de verificación de conexión y registrar los resultados en un archivo de log, mientras actualiza la interfaz de usuario para reflejar el estado del proceso.
+<li>Validación de Entradas:</li>
+<ul>
+    <li>Verifica si los campos de texto $TBObjetivo (para la IP) y $TBPuerto (para el puerto) están vacíos o contienen solo espacios en blanco.</li>
+    <li>Si alguno de los campos está vacío, muestra un mensaje de error y termina la ejecución de la función.</li>
+</ul>
+<li>Inicialización de Variables:</li>
+<ul>
+    <li>Establece $script:stopFlag en false, lo que probablemente indica que un proceso no debe detenerse.</li>
+    <li>Asigna los valores de los campos de texto a las variables $targetHost, $port y $logFile.</li>
+</ul>
+<li>Limpieza del Archivo de Log:</li>
+<ul>
+    <li>Limpia el contenido del archivo de log especificado en $logFile antes de comenzar, ignorando cualquier error que pueda ocurrir si el archivo no existe.</li>
+</ul>
+<li>Inicio de Jobs en Segundo Plano:</li>
+<ul>
+    <li>Inicia un job en segundo plano para ejecutar la función CheckConeccion con los argumentos $targetHost, $port y $logFile.</li>
+    <li>Inicia otro job en segundo plano para ejecutar la función ReadLogFile con el argumento $logFile.</li>
+</ul>
+<li>Actualización de la Interfaz de Usuario:</li>
+<ul>
+    <li>Deshabilita el botón $startButton para evitar múltiples clics.</li>
+    <li>Habilita el botón $BDetener para permitir detener el proceso.</li>
+    <li>Limpia el contenido del control $SalidaResultados en la interfaz de usuario.</li>
+    <li>Inicializa $script:allLines como un array vacío, probablemente para almacenar líneas de salida o log.</li>
+</ul>
+</section>
+
+<section id="codigo-$BDetener">
+    <h2>Funcion $BDetener.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock5">
+$BDetener.Add_Click({
+    $script:stopFlag = $true
+    if ($null -ne $Global:script:job) {
+        Stop-Job $Global:script:job
+        Remove-Job $Global:script:job
+        $Global:script:job = $null
+    }
+    if ($null -ne $Global:script:logJob) {
+        Stop-Job $Global:script:logJob
+        Remove-Job $Global:script:logJob
+        $Global:script:logJob = $null
+    }
+    $startButton.Enabled = $true
+    $BDetener.Enabled = $false
+    $BFiltrarRojo.Enabled = $true
+    $BMostrarTodo.Enabled = $true
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock5')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation5" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BDetener" class="instructions">
+<strong>Descripcion:</strong>Esta función asegura que todos los jobs en segundo plano se detengan y se eliminen correctamente, y actualiza la interfaz de usuario para reflejar que el proceso ha sido detenido.
+<li>Establece la bandera de parada:</li>
+<ul>
+    <li>Cambia $script:stopFlag a true, lo que probablemente indica a otros procesos o scripts que deben detenerse.</li>
+</ul>
+<li>Detiene y elimina el job principal:</li>
+<ul>
+    <li>Verifica si $Global:script:job no es nulo.</li>
+    <li>Si el job existe, lo detiene usando Stop-Job.</li>
+    <li>Luego, elimina el job con Remove-Job.</li>
+    <li>Finalmente, establece $Global:script:job a null para limpiar la referencia.</li>
+</ul>
+<li>Detiene y elimina el job de log:</li>
+<ul>
+    <li>Verifica si $Global:script:logJob no es nulo.</li>
+    <li>Si el job existe, lo detiene usando Stop-Job.</li>
+    <li>Luego, elimina el job con Remove-Job.</li>
+    <li>Finalmente, establece $Global:script:logJob a null para limpiar la referencia.</li>
+</ul>
+<li>Actualiza la interfaz de usuario:</li>
+<ul>
+    <li>Habilita el botón $startButton para permitir iniciar el proceso nuevamente.</li>
+    <li>Deshabilita el botón $BDetener para evitar múltiples clics mientras no hay jobs en ejecución.</li>
+</ul>
+
+<strong>Proposito:</strong>Leer y mostrar en tiempo real las entradas de un archivo de log. 
+</section>
+
+<section id="codigo-$BFiltrarRojo">
+    <h2>Funcion $BDetener.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock6">
+$BFiltrarRojo.Add_Click({
+    $SalidaResultados.Clear()
+    $logContent = Get-Content $TBArchivo.Text
+    foreach ($line in $logContent) {
+        if ($line -match "No se pudo establecer la conexión") {
+            $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+            $SalidaResultados.SelectionLength = 0
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+            $SalidaResultados.AppendText("$line`r`n")
+        }
+    }
+    $SalidaResultados.ScrollToCaret()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock6')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation6" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BFiltrarRojo" class="instructions">
+<strong>Descripcion:</strong>Esta función filtra y resalta en rojo las líneas que contienen el mensaje "No se pudo establecer la conexión" en el control de salida, proporcionando una manera visual de identificar rápidamente los errores de conexión.
+<li>Limpia el contenido del control $SalidaResultados:</li>
+<ul>
+    <li>Llama al método Clear() para vaciar cualquier texto existente en el control de salida.</li>
+</ul>
+<li>Itera sobre las líneas almacenadas en $script:allLines:</li>
+<ul>
+    <li>Utiliza un bucle foreach para recorrer cada línea en el array $script:allLines.</li>
+</ul>
+<li>Filtra las líneas que contienen un mensaje específico:</li>
+<ul>
+    <li>Verifica si la línea contiene la cadena "No se pudo establecer la conexión" usando el operador -match.</li>
+</ul>
+<li>Configura el color de selección y añade la línea al control de salida:</li>
+<ul>
+    <li>Habilita el botón $startButton para permitir iniciar el proceso nuevamente.</li>
+    <li>Si la línea coincide con el filtro, ajusta las propiedades de selección del control $SalidaResultados: </li>
+    <ul>
+        <li>SelectionStart se establece en la longitud actual del texto, para añadir el nuevo texto al final.</li>
+        <li>SelectionLength se establece en 0, para que no haya selección previa.</li>
+        <li>SelectionColor se establece en rojo ([System.Drawing.Color]::Red).</li>
+    </ul>
+    <li>Añade la línea filtrada al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+</ul>
+<li>Desplaza el control de salida hasta el final:</li>
+<ul>
+    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+</ul>
+</section>
+
+<section id="codigo-$BMostrarTodo">
+    <h2>Funcion $BMostrarTodo.Add_Click():</h2>
+    <div class="code-container">
+        <pre><code class="language-powershell" id="codeBlock7">
+$BMostrarTodo.Add_Click({
+    $SalidaResultados.Clear()
+    $logContent = Get-Content $TBArchivo.Text
+    foreach ($line in $logContent) {
+        $SalidaResultados.SelectionStart = $SalidaResultados.TextLength
+        $SalidaResultados.SelectionLength = 0
+        if ($line -match "No se pudo establecer la conexión") {
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Red
+        } elseif ($line -match "Conexión exitosa") {
+            $SalidaResultados.SelectionColor = [System.Drawing.Color]::Green
+        } else {
+            $SalidaResultados.SelectionColor = $SalidaResultados.ForeColor
+        }
+        $SalidaResultados.AppendText("$line`r`n")
+    }
+    $SalidaResultados.ScrollToCaret()
+})
+</code></pre>
+<button class="copy-button" onclick="copyCode('codeBlock7')" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation7" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section id="$BMostrarTodo" class="instructions">
+<strong>Descripcion:</strong>Esta función muestra todas las líneas almacenadas en $script:allLines, coloreando las líneas específicas según su contenido para resaltar errores de conexión en rojo y conexiones exitosas en verde.
+<li>Limpia el contenido del control $SalidaResultados:</li>
+<ul>
+    <li>Llama al método Clear() para vaciar cualquier texto existente en el control de salida.</li>
+</ul>
+<li>Itera sobre las líneas almacenadas en $script:allLines:</li>
+<ul>
+    <li>Utiliza un bucle foreach para recorrer cada línea en el array $script:allLines.</li>
+</ul>
+<li>Configura el color de selección y añade la línea al control de salida:</li>
+<ul>
+    <li>Ajusta las propiedades de selección del control $SalidaResultados: </li>
+    <ul>
+        <li>SelectionStart se establece en la longitud actual del texto, para añadir el nuevo texto al final.</li>
+        <li>SelectionLength se establece en 0, para que no haya selección previa.</li>
+    </ul>
+    <li>Dependiendo del contenido de la línea, establece el color de selección:</li>
+    <ul>
+        <li>Si la línea contiene "No se pudo establecer la conexión", el color de selección se establece en rojo ([System.Drawing.Color]::Red).</li>
+        <li>Si la línea contiene "Conexión exitosa", el color de selección se establece en verde ([System.Drawing.Color]::Green).</li>
+        <li>Para cualquier otra línea, el color de selección se establece en el color de texto predeterminado del control ($SalidaResultados.ForeColor).</li>
+    </ul>
+    <li>Añade la línea al control de salida usando AppendText() y añade un retorno de carro y nueva línea (\r\n).</li>
+</ul>
+<li>Desplaza el control de salida hasta el final:</li>
+<ul>
+    <li>Llama a ScrollToCaret() para asegurarse de que el control de salida se desplace automáticamente hasta la última línea añadida.</li>
+</ul>
+</section>
+<a href="https://campossv.github.io/HTML/MDP01.html" class="button">Atras</a>
+<a href="https://campossv.github.io" class="button">Inicio</a>
+  </main> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
