@@ -1,4 +1,13 @@
-﻿# Importar bibliotecas necesarias
+﻿<#
+Creado por Vladimir Campos
+El script tiene como objetivo auditar cuentas de usuario en un dominio de Active Directory (AD), identificando:
+*Cuentas inactivas (que no han iniciado sesión en más de un número específico de días).
+*Cuentas que nunca han sido usadas (LastLogonDate = $null).
+*Información adicional como el estado de la cuenta, la política de contraseñas, los grupos a los que pertenece el usuario, etc.
+Los resultados se muestran en una interfaz gráfica con un DataGridView y se pueden exportar a un archivo CSV.
+#>
+
+# Importar bibliotecas necesarias
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 

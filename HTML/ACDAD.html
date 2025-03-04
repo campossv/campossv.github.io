@@ -1,0 +1,503 @@
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    h2 {
+      color: #4267b2;
+    }
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .copy-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    /* Estilo global para la barra de desplazamiento */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+
+    /* Webkit browsers like Chrome and Safari */
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+
+    /* Contenedor de ejemplo */
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Automatización con PowerShell" />
+  <meta
+    name="keywords"
+    content="PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+  />
+  <title>Scripts de Vladi</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+</head>
+<body>
+  <header>
+    <h1>Auditar cuentas del Active Directory</h1>
+  </header>
+  <center>
+    <div class="vertical-align">
+      <a
+        href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+        target="_blank"
+      >
+        <img
+          src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png"
+          style="width: 25%"
+        />
+      </a>
+    </div>
+  </center>
+  <main>
+    <p>
+      El script tiene como objetivo auditar cuentas de usuario en
+      un dominio de&nbsp;<b>Active Directory (AD)</b>, identificando:<br>
+      <ul>
+        <li>
+          Cuentas
+          <b>inactivas</b> (que no han iniciado sesión en más de un número
+          específico de días).
+        </li>
+        <li>
+          Cuentas
+          <b>que&nbsp;nunca han sido usadas</b> (LastLogonDate = $null).
+        </li>
+        <li>
+          Información
+          <b>adicional</b> como el estado de la cuenta, la política de
+          contraseñas, los grupos a los que pertenece el usuario, etc.
+        </li>
+      </ul>
+      <p>
+        Los resultados se muestran en una&nbsp;<b>interfaz gráfica</b>&nbsp;con
+        un&nbsp;<b>DataGridView</b>&nbsp;y se pueden exportar a un archivo CSV.
+      </p>
+  
+
+    </p>
+    <div class="video-container">
+      <iframe
+        id="odysee-iframe"
+        style="width: 100%; aspect-ratio: 16 / 9"
+        src="https://odysee.com/$/embed/Control-de-cambio-de-contraseñas-para-cuentas-locales:5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true"
+        allowfullscreen
+      ></iframe>
+    </div><br>
+    <section class="code-container">
+        <h2>Estructura del Script</h2>
+        <section class="code-container">
+            <h2>1. Importación de Bibliotecas</h2>
+            <p>Importa las bibliotecas necesarias para crear la interfaz gráfica.</p>
+            <pre><code class="language-powershell">Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>System.Windows.Forms:</strong> Proporciona los controles de la interfaz gráfica (ventanas, botones, cuadros de texto, etc.).</li>
+                <li><strong>System.Drawing:</strong> Permite manipular colores, fuentes y otros elementos visuales.</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>2. Creación de la Ventana Principal</h2>
+            <p>Crea la ventana principal de la aplicación.</p>
+            <pre><code class="language-powershell">$form = New-Object System.Windows.Forms.Form
+$form.Text = "Auditoría de Active Directory"
+$form.Size = New-Object System.Drawing.Size(1000, 600)
+$form.StartPosition = "CenterScreen"</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>Título:</strong> "Auditoría de Active Directory"</li>
+                <li><strong>Tamaño:</strong> 1000x600 píxeles</li>
+                <li><strong>Posición:</strong> Centrada en la pantalla</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>3. Creación del DataGridView</h2>
+            <p>Muestra los resultados de la auditoría en una tabla.</p>
+            <pre><code class="language-powershell">$dataGridView = New-Object System.Windows.Forms.DataGridView
+$dataGridView.Size = New-Object System.Drawing.Size(950, 400)
+$dataGridView.Location = New-Object System.Drawing.Point(20, 150)
+$dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+$dataGridView.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::FullRowSelect
+$dataGridView.ReadOnly = $true
+$form.Controls.Add($dataGridView)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>Tamaño:</strong> 950x400 píxeles</li>
+                <li><strong>Ubicación:</strong> 20 píxeles desde el borde izquierdo y 150 píxeles desde el borde superior</li>
+                <li><strong>Modo de selección:</strong> Selección de filas completas</li>
+                <li><strong>Solo lectura:</strong> Los usuarios no pueden modificar los datos</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>4. Campo para Ingresar los Días de Inactividad</h2>
+            <p>Permite al usuario ingresar el número de días de inactividad para filtrar las cuentas.</p>
+            <pre><code class="language-powershell">$labelDias = New-Object System.Windows.Forms.Label
+$labelDias.Text = "Días de inactividad:"
+$labelDias.Location = New-Object System.Drawing.Point(20, 20)
+$labelDias.AutoSize = $true
+$form.Controls.Add($labelDias)
+
+$textBoxDias = New-Object System.Windows.Forms.TextBox
+$textBoxDias.Location = New-Object System.Drawing.Point(150, 20)
+$textBoxDias.Size = New-Object System.Drawing.Size(100, 20)
+$form.Controls.Add($textBoxDias)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>5. Botón para Ejecutar la Auditoría</h2>
+            <p>Ejecuta la auditoría cuando el usuario hace clic en él.</p>
+            <pre><code class="language-powershell">$buttonAuditar = New-Object System.Windows.Forms.Button
+$buttonAuditar.Text = "Ejecutar Auditoría"
+$buttonAuditar.Location = New-Object System.Drawing.Point(270, 20)
+$buttonAuditar.Size = New-Object System.Drawing.Size(120, 30)
+$buttonAuditar.Add_Click({
+    # Lógica de la auditoría
+})
+$form.Controls.Add($buttonAuditar)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>6. Lógica de la Auditoría</h2>
+            <p>Filtra y muestra las cuentas inactivas en el DataGridView.</p>
+            <pre><code class="language-powershell"># Limpiar el DataGridView
+$dataGridView.Rows.Clear()
+
+# Obtener los días de inactividad ingresados por el usuario
+$diasInactividad = [int]$textBoxDias.Text
+
+# Obtener las cuentas inactivas
+$inactiveUsers = Get-ADUser -Filter * -Properties SamAccountName, Enabled, PasswordNeverExpires, PasswordLastSet, LastLogonDate, MemberOf | 
+    Where-Object { 
+        ($_.LastLogonDate -lt (Get-Date).AddDays(-$diasInactividad)) -or 
+        ($_.LastLogonDate -eq $null)
+    }
+
+# Contador de usuarios
+$contadorUsuarios = 0
+
+foreach ($user in $inactiveUsers) {
+    # Obtener los grupos a los que pertenece el usuario
+    $grupos = ($user.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ", "
+
+    # Determinar si la cuenta nunca ha sido usada
+    $nuncaUsada = ($user.LastLogonDate -eq $null)
+
+    # Agregar una fila al DataGridView
+    $dataGridView.Rows.Add(
+        $user.SamAccountName,
+        $user.Enabled,
+        $user.PasswordNeverExpires,
+        $user.PasswordLastSet,
+        $user.LastLogonDate,
+        $nuncaUsada,
+        $grupos
+    )
+
+    # Incrementar el contador
+    $contadorUsuarios++
+}
+
+# Actualizar la label con la cantidad de usuarios
+$labelCantidadUsuarios.Text = "Usuarios listados: $contadorUsuarios"</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>7. Botón para Exportar los Resultados</h2>
+            <p>Exporta los resultados a un archivo CSV cuando el usuario hace clic en él.</p>
+            <pre><code class="language-powershell">$buttonExportar = New-Object System.Windows.Forms.Button
+$buttonExportar.Text = "Exportar a CSV"
+$buttonExportar.Location = New-Object System.Drawing.Point(400, 20)
+$buttonExportar.Size = New-Object System.Drawing.Size(120, 30)
+$buttonExportar.Add_Click({
+    # Lógica de exportación
+})
+$form.Controls.Add($buttonExportar)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>8. Lógica de Exportación</h2>
+            <p>Exporta los resultados del DataGridView a un archivo CSV.</p>
+            <pre><code class="language-powershell"># Crear un diálogo para guardar el archivo
+$saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+$saveFileDialog.Filter = "Archivos CSV (*.csv)|*.csv"
+$saveFileDialog.Title = "Guardar resultados de auditoría"
+$saveFileDialog.ShowDialog() | Out-Null
+
+if ($saveFileDialog.FileName -ne "") {
+    # Crear una lista para almacenar los resultados
+    $results = @()
+
+    # Recorrer las filas del DataGridView
+    foreach ($row in $dataGridView.Rows) {
+        $results += [PSCustomObject]@{
+            Nombre                = $row.Cells[0].Value
+            Habilitado            = $row.Cells[1].Value
+            ContraseñaNuncaExpira = $row.Cells[2].Value
+            UltimoCambioContraseña = $row.Cells[3].Value
+            UltimoInicioSesion    = $row.Cells[4].Value
+            NuncaUsada            = $row.Cells[5].Value
+            Grupos                = $row.Cells[6].Value
+        }
+    }
+
+    # Exportar a CSV
+    $results | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
+    [System.Windows.Forms.MessageBox]::Show("Archivo exportado exitosamente.", "Exportación Completada", "OK", "Information")
+}</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>9. Label para Mostrar la Cantidad de Usuarios</h2>
+            <p>Muestra la cantidad de usuarios listados en el DataGridView.</p>
+            <pre><code class="language-powershell">$labelCantidadUsuarios = New-Object System.Windows.Forms.Label
+$labelCantidadUsuarios.Text = "Usuarios listados: 0"
+$labelCantidadUsuarios.Location = New-Object System.Drawing.Point(20, 120)
+$labelCantidadUsuarios.AutoSize = $true
+$form.Controls.Add($labelCantidadUsuarios)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>10. Configuración de las Columnas del DataGridView</h2>
+            <p>Define las columnas del DataGridView.</p>
+            <pre><code class="language-powershell">$dataGridView.Columns.Add("Nombre", "Nombre")
+$dataGridView.Columns.Add("Habilitado", "Habilitado")
+$dataGridView.Columns.Add("ContraseñaNuncaExpira", "Contraseña Nunca Expira")
+$dataGridView.Columns.Add("UltimoCambioContraseña", "Último Cambio de Contraseña")
+$dataGridView.Columns.Add("UltimoInicioSesion", "Último Inicio de Sesión")
+$dataGridView.Columns.Add("NuncaUsada", "Nunca Usada")
+$dataGridView.Columns.Add("Grupos", "Grupos")</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>11. Mostrar la Ventana</h2>
+            <p>Muestra la ventana principal y espera a que el usuario interactúe con ella.</p>
+            <pre><code class="language-powershell">$form.ShowDialog()</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+    </section>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('code');
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const confirmation = button.parentElement.querySelector('.copy-confirmation');
+                confirmation.style.display = 'block';
+                setTimeout(() => {
+                    confirmation.style.display = 'none';
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
+        }
+    </script>
+    <section class="instructions">
+        <h2>Script: Control de cambios</h2>
+
+        <!-- ************************************************************ -->
+         <!-- ************************************************************ -->
+          <!-- ************************************************************ -->
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
+</body>
