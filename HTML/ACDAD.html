@@ -252,7 +252,8 @@
             <p>Importa las bibliotecas necesarias para crear la interfaz gráfica.</p>
             <div class="code-wrapper">
                 <pre>
-                    <code class="language-powershell">Add-Type -AssemblyName System.Windows.Forms
+                    <code class="language-powershell">
+Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing</code>
                     <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
                     <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
@@ -272,7 +273,8 @@ Add-Type -AssemblyName System.Drawing</code>
             <p>Crea la ventana principal de la aplicación.</p>
             <div class="code-wrapper">
                 <pre>
-                    <code class="language-powershell">$form = New-Object System.Windows.Forms.Form
+                    <code class="language-powershell">
+$form = New-Object System.Windows.Forms.Form
 $form.Text = "Auditoría de Active Directory"
 $form.Size = New-Object System.Drawing.Size(1000, 600)
 $form.StartPosition = "CenterScreen"</code>
@@ -295,7 +297,8 @@ $form.StartPosition = "CenterScreen"</code>
             <p>Muestra los resultados de la auditoría en una tabla.</p>
             <div class="code-wrapper">
                 <pre>
-                    <code class="language-powershell">$dataGridView = New-Object System.Windows.Forms.DataGridView
+                    <code class="language-powershell">
+$dataGridView = New-Object System.Windows.Forms.DataGridView
 $dataGridView.Size = New-Object System.Drawing.Size(950, 400)
 $dataGridView.Location = New-Object System.Drawing.Point(20, 150)
 $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
