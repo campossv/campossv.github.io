@@ -1,0 +1,52 @@
+/* Estilos para el contenedor del código */
+.code-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+/* Estilos para el botón de copiar */
+.copy-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para el mensaje de confirmación */
+.copy-confirmation {
+    position: absolute;
+    top: 10px;
+    right: 80px;
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.copy-confirmation.show {
+    opacity: 1;
+}
+
+/* Estilos para el texto del código */
+pre {
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+code {
+    font-family: 'Consolas', 'Monaco', monospace;
+}

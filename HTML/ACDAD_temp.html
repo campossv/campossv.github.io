@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditar cuentas del Active Directory</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-container {
+            margin: 20px 0;
+        }
+
+        .code-wrapper {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 0;
+            position: relative;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+
+        .copy-confirmation {
+            position: absolute;
+            top: 10px;
+            right: 80px;
+            background-color: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .copy-confirmation.show {
+            opacity: 1;
+        }
+
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .vertical-align {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Auditar cuentas del Active Directory</h1>
+    </header>
+    <center>
+        <div class="vertical-align">
+            <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
+                <img src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png" style="width: 25%" />
+            </a>
+        </div>
+    </center>
+    <main>
+        <p>
+            El script tiene como objetivo auditar cuentas de usuario en un dominio de <b>Active Directory (AD)</b>, identificando:<br>
+            <ul>
+                <li>Cuentas <b>inactivas</b> (que no han iniciado sesión en más de un número específico de días).</li>
+                <li>Cuentas <b>que nunca han sido usadas</b> (LastLogonDate = $null).</li>
+                <li>Información <b>adicional</b> como el estado de la cuenta, la política de contraseñas, los grupos a los que pertenece el usuario, etc.</li>
+            </ul>
+            <p>Los resultados se muestran en una <b>interfaz gráfica</b> con un <b>DataGridView</b> y se pueden exportar a un archivo CSV.</p>
+        </p>
+
+        <div class="video-container">
+            <iframe id="odysee-iframe" style="width: 100%; aspect-ratio: 16 / 9"
+                src="https://odysee.com/$/embed/Control-de-cambio-de-contraseñas-para-cuentas-locales:5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true"
+                allowfullscreen></iframe>
+        </div>
+
+        <section class="code-container">
+            <h2>Estructura del Script</h2>
+            <section class="code-container">
+                <h2>1. Importación de Bibliotecas</h2>
+                <p>Importa las bibliotecas necesarias para crear la interfaz gráfica.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell">Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+
+            <section class="instructions">
+                <h3>Detalles:</h3>
+                <ul>
+                    <li><strong>System.Windows.Forms:</strong> Proporciona los controles de la interfaz gráfica (ventanas, botones, cuadros de texto, etc.).</li>
+                    <li><strong>System.Drawing:</strong> Permite manipular colores, fuentes y otros elementos visuales.</li>
+                </ul>
+            </section>
+
+            <section class="code-container">
+                <h2>2. Creación de la Ventana Principal</h2>
+                <p>Crea la ventana principal de la aplicación.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell">$form = New-Object System.Windows.Forms.Form
+$form.Text = "Auditoría de Active Directory"
+$form.Size = New-Object System.Drawing.Size(1000, 600)
+$form.StartPosition = "CenterScreen"</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+
+            <section class="instructions">
+                <h3>Detalles:</h3>
+                <ul>
+                    <li><strong>Título:</strong> "Auditoría de Active Directory"</li>
+                    <li><strong>Tamaño:</strong> 1000x600 píxeles</li>
+                    <li><strong>Posición:</strong> Centrada en la pantalla</li>
+                </ul>
+            </section>
+
+            <section class="code-container">
+                <h2>3. Creación del DataGridView</h2>
+                <p>Muestra los resultados de la auditoría en una tabla.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell">$dataGridView = New-Object System.Windows.Forms.DataGridView
+$dataGridView.Size = New-Object System.Drawing.Size(950, 400)
+$dataGridView.Location = New-Object System.Drawing.Point(20, 150)
+$dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+$dataGridView.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::FullRowSelect
+$dataGridView.ReadOnly = $true
+$form.Controls.Add($dataGridView)</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+
+            <section class="instructions">
+                <h3>Detalles:</h3>
+                <ul>
+                    <li><strong>Tamaño:</strong> 950x400 píxeles</li>
+                    <li><strong>Ubicación:</strong> 20 píxeles desde el borde izquierdo y 150 píxeles desde el borde superior</li>
+                    <li><strong>Modo de selección:</strong> Selección de filas completas</li>
+                    <li><strong>Solo lectura:</strong> Los usuarios no pueden modificar los datos</li>
+                </ul>
+            </section>
+
+            <section class="code-container">
+                <h2>4. Campo para Ingresar los Días de Inactividad</h2>
+                <p>Permite al usuario ingresar el número de días de inactividad para filtrar las cuentas.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell">$labelDias = New-Object System.Windows.Forms.Label
+$labelDias.Text = "Días de inactividad:"
+$labelDias.Location = New-Object System.Drawing.Point(20, 20)
+$labelDias.AutoSize = $true
+$form.Controls.Add($labelDias)
+
+$textBoxDias = New-Object System.Windows.Forms.TextBox
+$textBoxDias.Location = New-Object System.Drawing.Point(150, 20)
+$textBoxDias.Size = New-Object System.Drawing.Size(100, 20)
+$form.Controls.Add($textBoxDias)</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+
+            <section class="code-container">
+                <h2>5. Botón para Ejecutar la Auditoría</h2>
+                <p>Ejecuta la auditoría cuando el usuario hace clic en él.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell">$buttonAuditar = New-Object System.Windows.Forms.Button
+$buttonAuditar.Text = "Ejecutar Auditoría"
+$buttonAuditar.Location = New-Object System.Drawing.Point(270, 20)
+$buttonAuditar.Size = New-Object System.Drawing.Size(120, 30)
+$buttonAuditar.Add_Click({
+    # Lógica de la auditoría
+})
+$form.Controls.Add($buttonAuditar)</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+
+            <section class="code-container">
+                <h2>6. Lógica de la Auditoría</h2>
+                <p>Filtra y muestra las cuentas inactivas en el DataGridView.</p>
+                <div class="code-wrapper">
+                    <pre>
+                        <code class="language-powershell"># Limpiar el DataGridView
+$dataGridView.Rows.Clear()
+
+# Obtener los días de inactividad ingresados por el usuario
+$diasInactividad = [int]$textBoxDias.Text
+
+# Obtener las cuentas inactivas
+$inactiveUsers = Get-ADUser -Filter * -Properties SamAccountName, Enabled, PasswordNeverExpires, PasswordLastSet, LastLogonDate, MemberOf | 
+    Where-Object { 
+        ($_.LastLogonDate -lt (Get-Date).AddDays(-$diasInactividad)) -or 
+        ($_.LastLogonDate -eq $null)
+    }
+
+# Contador de usuarios
+$contadorUsuarios = 0
+
+foreach ($user in $inactiveUsers) {
+    # Obtener los grupos a los que pertenece el usuario
+    $grupos = ($user.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ", "
+
+    # Determinar si la cuenta nunca ha sido usada
+    $nuncaUsada = ($user.LastLogonDate -eq $null)
+
+    # Agregar una fila al DataGridView
+    $dataGridView.Rows.Add(
+        $user.SamAccountName,
+        $user.Enabled,
+        $user.PasswordNeverExpires,
+        $user.PasswordLastSet,
+        $user.LastLogonDate,
+        $nuncaUsada,
+        $grupos
+    )
+
+    # Incrementar el contador
+    $contadorUsuarios++
+}
+
+# Actualizar la label con la cantidad de usuarios
+$labelCantidadUsuarios.Text = "Usuarios listados: $contadorUsuarios"</code>
+                        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                    </pre>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
