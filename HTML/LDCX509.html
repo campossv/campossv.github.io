@@ -1,0 +1,711 @@
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    h2 {
+      color: #4267b2;
+    }
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .copy-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    /* Estilo global para la barra de desplazamiento */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+
+    /* Webkit browsers like Chrome and Safari */
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+
+    /* Contenedor de ejemplo */
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Automatización con PowerShell" />
+  <meta
+    name="keywords"
+    content="PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+  />
+  <title>Scripts de Vladi</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+</head>
+<body>
+  <header>
+    <h1>Auditar cuentas del Active Directory</h1>
+  </header>
+  <center>
+    <div class="vertical-align">
+      <a
+        href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+        target="_blank"
+      >
+        <img
+          src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png"
+          style="width: 25%"
+        />
+      </a>
+    </div>
+  </center>
+  <main>
+    <p>
+      El script tiene como objetivo auditar cuentas de usuario en
+      un dominio de&nbsp;<b>Active Directory (AD)</b>, identificando:<br>
+      <ul>
+        <li>
+          Cuentas
+          <b>inactivas</b> (que no han iniciado sesión en más de un número
+          específico de días).
+        </li>
+        <li>
+          Cuentas
+          <b>que&nbsp;nunca han sido usadas</b> (LastLogonDate = $null).
+        </li>
+        <li>
+          Información
+          <b>adicional</b> como el estado de la cuenta, la política de
+          contraseñas, los grupos a los que pertenece el usuario, etc.
+        </li>
+      </ul>
+      <p>
+        Los resultados se muestran en una&nbsp;<b>interfaz gráfica</b>&nbsp;con
+        un&nbsp;<b>DataGridView</b>&nbsp;y se pueden exportar a un archivo CSV.
+      </p>
+  
+
+    </p>
+    <div class="video-container">
+      <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/%24/embed/Auditar-cuentas-inactivas%3A3?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe>
+    </div><br>
+    <section class="code-container">
+        <h2>Estructura del Script</h2>
+        <section class="code-container">
+            <h2>1. Importación de Bibliotecas</h2>
+            <p>Importa las bibliotecas necesarias para crear la interfaz gráfica.</p>
+            <div class="code-wrapper">
+                <pre>
+                    <code class="language-powershell">
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing</code>
+                    <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                    <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                </pre>
+            </div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>System.Windows.Forms:</strong> Proporciona los controles de la interfaz gráfica (ventanas, botones, cuadros de texto, etc.).</li>
+                <li><strong>System.Drawing:</strong> Permite manipular colores, fuentes y otros elementos visuales.</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>2. Creación de la Ventana Principal</h2>
+            <p>Crea la ventana principal de la aplicación.</p>
+            <div class="code-wrapper">
+                <pre>
+                    <code class="language-powershell">
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "Auditoría de Active Directory"
+$form.Size = New-Object System.Drawing.Size(1000, 600)
+$form.StartPosition = "CenterScreen"</code>
+                    <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                    <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                </pre>
+            </div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>Título:</strong> "Auditoría de Active Directory"</li>
+                <li><strong>Tamaño:</strong> 1000x600 píxeles</li>
+                <li><strong>Posición:</strong> Centrada en la pantalla</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>3. Creación del DataGridView</h2>
+            <p>Muestra los resultados de la auditoría en una tabla.</p>
+            <div class="code-wrapper">
+                <pre>
+                    <code class="language-powershell">
+$dataGridView = New-Object System.Windows.Forms.DataGridView
+$dataGridView.Size = New-Object System.Drawing.Size(950, 400)
+$dataGridView.Location = New-Object System.Drawing.Point(20, 150)
+$dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+$dataGridView.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::FullRowSelect
+$dataGridView.ReadOnly = $true
+$form.Controls.Add($dataGridView)</code>
+                    <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                    <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                </pre>
+            </div>
+        </section>
+        <section class="instructions">
+            <h3>Detalles:</h3>
+            <ul>
+                <li><strong>Tamaño:</strong> 950x400 píxeles</li>
+                <li><strong>Ubicación:</strong> 20 píxeles desde el borde izquierdo y 150 píxeles desde el borde superior</li>
+                <li><strong>Modo de selección:</strong> Selección de filas completas</li>
+                <li><strong>Solo lectura:</strong> Los usuarios no pueden modificar los datos</li>
+            </ul>
+        </section>
+
+        <section class="code-container">
+            <h2>4. Campo para Ingresar los Días de Inactividad</h2>
+            <p>Permite al usuario ingresar el número de días de inactividad para filtrar las cuentas.</p>
+            <pre><code class="language-powershell">$labelDias = New-Object System.Windows.Forms.Label
+$labelDias.Text = "Días de inactividad:"
+$labelDias.Location = New-Object System.Drawing.Point(20, 20)
+$labelDias.AutoSize = $true
+$form.Controls.Add($labelDias)
+
+$textBoxDias = New-Object System.Windows.Forms.TextBox
+$textBoxDias.Location = New-Object System.Drawing.Point(150, 20)
+$textBoxDias.Size = New-Object System.Drawing.Size(100, 20)
+$form.Controls.Add($textBoxDias)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>5. Botón para Ejecutar la Auditoría</h2>
+            <p>Ejecuta la auditoría cuando el usuario hace clic en él.</p>
+            <pre><code class="language-powershell">$buttonAuditar = New-Object System.Windows.Forms.Button
+$buttonAuditar.Text = "Ejecutar Auditoría"
+$buttonAuditar.Location = New-Object System.Drawing.Point(270, 20)
+$buttonAuditar.Size = New-Object System.Drawing.Size(120, 30)
+$buttonAuditar.Add_Click({
+    # Lógica de la auditoría
+})
+$form.Controls.Add($buttonAuditar)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>6. Lógica de la Auditoría</h2>
+            <p>Filtra y muestra las cuentas inactivas en el DataGridView.</p>
+            <pre><code class="language-powershell"># Limpiar el DataGridView
+$dataGridView.Rows.Clear()
+
+# Obtener los días de inactividad ingresados por el usuario
+$diasInactividad = [int]$textBoxDias.Text
+
+# Obtener las cuentas inactivas
+$inactiveUsers = Get-ADUser -Filter * -Properties SamAccountName, Enabled, PasswordNeverExpires, PasswordLastSet, LastLogonDate, MemberOf | 
+    Where-Object { 
+        ($_.LastLogonDate -lt (Get-Date).AddDays(-$diasInactividad)) -or 
+        ($_.LastLogonDate -eq $null)
+    }
+
+# Contador de usuarios
+$contadorUsuarios = 0
+
+foreach ($user in $inactiveUsers) {
+    # Obtener los grupos a los que pertenece el usuario
+    $grupos = ($user.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ", "
+
+    # Determinar si la cuenta nunca ha sido usada
+    $nuncaUsada = ($user.LastLogonDate -eq $null)
+
+    # Agregar una fila al DataGridView
+    $dataGridView.Rows.Add(
+        $user.SamAccountName,
+        $user.Enabled,
+        $user.PasswordNeverExpires,
+        $user.PasswordLastSet,
+        $user.LastLogonDate,
+        $nuncaUsada,
+        $grupos
+    )
+
+    # Incrementar el contador
+    $contadorUsuarios++
+}
+
+# Actualizar la label con la cantidad de usuarios
+$labelCantidadUsuarios.Text = "Usuarios listados: $contadorUsuarios"</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>7. Botón para Exportar los Resultados</h2>
+            <p>Exporta los resultados a un archivo CSV cuando el usuario hace clic en él.</p>
+            <pre><code class="language-powershell">$buttonExportar = New-Object System.Windows.Forms.Button
+$buttonExportar.Text = "Exportar a CSV"
+$buttonExportar.Location = New-Object System.Drawing.Point(400, 20)
+$buttonExportar.Size = New-Object System.Drawing.Size(120, 30)
+$buttonExportar.Add_Click({
+    # Lógica de exportación
+})
+$form.Controls.Add($buttonExportar)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>8. Lógica de Exportación</h2>
+            <p>Exporta los resultados del DataGridView a un archivo CSV.</p>
+            <pre><code class="language-powershell"># Crear un diálogo para guardar el archivo
+$saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+$saveFileDialog.Filter = "Archivos CSV (*.csv)|*.csv"
+$saveFileDialog.Title = "Guardar resultados de auditoría"
+$saveFileDialog.ShowDialog() | Out-Null
+
+if ($saveFileDialog.FileName -ne "") {
+    # Crear una lista para almacenar los resultados
+    $results = @()
+
+    # Recorrer las filas del DataGridView
+    foreach ($row in $dataGridView.Rows) {
+        $results += [PSCustomObject]@{
+            Nombre                = $row.Cells[0].Value
+            Habilitado            = $row.Cells[1].Value
+            ContraseñaNuncaExpira = $row.Cells[2].Value
+            UltimoCambioContraseña = $row.Cells[3].Value
+            UltimoInicioSesion    = $row.Cells[4].Value
+            NuncaUsada            = $row.Cells[5].Value
+            Grupos                = $row.Cells[6].Value
+        }
+    }
+
+    # Exportar a CSV
+    $results | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
+    [System.Windows.Forms.MessageBox]::Show("Archivo exportado exitosamente.", "Exportación Completada", "OK", "Information")
+}</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>9. Label para Mostrar la Cantidad de Usuarios</h2>
+            <p>Muestra la cantidad de usuarios listados en el DataGridView.</p>
+            <pre><code class="language-powershell">$labelCantidadUsuarios = New-Object System.Windows.Forms.Label
+$labelCantidadUsuarios.Text = "Usuarios listados: 0"
+$labelCantidadUsuarios.Location = New-Object System.Drawing.Point(20, 120)
+$labelCantidadUsuarios.AutoSize = $true
+$form.Controls.Add($labelCantidadUsuarios)</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>10. Configuración de las Columnas del DataGridView</h2>
+            <p>Define las columnas del DataGridView.</p>
+            <pre><code class="language-powershell">$dataGridView.Columns.Add("Nombre", "Nombre")
+$dataGridView.Columns.Add("Habilitado", "Habilitado")
+$dataGridView.Columns.Add("ContraseñaNuncaExpira", "Contraseña Nunca Expira")
+$dataGridView.Columns.Add("UltimoCambioContraseña", "Último Cambio de Contraseña")
+$dataGridView.Columns.Add("UltimoInicioSesion", "Último Inicio de Sesión")
+$dataGridView.Columns.Add("NuncaUsada", "Nunca Usada")
+$dataGridView.Columns.Add("Grupos", "Grupos")</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+
+        <section class="code-container">
+            <h2>11. Mostrar la Ventana</h2>
+            <p>Muestra la ventana principal y espera a que el usuario interactúe con ella.</p>
+            <pre><code class="language-powershell">$form.ShowDialog()</code></pre>
+            <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+            <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </section>
+    </section>
+
+    <section class="instructions">
+        <h2>Script Completo</h2>
+        <div class="code-container">
+            <pre>
+                <code class="language-powershell">
+  <#
+  Creado por Vladimir Campos
+  El script tiene como objetivo auditar cuentas de usuario en un dominio de Active Directory (AD), identificando:
+  *Cuentas inactivas (que no han iniciado sesión en más de un número específico de días).
+  *Cuentas que nunca han sido usadas (LastLogonDate = $null).
+  *Información adicional como el estado de la cuenta, la política de contraseñas, los grupos a los que pertenece el usuario, etc.
+  Los resultados se muestran en una interfaz gráfica con un DataGridView y se pueden exportar a un archivo CSV.
+  #>
+  
+  # Importar bibliotecas necesarias
+  Add-Type -AssemblyName System.Windows.Forms
+  Add-Type -AssemblyName System.Drawing
+  
+  # Cargar una imagen en Base64 (opcional)
+  $LPNG = "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoxMzQ5N2M2ZS1lYzU4LTMzNGEtYWVmNi1hYTFhZTg0YzRhNGIiIHN0RXZ0OndoZW49IjIwMjQtMTEtMjBUMTc6NTE6NDMtMDY6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy4wIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz55i9rdAAAuNUlEQVR4nO2deXyU1fnovzOTmclkZ0IC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"
+  $lenbytes = [Convert]::FromBase64String($LPNG)
+  $lenmemoria = New-Object System.IO.MemoryStream
+  $lenmemoria.Write($lenbytes, 0, $lenbytes.Length)
+  $lenmemoria.Position = 0
+  $imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
+  
+  # Definir colores y estilos
+  $colorPrimario = [System.Drawing.Color]::FromArgb(0, 120, 212)     # Azul moderno
+  $colorSecundario = [System.Drawing.Color]::FromArgb(243, 243, 243) # Gris claro
+  $colorTexto = [System.Drawing.Color]::FromArgb(51, 51, 51)        # Gris oscuro
+  $colorFondo = [System.Drawing.Color]::White
+  $fuenteModerna = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Regular)
+  $fuenteTitulo = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Regular)
+  
+  # Función para estilizar botones
+  function Set-ButtonStyle {
+      param($button)
+      $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+      $button.FlatAppearance.BorderSize = 0
+      $button.BackColor = $colorPrimario
+      $button.ForeColor = [System.Drawing.Color]::White
+      $button.Font = $fuenteModerna
+      $button.Cursor = [System.Windows.Forms.Cursors]::Hand
+      $button.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(0, 99, 177)
+      $button.Padding = New-Object System.Windows.Forms.Padding(5)
+  }
+  
+  # Función para estilizar TextBox
+  function Set-TextBoxStyle {
+      param($textbox)
+      $textbox.Font = $fuenteModerna
+      $textbox.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+      $textbox.BackColor = $colorSecundario
+      $textbox.ForeColor = $colorTexto
+  }
+  
+  # Función para estilizar Label
+  function Set-LabelStyle {
+      param($label)
+      $label.Font = $fuenteModerna
+      $label.ForeColor = $colorTexto
+  }
+  
+  # Crear la ventana principal
+  $form = New-Object System.Windows.Forms.Form
+  $form.Text = "Auditoría de Active Directory"
+  $form.Size = New-Object System.Drawing.Size(1200, 600)
+  $form.StartPosition = "CenterScreen"
+  $form.BackColor = $colorSecundario
+  $form.Font = $fuenteModerna
+  
+  # Agregar una imagen en la parte superior
+  $pictureBox = New-Object System.Windows.Forms.PictureBox
+  $pictureBox.Size = New-Object System.Drawing.Size(200, 40)
+  $pictureBox.Location = New-Object System.Drawing.Point(10, 5)
+  $pictureBox.Image = $imagenl
+  $form.Controls.Add($pictureBox)
+  
+  # Crear un DataGridView para mostrar los resultados
+  $dataGridView = New-Object System.Windows.Forms.DataGridView
+  $dataGridView.Size = New-Object System.Drawing.Size(1150, 400)
+  $dataGridView.Location = New-Object System.Drawing.Point(20, 150)
+  #$dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+  $dataGridView.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::FullRowSelect
+  $dataGridView.ReadOnly = $true
+  $form.Controls.Add($dataGridView)
+  
+  # Crear un campo para ingresar los días de inactividad
+  $labelDias = New-Object System.Windows.Forms.Label
+  $labelDias.Text = "Días de inactividad:"
+  $labelDias.Location = New-Object System.Drawing.Point(20, 60)
+  $labelDias.AutoSize = $true
+  Set-LabelStyle $labelDias
+  $form.Controls.Add($labelDias)
+  
+  $textBoxDias = New-Object System.Windows.Forms.TextBox
+  $textBoxDias.Location = New-Object System.Drawing.Point(160, 60)
+  $textBoxDias.Size = New-Object System.Drawing.Size(80, 20)
+  Set-TextBoxStyle $textBoxDias
+  $form.Controls.Add($textBoxDias)
+  
+  # Crear un botón para ejecutar la auditoría
+  $buttonAuditar = New-Object System.Windows.Forms.Button
+  $buttonAuditar.Text = "Ejecutar Auditoría"
+  $buttonAuditar.Location = New-Object System.Drawing.Point(270, 60)
+  $buttonAuditar.Size = New-Object System.Drawing.Size(150, 30)
+  Set-ButtonStyle $buttonAuditar
+  $buttonAuditar.Add_Click({
+      # Limpiar el DataGridView
+      $dataGridView.Rows.Clear()
+
+      # Obtener los días de inactividad ingresados por el usuario
+      $diasInactividad = [int]$textBoxDias.Text
+
+      # Obtener las cuentas inactivas (último inicio de sesión hace más de X días o nunca)
+      $inactiveUsers = Get-ADUser -Filter * -Properties SamAccountName, Enabled, PasswordNeverExpires, 
+      PasswordLastSet, LastLogonDate, MemberOf | 
+          Where-Object { 
+              ($_.LastLogonDate -lt (Get-Date).AddDays(-$diasInactividad)) -or 
+              ($_.LastLogonDate -eq $null)
+          }
+
+      # Contador de usuarios
+      $contadorUsuarios = 0
+
+      foreach ($user in $inactiveUsers) {
+          # Obtener los grupos a los que pertenece el usuario
+          $grupos = ($user.MemberOf | ForEach-Object { (Get-ADGroup $_).Name }) -join ", "
+
+          # Determinar si la cuenta nunca ha sido usada
+          $nuncaUsada = ($user.LastLogonDate -eq $null)
+
+          # Agregar una fila al DataGridView
+          $dataGridView.Rows.Add(
+              $user.SamAccountName,
+              $user.Enabled,
+              $user.PasswordNeverExpires,
+              $user.PasswordLastSet,
+              $user.LastLogonDate,
+              $nuncaUsada,
+              $grupos  # La columna "Grupos" ahora está al final
+          )
+
+          # Incrementar el contador
+          $contadorUsuarios++
+      }
+
+      # Actualizar la label con la cantidad de usuarios
+      $labelCantidadUsuarios.Text = "Usuarios listados: $contadorUsuarios"
+  })
+  $form.Controls.Add($buttonAuditar)
+  
+  # Crear un botón para exportar los resultados
+  $buttonExportar = New-Object System.Windows.Forms.Button
+  $buttonExportar.Text = "Exportar a CSV"
+  $buttonExportar.Location = New-Object System.Drawing.Point(440, 60)
+  $buttonExportar.Size = New-Object System.Drawing.Size(150, 30)
+  Set-ButtonStyle $buttonExportar
+  $buttonExportar.Add_Click({
+      # Crear un diálogo para guardar el archivo
+      $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+      $saveFileDialog.Filter = "Archivos CSV (*.csv)|*.csv"
+      $saveFileDialog.Title = "Guardar resultados de auditoría"
+      $saveFileDialog.ShowDialog() | Out-Null
+  
+      if ($saveFileDialog.FileName -ne "") {
+          # Crear una lista para almacenar los resultados
+          $results = @()
+  
+          # Recorrer las filas del DataGridView
+          foreach ($row in $dataGridView.Rows) {
+              $results += [PSCustomObject]@{
+                  Nombre                = $row.Cells[0].Value
+                  Habilitado            = $row.Cells[1].Value
+                  ContraseñaNuncaExpira = $row.Cells[2].Value
+                  UltimoCambioContraseña = $row.Cells[3].Value
+                  UltimoInicioSesion    = $row.Cells[4].Value
+                  NuncaUsada            = $row.Cells[5].Value
+                  Grupos                = $row.Cells[6].Value
+              }
+          }
+  
+          # Exportar a CSV
+          $results | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
+          [System.Windows.Forms.MessageBox]::Show("Archivo exportado exitosamente.", "Exportación Completada", "OK", "Information")
+      }
+  })
+  $form.Controls.Add($buttonExportar)
+  
+  # Crear una label para mostrar la cantidad de usuarios listados
+  $labelCantidadUsuarios = New-Object System.Windows.Forms.Label
+  $labelCantidadUsuarios.Text = "Usuarios listados: 0"
+  $labelCantidadUsuarios.Location = New-Object System.Drawing.Point(20, 120)
+  $labelCantidadUsuarios.AutoSize = $true
+  $form.Controls.Add($labelCantidadUsuarios)
+  
+  # Configurar las columnas del DataGridView
+  $dataGridView.Columns.Add("Nombre", "Nombre")
+  $dataGridView.Columns.Add("Habilitado", "Habilitado")
+  $dataGridView.Columns.Add("ContraseñaNuncaExpira", "Contraseña Nunca Expira")
+  $dataGridView.Columns.Add("UltimoCambioContraseña", "Último Cambio de Contraseña")
+  $dataGridView.Columns.Add("UltimoInicioSesion", "Último Inicio de Sesión")
+  $dataGridView.Columns.Add("NuncaUsada", "Nunca Usada")
+  $dataGridView.Columns.Add("Grupos", "Grupos")  # La columna "Grupos" ahora está al final
+  $DataGridView.Columns[0].Width = 110
+  $DataGridView.Columns[1].Width = 100
+  $DataGridView.Columns[2].Width = 160
+  $DataGridView.Columns[3].Width = 210
+  $DataGridView.Columns[4].Width = 180
+  $dataGridView.Columns[5].Width = 110
+  $dataGridView.Columns[6].AutoSizeMode = "AllCells"
+  # Mostrar la ventana
+  $form.ShowDialog() 
+            </code>
+                    <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                    <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+                </pre>
+            </div>
+        </section>
+    </section>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
