@@ -6,6 +6,7 @@ Permisos de Administrador: Algunas operaciones, como el uso de System.Net.Networ
 2. Dependencias
 Ensamblados de .NET: El script carga los ensamblados System.Windows.Forms y System.Drawing. Estos están disponibles en sistemas Windows con .NET Framework instalado (versión 4.5 o superior).
 Base64 para la Imagen (Opcional): Si decides incluir un logo en la interfaz gráfica, asegúrate de que la cadena Base64 sea válida y represente una imagen compatible (como PNG).
+Permisos de Administrador: Algunas operaciones, como el uso de System.Net.NetworkInformation.Ping, pueden requerir permisos elevados dependiendo de la configuración del sistema.
 #>
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
