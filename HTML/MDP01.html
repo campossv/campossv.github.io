@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <style>
       body {
@@ -194,6 +196,7 @@
       rel="stylesheet"
       href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
     />
+    <script src="script.js"></script>
   </head>
   <body>
      <header>
@@ -259,9 +262,9 @@ function CheckConeccion {
         if ($script:stopFlag) { break }
     }
 }
-</code></pre>
-                <button class="copy-button" onclick="copyCode('codeBlock1')" aria-label="Copiar código">Copiar</button>
-                <div id="copyConfirmation1" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
+                
             </div>
     </section>
     <section id="CheckConnection" class="instructions">
@@ -303,9 +306,9 @@ $timer.Add_Tick({
         }
     }
 })
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock2')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
+
 </div>
     </section>
     <section id="timer" class="instructions">
@@ -380,9 +383,8 @@ function ReadLogFile {
         if ($script:stopFlag) { break }
     }
 }
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock3')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
 </div>
     </section>
     <section id="ReadLogFile" class="instructions">
@@ -420,9 +422,8 @@ $startButton.Add_Click({
     $SalidaResultados.Clear()
     $script:allLines = @()
 })
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock4')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation4" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
 </div>
 </section>
 <section id="$startButton" class="instructions">
@@ -476,9 +477,8 @@ $BDetener.Add_Click({
     $BFiltrarRojo.Enabled = $true
     $BMostrarTodo.Enabled = $true
 })
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock5')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation5" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
 </div>
 </section>
 <section id="$BDetener" class="instructions">
@@ -527,9 +527,8 @@ $BFiltrarRojo.Add_Click({
     }
     $SalidaResultados.ScrollToCaret()
 })
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock6')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation6" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
 </div>
 </section>
 <section id="$BFiltrarRojo" class="instructions">
@@ -584,9 +583,8 @@ $BMostrarTodo.Add_Click({
     }
     $SalidaResultados.ScrollToCaret()
 })
-</code></pre>
-<button class="copy-button" onclick="copyCode('codeBlock7')" aria-label="Copiar código">Copiar</button>
-<div id="copyConfirmation7" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</code><button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div class="copy-confirmation" aria-live="polite">¡Copiado!</div></pre>
 </div>
 </section>
 <section id="$BMostrarTodo" class="instructions">
