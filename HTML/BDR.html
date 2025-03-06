@@ -1,3 +1,375 @@
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    h2 {
+      color: #4267b2;
+    }
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .copy-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    /* Estilo global para la barra de desplazamiento */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+
+    /* Webkit browsers like Chrome and Safari */
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+
+    /* Contenedor de ejemplo */
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Barrido de Red" />
+  <meta
+    name="keywords"
+    content="Barrido de Red, PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+  />
+  <title>Barrido de Red</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+</head>
+<body>
+  <header>
+    <div class="header-text">
+      <h1>Barrido de Red</h1>
+      <p>Documentación de la Herramienta de Escaneo de Red en PowerShell</p>
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#overview">Descripción General</a></li>
+      <li><a href="#functions">Funciones</a></li>
+      <li><a href="#usage">Uso</a></li>
+      <li><a href="#examples">Ejemplos</a></li>
+      <li><a href="#script-completo">Script Completo</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="overview">
+      <h2>Descripción General</h2>
+      <div class="instructions">
+        <p>Este script de PowerShell proporciona una interfaz gráfica para escanear rangos de direcciones IP. Características principales:</p>
+        <ul>
+          <li>Interfaz moderna de Windows Forms con estilo personalizado</li>
+          <li>Escaneo de IP en paralelo para mejor rendimiento</li>
+          <li>Funcionalidad de exportación a CSV</li>
+          <li>Monitoreo de progreso en tiempo real</li>
+          <li>Selección personalizable de rango de IP</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="functions">
+      <h2>Funciones Principales</h2>
+      
+      <div class="section">
+        <h3>Funciones de Estilo de Interfaz</h3>
+        <div class="code-container">
+          <h4>Set-ButtonStyle</h4>
+          <p>Aplica un estilo consistente a los botones de la interfaz.</p>
+          <pre><code class="language-powershell">function Set-ButtonStyle {
+    param($button)
+    $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+    $button.FlatAppearance.BorderSize = 0
+    $button.BackColor = $colorPrimario
+    $button.ForeColor = [System.Drawing.Color]::White
+    $button.Font = $fuenteModerna
+    $button.Cursor = [System.Windows.Forms.Cursors]::Hand
+    $button.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(0, 99, 177)
+    $button.Padding = New-Object System.Windows.Forms.Padding(5)
+}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <h4>Set-TextBoxStyle</h4>
+          <p>Aplica un estilo moderno a las cajas de texto.</p>
+          <pre><code class="language-powershell">function Set-TextBoxStyle {
+    param($textbox)
+    $textbox.Font = $fuenteModerna
+    $textbox.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    $textbox.BackColor = $colorSecundario
+    $textbox.ForeColor = $colorTexto
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Procesamiento de Direcciones IP</h3>
+        <div class="code-container">
+          <h4>Generate-IPList</h4>
+          <p>Genera una lista de direcciones IP entre un rango inicial y final.</p>
+          <pre><code class="language-powershell">function Generate-IPList {
+    param (
+        [string]$startIP,
+        [string]$endIP
+    )
+    $startInt = ConvertTo-Int32 $startIP
+    $endInt = ConvertTo-Int32 $endIP
+    $ipArray = @()
+    for ($i = $startInt; $i -le $endInt; $i++) {
+        $ipArray += ConvertTo-IPAddress $i
+    }
+    return $ipArray
+}</code></pre>
+        </div>
+
+        <div class="code-container">
+          <h4>ConvertTo-Int32 y ConvertTo-IPAddress</h4>
+          <p>Funciones auxiliares para convertir entre direcciones IP y valores enteros.</p>
+          <pre><code class="language-powershell"># Convertir dirección IP a entero
+function ConvertTo-Int32 {
+    param([string]$ip)
+    $octets = $ip.Split('.')
+    return [int]([int]$octets[0] * 16777216 + 
+                 [int]$octets[1] * 65536 + 
+                 [int]$octets[2] * 256 + 
+                 [int]$octets[3])
+}
+
+# Convertir entero a dirección IP
+function ConvertTo-IPAddress {
+    param([int32]$int)
+    return ("{0}.{1}.{2}.{3}" -f `
+        (($int -band 0xFF000000) -shr 24),
+        (($int -band 0x00FF0000) -shr 16),
+        (($int -band 0x0000FF00) -shr 8),
+        ($int -band 0x000000FF))
+}</code></pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Proceso de Escaneo</h3>
+        <div class="code-container">
+          <h4>Bloque de Script para Procesamiento por Lotes</h4>
+          <p>Maneja el procesamiento en paralelo de direcciones IP durante el escaneo.</p>
+          <pre><code class="language-powershell">$processIPBatchScriptBlock = {
+    param($ipBatch)
+    $results = @()
+    foreach ($ip in $ipBatch) {
+        try {
+            $ping = New-Object System.Net.NetworkInformation.Ping
+            $reply = $ping.Send($ip, 1000)
+            if ($reply.Status -eq 'Success') {
+                $results += [PSCustomObject]@{
+                    IP = $ip
+                    Estado = $reply.Status
+                    TiempoRespuesta = $reply.RoundtripTime
+                }
+            }
+        }
+        catch {}
+    }
+    return $results
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="usage">
+      <h2>Instrucciones de Uso</h2>
+      <div class="instructions">
+        <ol>
+          <li>Ingrese la dirección IP inicial en la primera caja de texto</li>
+          <li>Ingrese la dirección IP final en la segunda caja de texto</li>
+          <li>Haga clic en "Iniciar Barrido" para comenzar el escaneo de red</li>
+          <li>Monitoree el progreso en la barra de estado</li>
+          <li>Use "Exportar a CSV" para guardar los resultados cuando se complete</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>Ejemplo de Uso</h2>
+      <div class="instructions">
+        <p>Para escanear un rango de red local:</p>
+        <ul>
+          <li>IP Inicial: 192.168.1.1</li>
+          <li>IP Final: 192.168.1.254</li>
+        </ul>
+        <p>El script escaneará todas las direcciones en este rango y mostrará los hosts activos.</p>
+      </div>
+    </section>
+
+    <section id="script-completo">
+      <h2>Script Completo</h2>
+      <div class="instructions">
+        <p>A continuación se presenta el script completo de PowerShell para el barrido de red. Puede copiar el código completo usando el botón "Copiar".</p>
+      </div>
+      <div class="code-container">
+        <pre><code class="language-powershell">
 <#
 Autor: Vladimir Campos
 1. Requisitos del Sistema
@@ -491,4 +863,36 @@ if ($script:jobs) {
         Stop-Job -Job $job
         Remove-Job -Job $job
     }
-}
+}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+  <script>
+    document.querySelectorAll('.code-container').forEach(container => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copiar';
+      
+      const confirmation = document.createElement('div');
+      confirmation.className = 'copy-confirmation';
+      confirmation.textContent = '¡Copiado!';
+      
+      container.appendChild(button);
+      container.appendChild(confirmation);
+      
+      button.addEventListener('click', () => {
+        const code = container.querySelector('code').textContent;
+        navigator.clipboard.writeText(code);
+        
+        confirmation.classList.add('show');
+        setTimeout(() => {
+          confirmation.classList.remove('show');
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
