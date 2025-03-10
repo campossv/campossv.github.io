@@ -187,7 +187,7 @@
     name="description"
     content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
   />
-  <title>Barrido de Red</title>
+  <title>Decodificador de CSR con Interfaz Gráfica</title>
   <link rel="shortcut icon" href="./favicon.ico" />
   <link
     rel="stylesheet"
@@ -201,8 +201,8 @@
 <body>
   <header>
     <div class="header-text">
-      <h1>Barrido de Red</h1>
-      <p>Documentación de la Herramienta de Escaneo de Red en PowerShell</p>
+      <h1>Decodificador de CSR con Interfaz Gráfica</h1>
+      <center><p>Documentación</p></center>
     </div>
   </header>
 
@@ -226,21 +226,13 @@
     <section id="overview">
       <h2>Descripción General</h2>
       <div class="instructions">
-        <p>Este script de PowerShell proporciona una interfaz gráfica para escanear rangos de direcciones IP. Características principales:</p>
-        <ul>
-          <li>Interfaz moderna de Windows Forms con estilo personalizado</li>
-          <li>Escaneo de IP en paralelo para mejor rendimiento</li>
-          <li>Funcionalidad de exportación a CSV</li>
-          <li>Monitoreo de progreso en tiempo real</li>
-          <li>Selección personalizable de rango de IP</li>
-        </ul>
+        <p>El script crea una interfaz gráfica de usuario (GUI) que permite a los usuarios pegar un CSR en formato PEM, validar su estructura y decodificar su contenido utilizando OpenSSL. La información decodificada se muestra en una lista detallada dentro de la interfaz.</p>
       </div>
     </section>
     <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/%24/embed/Barrido-de-red%3Ab?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe>
 
     <section id="functions">
       <h2>Funciones Principales</h2>
-      
       <div class="section">
         <h3>Funciones de Estilo de Interfaz</h3>
         <div class="code-container">
@@ -272,74 +264,101 @@
       </div>
 
       <div class="section">
-        <h3>Procesamiento de Direcciones IP</h3>
         <div class="code-container">
-          <h4>Generate-IPList</h4>
-          <p>Genera una lista de direcciones IP entre un rango inicial y final.</p>
+          <h4>Test-CSRFormat</h4>
+          <p>Validar si el CSR tiene formato PEM válido.</p>
           <pre><code class="language-powershell">function Generate-IPList {
-    param (
-        [string]$startIP,
-        [string]$endIP
-    )
-    $startInt = ConvertTo-Int32 $startIP
-    $endInt = ConvertTo-Int32 $endIP
-    $ipArray = @()
-    for ($i = $startInt; $i -le $endInt; $i++) {
-        $ipArray += ConvertTo-IPAddress $i
-    }
-    return $ipArray
-}</code></pre>
-        </div>
-
-        <div class="code-container">
-          <h4>ConvertTo-Int32 y ConvertTo-IPAddress</h4>
-          <p>Funciones auxiliares para convertir entre direcciones IP y valores enteros.</p>
-          <pre><code class="language-powershell"># Convertir dirección IP a entero
-function ConvertTo-Int32 {
-    param([string]$ip)
-    $octets = $ip.Split('.')
-    return [int]([int]$octets[0] * 16777216 + 
-                 [int]$octets[1] * 65536 + 
-                 [int]$octets[2] * 256 + 
-                 [int]$octets[3])
+function Test-CSRFormat {
+param ([string]$csrContent)
+if ($csrContent -match "-----BEGIN (NEW )?CERTIFICATE REQUEST-----" -and 
+$csrContent -match "-----END (NEW )?CERTIFICATE REQUEST-----") {
+return $true
 }
-
-# Convertir entero a dirección IP
-function ConvertTo-IPAddress {
-    param([int32]$int)
-    return ("{0}.{1}.{2}.{3}" -f `
-        (($int -band 0xFF000000) -shr 24),
-        (($int -band 0x00FF0000) -shr 16),
-        (($int -band 0x0000FF00) -shr 8),
-        ($int -band 0x000000FF))
-}</code></pre>
+return $false
+}
+    </code></pre>
+    <h4>Detalles:</h4>
+    <p>Verifica la presencia de las líneas BEGIN CERTIFICATE REQUEST y END CERTIFICATE REQUEST.</p>
+  </div>
+<br>
+  <div class="code-container">
+    <h4>Función Decode-CSR</h4>
+    <p>Decodificar el CSR usando OpenSSL.</p>
+    <pre><code class="language-powershell">
+      function Decode-CSR {
+        param ([string]$csrContent)
+        New-Item .\Temp.req -Force | Out-Null
+        try {
+            $opensslPath = Join-Path -Path $PSScriptRoot -ChildPath "openssl.exe"
+            if (-Not (Test-Path $opensslPath)) { throw "openssl.exe no encontrado." }
+            return & $opensslPath req -in .\Temp.req -noout -text
+        } catch {
+            Write-Host "Error: $_" -ForegroundColor Red
+            return $null
+        } finally {
+            Remove-Item -Path .\Temp.req -Force -ErrorAction SilentlyContinue
+        }
+    }
+    </code></pre>
+    <h4>Detalles:</h4>
+    <ul>
+      <li>Crea un archivo temporal (Temp.req) con el contenido del CSR.</li>
+      <li>Ejecuta OpenSSL para extraer la información en texto plano.</li>
+      <li>Dependencia : Requiere openssl.exe en el mismo directorio del script.</li>
+      <li>Manejo de errores : Captura excepciones si OpenSSL no está presente.</li>
+    </ul>
         </div>
       </div>
-
+<br>
       <div class="section">
-        <h3>Proceso de Escaneo</h3>
         <div class="code-container">
-          <h4>Bloque de Script para Procesamiento por Lotes</h4>
-          <p>Maneja el procesamiento en paralelo de direcciones IP durante el escaneo.</p>
-          <pre><code class="language-powershell">$processIPBatchScriptBlock = {
-    param($ipBatch)
-    $results = @()
-    foreach ($ip in $ipBatch) {
-        try {
-            $ping = New-Object System.Net.NetworkInformation.Ping
-            $reply = $ping.Send($ip, 1000)
-            if ($reply.Status -eq 'Success') {
-                $results += [PSCustomObject]@{
-                    IP = $ip
-                    Estado = $reply.Status
-                    TiempoRespuesta = $reply.RoundtripTime
+          <h4>Función Parse-CSRInfo</h4>
+          <p>Procesar la salida de OpenSSL y mostrarla en un ListView.</p>
+          <pre><code class="language-powershell">function Parse-CSRInfo {
+param ([string[]]$csrInfo)
+$listView.Columns.Clear()
+$listView.Columns.Add("Propiedad", 150)
+$listView.Columns.Add("Valor", 400)
+
+# Variables para almacenar datos
+$commonName = ""; $country = ""; $emailAddress = ""; $organization = ""
+$organizationalUnit = ""; $locality = ""; $state = ""; $domainComponent = ""
+$keySize = ""; $publicKeyAlgorithm = ""; $signatureAlgorithm = ""; $sans = @()
+
+# Procesar cada línea de la salida de OpenSSL
+foreach ($line in $csrInfo) {
+    if ($line -match "Subject:\s*(.+)") { 
+        # Extraer componentes del Subject (CN, C, O, etc.)
+        $subjectComponents = $matches[1] -split ','
+        foreach ($comp in $subjectComponents) {
+            if ($comp -match "^\s*([A-Za-z]+)\s*=\s*(.+)$") {
+                switch ($matches[1].Trim()) {
+                    "CN" { $commonName = $matches[2].Trim() }
+                    "C"  { $country = $matches[2].Trim() }
+                    # ... (otros casos)
                 }
             }
         }
-        catch {}
     }
-    return $results
-}</code></pre>
+    # Extraer otros campos (Key Size, SANs, etc.)
+    # ...
+}
+# Agregar datos al ListView
+$listView.Items.Add("Common Name (CN)").SubItems.Add($commonName)
+# ... (agregar más campos)
+}
+</code></pre>
+<h4>Detalles:</h4>
+<ul>
+  <li>Extrae campos como Common Name , Organización , Algoritmo de Firma , etc.</li>
+  <li>Detecta Subject Alternative Names (SANs) si existen.</li>
+  <li>Estructura visual :
+    <ul>
+      <li>Dos columnas: "Propiedad" y "Valor".</li>
+      <li>Separadores entre secciones (ej: "Subject Information").</li>
+    </ul>
+  </li>
+</ul>
         </div>
       </div>
     </section>
@@ -348,11 +367,10 @@ function ConvertTo-IPAddress {
       <h2>Instrucciones de Uso</h2>
       <div class="instructions">
         <ol>
-          <li>Ingrese la dirección IP inicial en la primera caja de texto</li>
-          <li>Ingrese la dirección IP final en la segunda caja de texto</li>
-          <li>Haga clic en "Iniciar Barrido" para comenzar el escaneo de red</li>
-          <li>Monitoree el progreso en la barra de estado</li>
-          <li>Use "Exportar a CSV" para guardar los resultados cuando se complete</li>
+          <li>Ejecutar el script</li>
+          <li>Pegar el CSR</li>
+          <li>Hacer clic en "Decodificar CSR"</li>
+          <li>Ver los resultados en el ListView</li>
         </ol>
       </div>
     </section>
@@ -360,12 +378,18 @@ function ConvertTo-IPAddress {
     <section id="examples">
       <h2>Ejemplo de Uso</h2>
       <div class="instructions">
-        <p>Para escanear un rango de red local:</p>
+        <p>Supongamos que tienes un CSR generado con OpenSSL y quieres ver su contenido sin usar la línea de comandos.</p>
         <ul>
-          <li>IP Inicial: 192.168.1.1</li>
-          <li>IP Final: 192.168.1.254</li>
+          <li>CSR: 
+            <pre><code class="language-powershell">
+            -----BEGIN CERTIFICATE REQUEST-----
+            MIICJzCCAd4CAQAwgYgxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJVUzEUMBIGA1UE
+            CAwJU2F2Y2VzY29kZSB0aGUgZm9yZ2VzLg==
+            -----END CERTIFICATE REQUEST-----
+            </code></pre>
+          </li>
         </ul>
-        <p>El script escaneará todas las direcciones en este rango y mostrará los hosts activos.</p>
+        <p>El script decodificará el CSR y mostrará los detalles en el ListView.</p>
       </div>
     </section>
 
@@ -378,12 +402,12 @@ function ConvertTo-IPAddress {
         <pre><code class="language-powershell">
 <#
 Autor: Vladimir Campos
-1. Requisitos del Sistema
-Versión de PowerShell: El script utiliza características avanzadas de PowerShell, como Start-Job y System.Windows.Forms. Se recomienda usar al menos PowerShell 5.1 o superior.
-Permisos de Administrador: Algunas operaciones, como el uso de System.Net.NetworkInformation.Ping, pueden requerir permisos elevados dependiendo de la configuración del sistema.
-2. Dependencias
-Ensamblados de .NET: El script carga los ensamblados System.Windows.Forms y System.Drawing. Estos están disponibles en sistemas Windows con .NET Framework instalado (versión 4.5 o superior).
-Base64 para la Imagen (Opcional): Si decides incluir un logo en la interfaz gráfica, asegúrate de que la cadena Base64 sea válida y represente una imagen compatible (como PNG).
+PowerShell :
+Versión 5.1 o superior (incluido en Windows 10/11 de forma predeterminada).
+Ejecución de scripts permitida :
+Ejecuta Set-ExecutionPolicy RemoteSigned -Scope CurrentUser en PowerShell como administrador para permitir scripts.
+.NET Framework :
+Versión 4.5 o superior (necesario para System.Windows.Forms y System.Drawing).
 #>
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -433,10 +457,10 @@ function Set-LabelStyle {
     $label.ForeColor = $colorTexto
 }
 
-# Crear el formulario principal
+#el formulario
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Barrido de Red"
-$form.Size = New-Object System.Drawing.Size(900, 650)
+$form.Text = "CSR Decoder"
+$form.Size = New-Object System.Drawing.Size(600, 500)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -444,432 +468,281 @@ $form.MinimizeBox = $false
 $form.BackColor = $colorSecundario
 $form.Font = $fuenteModerna
 
-# Agregar una imagen en la parte superior
 $pictureBox = New-Object System.Windows.Forms.PictureBox
 $pictureBox.Size = New-Object System.Drawing.Size(200, 40)
 $pictureBox.Location = New-Object System.Drawing.Point(10, 0)
 $pictureBox.Image = $imagenl
 $form.Controls.Add($pictureBox)
 
-# Panel de control superior
-$controlPanel = New-Object System.Windows.Forms.Panel
-$controlPanel.Location = New-Object System.Drawing.Point(0, 60)
-$controlPanel.Dock = [System.Windows.Forms.DockStyle]::Top
-$controlPanel.Height = 80
-$controlPanel.BackColor = [System.Drawing.Color]::WhiteSmoke
+# Cuadro de texto para pegar el CSR
+$textBox = New-Object System.Windows.Forms.TextBox
+$textBox.Multiline = $true
+$textBox.ScrollBars = "Vertical"
+$textBox.Location = New-Object System.Drawing.Point(10, 45)
+$textBox.Size = New-Object System.Drawing.Size(560, 150)
+Set-TextBoxStyle $textBox
+$form.Controls.Add($textBox)
 
-# Etiquetas y cajas de texto para IPs
-$labelStartIP = New-Object System.Windows.Forms.Label
-$labelStartIP.Text = "IP Inicial:"
-$labelStartIP.Location = New-Object System.Drawing.Point(10, 50)
-$labelStartIP.AutoSize = $true
-Set-LabelStyle $labelStartIP
-$controlPanel.Controls.Add($labelStartIP)
+# Botón para decodificar el CSR
+$button = New-Object System.Windows.Forms.Button
+$button.Text = "Decodificar CSR"
+$button.Location = New-Object System.Drawing.Point(10, 210)
+$button.Size = New-Object System.Drawing.Size(150, 30)
+Set-ButtonStyle $button
+$form.Controls.Add($button)
 
-$textBoxStartIP = New-Object System.Windows.Forms.TextBox
-$textBoxStartIP.Location = New-Object System.Drawing.Point(80, 47)
-$textBoxStartIP.Size = New-Object System.Drawing.Size(120, 60)
-$textBoxStartIP.Text = "192.168.0.1"
-Set-TextBoxStyle $textBoxStartIP
-$controlPanel.Controls.Add($textBoxStartIP)
+# Listview para mostrar la información
+$listView = New-Object System.Windows.Forms.ListView
+$listView.Location = New-Object System.Drawing.Point(10, 250)
+$listView.Size = New-Object System.Drawing.Size(560, 200)
+$listView.View = [System.Windows.Forms.View]::Details
+$listView.FullRowSelect = $true
+$listView.GridLines = $true
+$form.Controls.Add($listView)
 
-$labelEndIP = New-Object System.Windows.Forms.Label
-$labelEndIP.Text = "IP Final:"
-$labelEndIP.Location = New-Object System.Drawing.Point(220, 50)
-$labelEndIP.AutoSize = $true
-Set-LabelStyle $labelEndIP
-$controlPanel.Controls.Add($labelEndIP)
+# Etiqueta para mostrar si el CSR es válido o no
+$labelValid = New-Object System.Windows.Forms.Label
+$labelValid.Location = New-Object System.Drawing.Point(10, 360)
+$labelValid.Size = New-Object System.Drawing.Size(560, 30)
+$labelValid.Font = New-Object System.Drawing.Font("Arial", 12, [System.Drawing.FontStyle]::Bold)
+Set-LabelStyle $labelValid
+$form.Controls.Add($labelValid)
 
-$textBoxEndIP = New-Object System.Windows.Forms.TextBox
-$textBoxEndIP.Location = New-Object System.Drawing.Point(280, 47)
-$textBoxEndIP.Size = New-Object System.Drawing.Size(120, 20)
-$textBoxEndIP.Text = "192.168.0.10"
-Set-TextBoxStyle $textBoxEndIP
-$controlPanel.Controls.Add($textBoxEndIP)
-
-# Botón Iniciar Barrido - Centrado en el panel
-$buttonStart = New-Object System.Windows.Forms.Button
-$buttonStart.Size = New-Object System.Drawing.Size(150, 30)
-$buttonStart.Location = New-Object System.Drawing.Point(500, 40)
-$buttonStart.Text = "Iniciar Barrido"
-
-Set-ButtonStyle $buttonStart
-# Calcular posición centrada
-
-$controlPanel.Controls.Add($buttonStart)
-
-# Etiqueta de estado - Centrada debajo del botón
-$statusLabel = New-Object System.Windows.Forms.Label
-$statusLabel.Text = "Listo para iniciar"
-$statusLabel.AutoSize = $false
-$statusLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-$statusLabel.Size = New-Object System.Drawing.Size($controlPanel.Width, 20)
-$statusLabel.Location = New-Object System.Drawing.Point(0, 15)
-$statusLabel.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
-Set-LabelStyle $statusLabel
-$controlPanel.Controls.Add($statusLabel)
-
-# Barra de progreso
-$progressBar = New-Object System.Windows.Forms.ProgressBar
-$progressBar.Height = 20
-$progressBar.Style = "Continuous"
-$progressBar.Dock = [System.Windows.Forms.DockStyle]::Bottom
-
-# DataGridView
-$dataGridView = New-Object System.Windows.Forms.DataGridView
-$dataGridView.Dock = [System.Windows.Forms.DockStyle]::Fill
-$dataGridView.BackgroundColor = [System.Drawing.Color]::White
-$dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
-$dataGridView.RowHeadersVisible = $false
-$dataGridView.AllowUserToAddRows = $false
-$dataGridView.AllowUserToDeleteRows = $false
-$dataGridView.AllowUserToResizeRows = $false
-$dataGridView.ReadOnly = $true
-$dataGridView.SelectionMode = "FullRowSelect"
-$dataGridView.MultiSelect = $false
-$dataGridView.ColumnHeadersHeightSizeMode = "AutoSize"
-
-# Columnas del DataGridView
-$columns = @(
-    @{Name="IP"; Width=120},
-    @{Name="Hostname"; Width=200},
-    @{Name="Estado"; Width=150},
-    @{Name="Tiempo (ms)"; Width=100},
-    @{Name="TTL"; Width=80},
-    @{Name="DNS"; Width=100}
-)
-
-foreach ($col in $columns) {
-    $column = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
-    $column.Name = $col.Name
-    $column.HeaderText = $col.Name
-    $column.Width = $col.Width
-    $dataGridView.Columns.Add($column)
-}
-
-# Añadir controles al formulario en el orden correcto
-$form.Controls.Add($progressBar)  # Primero el progress bar (abajo)
-$form.Controls.Add($dataGridView) # Luego el DataGridView (en medio)
-$form.Controls.Add($controlPanel) # Finalmente el panel de control (arriba)
-
-# Habilitar doble buffer para el DataGridView (reduce parpadeo)
-try {
-    $propInfo = [System.Windows.Forms.DataGridView].GetProperty("DoubleBuffered", 
-        [System.Reflection.BindingFlags]::Instance -bor [System.Reflection.BindingFlags]::NonPublic)
-    $propInfo.SetValue($dataGridView, $true, $null)
-} catch {
-    # Si falla, continuamos sin doble buffer
-    Write-Host "No se pudo habilitar DoubleBuffered: $_"
-}
-
-# Variables globales para el procesamiento
-$script:ipList = @()
-$script:totalIPs = 0
-$script:jobs = @()
-$script:maxJobs = 10  # Reducido para mejor control
-$script:batchSize = 2  # Reducido para mejor control
-$script:processedCount = 0
-
-# Crear el script block para el job
-$processIPBatchScriptBlock = {
-    param($ips)
-    
-    $results = @()
-    foreach ($ip in $ips) {
-        Write-Host "Procesando IP: $ip"  # Debug
-        
-        # Resolución DNS
-        $dnsStatus = "No resuelto"
-        $hostname = "N/A"
-        
-        try {
-            $hostEntry = [System.Net.Dns]::GetHostEntry($ip)
-            $hostname = $hostEntry.HostName
-            $dnsStatus = "Resuelto"
-        } catch {}
-        
-        # Ping
-        try {
-            $ping = New-Object System.Net.NetworkInformation.Ping
-            $reply = $ping.Send($ip, 1000)
-            
-            $status = switch ($reply.Status) {
-                "Success" { "Respuesta exitosa" }
-                "TimedOut" { "Tiempo agotado" }
-                "DestinationHostUnreachable" { "Host inaccesible" }
-                default { $reply.Status.ToString() }
-            }
-            
-            $time = if ($reply.Status -eq "Success") { $reply.RoundtripTime.ToString() } else { "N/A" }
-            $ttl = if ($reply.Status -eq "Success" -and $null -ne $reply.Options) { $reply.Options.Ttl.ToString() } else { "N/A" }
-        } catch {
-            $status = "Error: " + $_.Exception.Message
-            $time = "N/A"
-            $ttl = "N/A"
-        }
-        
-        $results += @{
-            IP = $ip
-            Hostname = $hostname
-            Estado = $status
-            "Tiempo (ms)" = $time
-            TTL = $ttl
-            DNS = $dnsStatus
-        }
-    }
-    
-    return $results
-}
-
-# Timer para actualizar la interfaz y gestionar jobs
-$timer = New-Object System.Windows.Forms.Timer
-$timer.Interval = 500  # Aumentado para reducir la frecuencia de actualizaciones
-$timer.Add_Tick({
-    if ($script:jobs -ne $null) {
-        Write-Host "Jobs activos: $($script:jobs.Count), Cola: $($script:ipQueue.Count)"  # Debug
-        
-        # Procesar jobs completados
-        $completedJobs = $script:jobs | Where-Object { $_.State -eq "Completed" }
-        foreach ($job in $completedJobs) {
-            $results = Receive-Job -Job $job -ErrorAction SilentlyContinue
-            if ($results) {
-                foreach ($result in $results) {
-                    $dataGridView.Rows.Add(
-                        $result.IP,
-                        $result.Hostname,
-                        $result.Estado,
-                        $result."Tiempo (ms)",
-                        $result.TTL,
-                        $result.DNS
-                    )
-                }
-                $script:processedCount += $results.Count
-            }
-            Remove-Job -Job $job
-            $script:jobs = @($script:jobs | Where-Object { $_ -ne $job })
-        }
-
-        # Iniciar nuevos jobs si hay espacio
-        while ($script:ipQueue.Count -gt 0 -and ($script:jobs.Count -lt $script:maxJobs)) {
-            Write-Host "Iniciando nuevo batch"  # Debug
-            $batchIPs = @($script:ipQueue | Select-Object -First $script:batchSize)
-            $script:ipQueue = @($script:ipQueue | Select-Object -Skip $script:batchSize)
-            
-            if ($batchIPs.Count -gt 0) {
-                $job = Start-Job -ScriptBlock $processIPBatchScriptBlock -ArgumentList (,$batchIPs)
-                $script:jobs += $job
-            }
-        }
-
-        # Actualizar barra de progreso
-        $progress = ($script:processedCount / $script:totalIPs) * 100
-        $progressBar.Value = [Math]::Min([Math]::Max(0, $progress), 100)
-        $statusLabel.Text = "Procesando... $script:processedCount de $script:totalIPs IPs completadas"
-
-        # Verificar si hemos terminado
-        if ($script:jobs.Count -eq 0 -and $script:ipQueue.Count -eq 0) {
-            Write-Host "Proceso completado"  # Debug
-            $timer.Stop()
-            $buttonStart.Text = "Iniciar Barrido"
-            $buttonStart.Enabled = $true
-            $statusLabel.Text = "Barrido completado"
-            # Restaurar el estilo de la ventana
-            $form.FormBorderStyle = "FixedDialog"
-            [System.Windows.Forms.MessageBox]::Show("Barrido de red completado", "Información", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-        }
-    }
-})
-
-# Evento del botón Iniciar Barrido
-$buttonStart.Add_Click({
-    # Validar IPs
-    $startIP = $textBoxStartIP.Text.Trim()
-    $endIP = $textBoxEndIP.Text.Trim()
-    
-    Write-Host "Iniciando barrido desde $startIP hasta $endIP"  # Debug
-    
-    # Validar formato de IP
-    $ipRegex = "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
-    if ($startIP -notmatch $ipRegex -or $endIP -notmatch $ipRegex) {
-        [System.Windows.Forms.MessageBox]::Show("Por favor, ingrese direcciones IP válidas", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        return
-    }
-    
-    # Validar rango de IP
-    $startInt = ConvertTo-Int32 $startIP
-    $endInt = ConvertTo-Int32 $endIP
-    if ($endInt -lt $startInt) {
-        [System.Windows.Forms.MessageBox]::Show("La IP final debe ser mayor que la IP inicial", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
-        return
-    }
-    
-    # Obtener la pantalla donde se encuentra actualmente la ventana
-    $screen = [System.Windows.Forms.Screen]::FromHandle($form.Handle)
-    $screenWidth = [int]$screen.WorkingArea.Width
-    $screenHeight = [int]$screen.WorkingArea.Height
-    
-    # Obtener dimensiones de la ventana
-    $formWidth = [int]$form.Width
-    $formHeight = [int]$form.Height
-    
-    # Depuración: Verificar valores
-    Write-Host "Screen Width: $screenWidth"
-    Write-Host "Screen Height: $screenHeight"
-    Write-Host "Form Width: $formWidth"
-    Write-Host "Form Height: $formHeight"
-    
-    # Calcular posición centrada en la pantalla actual
-    $centerX = ($screenWidth - $formWidth) / 2 + $screen.WorkingArea.Left
-    $centerY = ($screenHeight - $formHeight) / 2 + $screen.WorkingArea.Top
-    
-    # Depuración: Verificar posición calculada
-    Write-Host "Centered Position: X=$centerX, Y=$centerY"
-    
-    # Establecer la ubicación de la ventana
-    $form.Location = New-Object System.Drawing.Point($centerX, $centerY)
-    
-    # Forzar un refresco de la ventana
-    $form.Refresh()
-    
-    # Limpiar resultados anteriores
-    $dataGridView.Rows.Clear()
-    $progressBar.Value = 0
-    $script:processedCount = 0
-    
-    # Generar lista de IPs
-    $script:ipList = Generate-IPList $startIP $endIP
-    $script:totalIPs = $script:ipList.Count
-    $script:ipQueue = @($script:ipList)
-    
-    Write-Host "Total de IPs a procesar: $($script:totalIPs)"  # Debug
-    
-    # Limpiar jobs anteriores si existen
-    if ($script:jobs) {
-        foreach ($job in $script:jobs) {
-            Stop-Job -Job $job -ErrorAction SilentlyContinue
-            Remove-Job -Job $job -ErrorAction SilentlyContinue
-        }
-    }
-    $script:jobs = @()
-    
-    # Iniciar timer para monitorear los jobs
-    $timer.Start()
-    
-    # Actualizar UI
-    $buttonStart.Enabled = $false
-    $buttonStart.Text = "Procesando..."
-    $statusLabel.Text = "Iniciando barrido..."
-    
-    # Iniciar el primer lote de jobs
-    for ($i = 0; $i -lt $script:maxJobs -and $script:ipQueue.Count -gt 0; $i++) {
-        $batchIPs = @($script:ipQueue | Select-Object -First $script:batchSize)
-        $script:ipQueue = @($script:ipQueue | Select-Object -Skip $script:batchSize)
-        
-        if ($batchIPs.Count -gt 0) {
-            Write-Host "Iniciando batch inicial $i con $($batchIPs.Count) IPs"  # Debug
-            $job = Start-Job -ScriptBlock $processIPBatchScriptBlock -ArgumentList (,$batchIPs)
-            $script:jobs += $job
-        }
-    }
-})
-
-# Crear el botón Exportar
-$buttonExport = New-Object System.Windows.Forms.Button
-$buttonExport.Size = New-Object System.Drawing.Size(150, 30)
-$buttonExport.Text = "Exportar a CSV"
-Set-ButtonStyle $buttonExport
-$buttonExport.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
-$buttonExport.AutoSize = $false
-$buttonExport.Location = New-Object System.Drawing.Point(660, 40)  # Posición a la derecha del botón "Iniciar Barrido"
-$controlPanel.Controls.Add($buttonExport)
-
-# Evento del botón Exportar
-$buttonExport.Add_Click({
-    # Crear un SaveFileDialog para elegir la ubicación del archivo
-    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
-    $saveFileDialog.Filter = "CSV Files (*.csv)|*.csv"
-    $saveFileDialog.Title = "Guardar resultados como CSV"
-    $saveFileDialog.FileName = "resultados_barrido.csv"
-
-    # Mostrar el diálogo y verificar si el usuario hizo clic en "Guardar"
-    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
-        $filePath = $saveFileDialog.FileName
-
-        # Crear un StringBuilder para almacenar los datos del CSV
-        $csvContent = New-Object System.Text.StringBuilder
-
-        # Agregar los encabezados de las columnas
-        $headers = @()
-        foreach ($column in $dataGridView.Columns) {
-            $headers += $column.HeaderText
-        }
-        $csvContent.AppendLine(($headers -join ",")) | Out-Null
-
-        # Agregar los datos de cada fila
-        foreach ($row in $dataGridView.Rows) {
-            $rowData = @()
-            foreach ($cell in $row.Cells) {
-                $rowData += $cell.Value
-            }
-            $csvContent.AppendLine(($rowData -join ",")) | Out-Null
-        }
-
-        # Guardar el contenido en el archivo CSV
-        [System.IO.File]::WriteAllText($filePath, $csvContent.ToString())
-
-        # Mostrar un mensaje de confirmación
-        [System.Windows.Forms.MessageBox]::Show("Los resultados se han exportado correctamente.", "Exportación completada", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
-    }
-})
-
-# Función para convertir IP a entero
-function ConvertTo-Int32 {
-    param ([string]$ipAddress)
-    
-    $octets = $ipAddress.Split('.')
-    return ([int]$octets[0] -shl 24) -bor ([int]$octets[1] -shl 16) -bor ([int]$octets[2] -shl 8) -bor [int]$octets[3]
-}
-
-# Función para convertir entero a IP
-function ConvertTo-IPAddress {
-    param ([int]$int32)
-    
-    $octet1 = ($int32 -shr 24) -band 255
-    $octet2 = ($int32 -shr 16) -band 255
-    $octet3 = ($int32 -shr 8) -band 255
-    $octet4 = $int32 -band 255
-    return "$octet1.$octet2.$octet3.$octet4"
-}
-
-# Función para generar la lista de IPs
-function Generate-IPList {
+# Función para validar el formato PEM del CSR
+function Test-CSRFormat {
     param (
-        [string]$startIP,
-        [string]$endIP
+        [string]$csrContent
     )
-    
-    $startInt = ConvertTo-Int32 $startIP
-    $endInt = ConvertTo-Int32 $endIP
-    $ipArray = @()
-    
-    for ($i = $startInt; $i -le $endInt; $i++) {
-        $ipArray += ConvertTo-IPAddress $i
+    # Verificar si el CSR contiene las líneas BEGIN y END
+    if ($csrContent -match "-----BEGIN (NEW )?CERTIFICATE REQUEST-----" -and $csrContent -match "-----END (NEW )?CERTIFICATE REQUEST-----") {
+        return $true
     }
-    
-    return $ipArray
+    return $false
 }
+
+# Función para decodificar el CSR usando OpenSSL
+function Decode-CSR {
+    param (
+        [string]$csrContent
+    )
+
+    # Guardar el CSR en un archivo temporal
+    New-Item .\Temp.req
+    $tempFile =".\Temp.req"
+    Set-Content -Path $tempFile -Value $csrContent
+    #write-host $tempFile
+    # Decodificar el CSR usando OpenSSL
+    try {
+        $opensslPath = Join-Path -Path $PSScriptRoot -ChildPath "openssl.exe"
+        if (-Not (Test-Path $opensslPath)) {
+            throw "openssl.exe no se encontró en el mismo directorio que el script."
+            
+        }
+
+        # Ejecutar OpenSSL para decodificar el CSR
+        $csrInfo = & .\openssl.exe req -in $tempFile -noout -text
+        #write-host $csrInfo
+        return $csrInfo
+    } catch {
+        Write-Host "Error al decodificar el CSR: $_" -ForegroundColor Red
+        return $null
+    } finally {
+        # Eliminar el archivo temporal
+        Remove-Item -Path $tempFile -Force
+    }
+}
+
+# Función para parsear la información del CSR
+function Parse-CSRInfo {
+    param (
+        [string[]]$csrInfo
+    )
+
+    # Limpiar el ListView
+    $listView.Items.Clear()
+
+    # Crear columnas en el ListView
+    $listView.Columns.Clear()
+    $listView.Columns.Add("Propiedad", 150)
+    $listView.Columns.Add("Valor", 400)
+    $listView.View = [System.Windows.Forms.View]::Details
+
+    # Inicializar variables
+    $subject = ""
+    $keySize = ""
+    $commonName = ""
+    $country = ""
+    $emailAddress = ""
+    $organization = ""
+    $organizationalUnit = ""
+    $locality = ""
+    $state = ""
+    $domainComponent = ""
+    $publicKeyAlgorithm = ""
+    $signatureAlgorithm = ""
+    $sans = @()
+
+    # Función para agregar un separador
+    function Add-Separator {
+        $separator = $listView.Items.Add("-------------------")
+        $separator.SubItems.Add("-------------------")
+    }
+
+    # Sección: Subject Information
+    $listView.Items.Add("=== Subject Information ===").SubItems.Add("")
+
+    # Bandera para indicar cuándo estamos en la sección del Subject
+    $inSubjectSection = $false
+
+    foreach ($line in $csrInfo) {
+        # Saltar líneas vacías
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            continue
+        }
+
+        # Extraer Subject
+        if ($line -match "^\s*Subject:\s*(.+)$") {
+            $subject = $matches[1].Trim()
+            Write-Host "Subject encontrado: $subject"  # Debugging
+            $inSubjectSection = $true
+
+            # Extraer detalles del Subject
+            $subjectComponents = $subject -split ','
+            foreach ($component in $subjectComponents) {
+                if ($component -match "^\s*([A-Za-z]+)\s*=\s*(.+)$") {
+                    $key = $matches[1].Trim()
+                    $value = $matches[2].Trim()
+
+                    Write-Host "Componente encontrado: $key = $value"  # Debugging
+
+                    switch ($key) {
+                        "CN" { $commonName = $value }
+                        "C"  { $country = $value }
+                        "emailAddress" { $emailAddress = $value }
+                        "O"  { $organization = $value }
+                        "OU" { $organizationalUnit = $value }
+                        "L"  { $locality = $value }
+                        "ST" { $state = $value }
+                        "DC" { $domainComponent = $value }
+                    }
+                }
+            }
+        }
+
+        # Finalizar la sección del Subject
+        if ($inSubjectSection -and $line -match "^\s*Subject Public Key Info:") {
+            $inSubjectSection = $false
+        }
+
+        # Key Size
+        if ($line -match "RSA Public-Key:\s*\((\d+)\s*bit\)") {
+            $keySize = $matches[1]
+        }
+
+        # Public Key Algorithm
+        if ($line -match "Public Key Algorithm:\s*(.+)") {
+            $publicKeyAlgorithm = $matches[1].Trim()
+        }
+
+        # Signature Algorithm
+        if ($line -match "Signature Algorithm:\s*(.+)") {
+            $signatureAlgorithm = $matches[1].Trim()
+        }
+
+        # Subject Alternative Names (SANs)
+        if ($line -match "X509v3 Subject Alternative Name:") {
+            $sans = @()
+            $inSansSection = $true
+        }
+
+        if ($inSansSection -and $line -match "DNS:(.+)") {
+            $sans += $matches[1].Trim()
+        }
+
+        if ($inSansSection -and $line -match "^\s*$") {
+            $inSansSection = $false
+        }
+    }
+
+    # Detalles del Subject al ListView
+    if ($commonName) {
+        $listView.Items.Add("Common Name (CN)").SubItems.Add($commonName)
+    }
+    if ($country) {
+        $listView.Items.Add("Country (C)").SubItems.Add($country)
+    }
+    if ($emailAddress) {
+        $listView.Items.Add("Email Address").SubItems.Add($emailAddress)
+    }
+    if ($organization) {
+        $listView.Items.Add("Organization (O)").SubItems.Add($organization)
+    }
+    if ($organizationalUnit) {
+        $listView.Items.Add("Organizational Unit (OU)").SubItems.Add($organizationalUnit)
+    }
+    if ($locality) {
+        $listView.Items.Add("Locality (L)").SubItems.Add($locality)
+    }
+    if ($state) {
+        $listView.Items.Add("State (ST)").SubItems.Add($state)
+    }
+    if ($domainComponent) {
+        $listView.Items.Add("Domain Component (DC)").SubItems.Add($domainComponent)
+    }
+
+    Add-Separator
+
+    # Sección: Properties
+    $listView.Items.Add("=== Properties ===").SubItems.Add("")
+    $listView.Items.Add("Subject").SubItems.Add($subject)
+    $listView.Items.Add("Key Size").SubItems.Add("$keySize bits")
+    $listView.Items.Add("Public Key Algorithm").SubItems.Add($publicKeyAlgorithm)
+    $listView.Items.Add("Signature Algorithm").SubItems.Add($signatureAlgorithm)
+
+    if ($sans.Count -gt 0) {
+        $listView.Items.Add("Subject Alternative Names (SANs)").SubItems.Add(($sans -join ", "))
+    } else {
+        $listView.Items.Add("Subject Alternative Names (SANs)").SubItems.Add("No disponible")
+    }
+}
+
+
+# Evento del botón para procesar el CSR
+$button.Add_Click({
+    $listView.Items.Clear()
+    $labelValid.Text = ""
+
+    $csrContent = $textBox.Text
+
+    if ([string]::IsNullOrWhiteSpace($csrContent)) {
+        [System.Windows.Forms.MessageBox]::Show("Por favor, pega el contenido del CSR.", "Error", "OK", "Error")
+        return
+    }
+
+    if (-Not (Test-CSRFormat -csrContent $csrContent)) {
+        [System.Windows.Forms.MessageBox]::Show("El CSR no tiene un formato PEM válido.", "Error", "OK", "Error")
+        $labelValid.Text = "El CSR NO es válido."
+        $labelValid.ForeColor = "Red"
+        return
+    }
+
+    $csrInfo = Decode-CSR -csrContent $csrContent
+
+    if ($csrInfo) {
+        $csrInfoArray = $csrInfo -split "`n"
+        Parse-CSRInfo -csrInfo $csrInfoArray
+        $labelValid.Text = "El CSR es válido."
+        $labelValid.ForeColor = "Green"
+    } else {
+        $labelValid.Text = "El CSR NO es válido."
+        $labelValid.ForeColor = "Red"
+    }
+})
 
 # Mostrar el formulario
-$form.ShowDialog()
-
-# Limpiar recursos al cerrar
-$timer.Dispose()
-if ($script:jobs) {
-    foreach ($job in $script:jobs) {
-        Stop-Job -Job $job
-        Remove-Job -Job $job
-    }
-}</code></pre>
+$form.Add_Shown({$form.Activate()})
+[void]$form.ShowDialog()
+</code></pre>
       </div>
     </section>
   </main>
