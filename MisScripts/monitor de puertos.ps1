@@ -1,4 +1,9 @@
-﻿#Creado por Vladimir Campos
+﻿<#
+AUTOR: Vladimir Campos
+REQUISITOS
+Windows con PowerShell: El script está escrito en PowerShell, por lo que necesitas un sistema operativo Windows con PowerShell instalado. Windows 10 y 11 ya vienen con PowerShell preinstalado.
+PowerShell 5.1 o superior: Aunque debería funcionar en versiones anteriores, se recomienda usar PowerShell 5.1 o PowerShell 7 para una mejor compatibilidad y rendimiento.
+#>
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 $timer = New-Object System.Windows.Forms.Timer
