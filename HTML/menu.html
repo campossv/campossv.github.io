@@ -1,167 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="es"> <!-- Cambiado a 'es' si el sitio es en español -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sitio web de Campos SV"> <!-- Meta descripción importante para SEO -->
     <title>Campos SV</title>
+    
+    <!-- Preload para recursos críticos -->
+    <link rel="preload" href="../assets/logo.png" as="image">
+    
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #000000;
-        margin: 0;
-        padding: 0;
-        background-color: #f0f2f5;
-      }
-      header {
-        background-color: #2d59b3;
-        color: white;
-        padding: 10px 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        width: 100%;
-        min-height: 40px;
-        max-height: 60px;
-        z-index: 100;
-      }
-      .logo {
-        width: 100px;
-        height: auto;
-      }
-      nav {
-        display: flex;
-        justify-content: center;
-        flex-grow: 1;
-      }
-      nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-      }
-      nav ul li {
-        margin-top: 0;
-      }
-      nav ul li a {
-        color: white;
-        text-decoration: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      nav ul li a:hover {
-        background-color: #4267b2;
-      }
-      .hamburger {
-        display: none;
-        cursor: pointer;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 24px;
-      }
-      @media (max-width: 768px) {
+        :root {
+            --primary-color: #2d59b3;
+            --primary-hover: #4267b2;
+            --text-color: #000000;
+            --bg-color: #f0f2f5;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+        }
+        
         header {
-          flex-wrap: wrap;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            min-height: 40px;
+            max-height: 60px;
+            z-index: 100;
         }
+        
         .logo {
-          margin-right: auto;
+            width: auto; /* Más flexible */
+            height: 40px; /* Altura consistente */
         }
-        .hamburger {
-          display: block;
-        }
+        
         nav {
-          flex-basis: 100%;
-          display: none;
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
         }
-        nav.active {
-          display: block;
-        }
+        
         nav ul {
-          flex-direction: column;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
         }
+        
         nav ul li {
-          margin: 10px 0;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <img
-        src="../assets/logo.png"
-        style="height: 60px; width: 200px"
-        alt="Campos SV Logo"
-        class="logo"
-      />
-      <button class="hamburger" id="hamburger">☰</button>
-      <nav id="nav-menu">
-        <ul>
-          <li>
-            <a
-              href="Bienvenido.html"
-              onclick="handleNavigation(event, this.href)"
-              >Inicio</a
-            >
-          </li>
-          <li>
-            <a
-              href="../MisScripts.html"
-              onclick="handleNavigation(event, this.href)"
-              >Mis scripts</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://github.com/campossv/campossv.github.io/tree/main/MisScripts"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Código</a
-            >
-          </li>
-          <li>
-            <a
-              href="Videos.html"
-              onclick="handleNavigation(event, this.href)"
-              >Videos</a
-            >
-          </li>
-        </ul>
-      </nav>
-    </header>
+           margin-top :0 ;
+       }
 
-    <script>
-      function handleNavigation(event, url) {
-        event.preventDefault();
-        if (window.parent !== window) {
-          // Si estamos en un iframe
-          window.parent.document.getElementById("content-frame").src = url;
-        } else {
-          // Si no estamos en un iframe
-          window.location.href = url;
-        }
-      }
+       nav ul li a {
+           color :white ;
+           text-decoration :none ;
+           padding :10px ; /* Más espacio para tocar en móviles */
+           border-radius :5px ;
+           transition :background-color .3s ease ;
+       }
 
-      // Función para manejar el menú hamburguesa
-      document.addEventListener("DOMContentLoaded", (event) => {
-        const hamburger = document.getElementById("hamburger");
-        const navMenu = document.getElementById("nav-menu");
+       nav ul li a:hover ,
+       nav ul li a :focus { /* Mejor accesibilidad */
+           background-color :var(--primary-hover) ;
+       }
 
-        hamburger.addEventListener("click", () => {
-          navMenu.classList.toggle("active");
-        });
+       .hamburger {
+           display:none ;
+           cursor :pointer ;
+           background:none ;
+           border:none ;
+           color :white ;
+           font-size :24px ;
+           padding :8px ; /* Más fácil de tocar */
+       }
 
-        // Cerrar el menú al hacer clic en un enlace
-        const navLinks = document.querySelectorAll("nav ul li a");
-        navLinks.forEach((link) => {
-          link.addEventListener("click", () => {
-            navMenu.classList.remove("active");
-          });
-        });
-      });
-    </script>
-  </body>
+       @media (max-width :768px ) {
+          header { 
+              flex-wrap:w rap ; 
+          }
+
+          .logo { 
+              margin-right auto ; 
+              height auto ; 
+              max-height none ; 
+          }
+
+          .hamburger { 
+              display block ; 
+          }
+
+          nav { 
+              flex-basis auto ; 
+              width calc(100% +2rem ) ; /* Full width */  
+              margin-left :-1rem !important  
+              display none  
+          }  
+
+         nav.active {  
+             display block  
+         }  
+
+         nav ul {  
+             flex-direction column  
+             background var(--primary-color )  
+             padding-bottom:.5rem  
+         }  
+
+         nav ul li {  
+             margin:.25rem .5rem  
+         }  
+
+         nav ul li a {  
+             display block  
+             text-align center  
+         }  
+      }  
+
+     /* Transiciones suaves */   
+     @media(prefers-reduced-motion no-preference ){   
+         html{ scroll-behavior smooth }   
+     }   
+ </style>   
+</head>   
+
+<body>   
+<header role ="banner"> <!-- Mejor semántica -->   
+    <img src ="../assets/logo.png" alt ="Campos SV Logo" class ="logo" loading ="eager">   
+
+    <button class ="hamburger" id ="hamburger" aria-label ="Menú principal" aria-expanded ="false" aria-controls ="nav-menu">   
+        ☰ <!-- Idealmente usar SVG -->   
+    </button >   
+
+    <nav id ="nav-menu" role ="navigation">   
+      <ul role ="menubar">   
+         <li role ="none"><a href ="Bienvenido.html " onclick =handleNavigation(event ,this.href ) role =menuitem >Inicio </a></li >   
+
+         <li role =none ><a href =".../MisScripts.html " onclick =handleNavigation(event ,this.href ) role =menuitem >Mis scripts </a></li >   
+
+         <li role =none ><a href =https://github.com/campossv/campossv.github.io/tree/main/MisScripts target=_blank rel=noopener noreferrer role=menuitem>Código</a></li>   
+
+         <li role=none><a href=Videos.html onclick=handleNavigation(event,this.href) role=menuitem>Videos</a></li>   
+      </ul>   
+   </nav>   
+
+</header>   
+
+<script defer> // Usar defer para cargar después del HTML
+document.addEventListener('DOMContentLoaded',()=>{
+ const hamburger=document.getElementById('hamburger');
+ const navMenu=document.getElementById('nav-menu');
+    
+ hamburger.addEventListener('click',()=>{
+     const isExpanded=hamburger.getAttribute('aria-expanded')==='true';
+     hamburger.setAttribute('aria-expanded',!isExpanded);
+     navMenu.classList.toggle('active');
+ });
+    
+ // Cerrar menú al hacer clic fuera
+ document.addEventListener('click',(e)=>{
+     if(!e.target.closest('header')&&navMenu.classList.contains('active')){
+         navMenu.classList.remove('active');
+         hamburger.setAttribute('aria-expanded','false');
+     }
+ });
+    
+ // Mejor manejo del teclado
+ document.querySelectorAll('[role="menuitem"]').forEach(item=>{
+     item.addEventListener('keydown',e=>{
+         if(e.key==='Escape'){
+             navMenu.classList.remove('active');
+             hamburger.setAttribute('aria-expanded','false');
+             hamburger.focus();
+         }
+     });
+ });
+});
+
+function handleNavigation(event,url){
+ event.preventDefault();
+ try{
+     if(window.parent!==window){
+         window.parent.document.getElementById("content-frame").src=url;            
+     }else{
+         window.location.href=url;            
+     }
+ }catch(e){
+     console.error("Error en navegación:",e);
+     window.location.href=url; // Fallback seguro
+ }
+}
+</script>
+
+</body>
 </html>
