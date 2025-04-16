@@ -1,4 +1,42 @@
-﻿Add-Type -AssemblyName System.Windows.Forms
+﻿<#
+AUTOR:
+=====
+Vladimir Antonio Campos Herrera
+
+REQUISITOS DEL SISTEMA
+======================
+
+Sistema Operativo:
+------------------
+- Windows 7 o superior
+
+PowerShell:
+-----------
+- Versión 5.1 o superior
+- Ejecución de scripts habilitada (Set-ExecutionPolicy RemoteSigned)
+
+.NET Framework:
+---------------
+- Versión 4.5 o superior
+
+Ensamblados Requeridos:
+-----------------------
+1. System.Windows.Forms (obligatorio)
+2. System.Drawing (obligatorio)
+3. System.Windows.Forms.DataVisualization (opcional, solo para funciones gráficas)
+
+CONFIGURACIÓN PREVIA:
+---------------------
+Los ensamblados requeridos se cargan automáticamente al inicio del script.
+Si falta System.Windows.Forms.DataVisualization, las funciones gráficas se deshabilitarán.
+
+Con Nuget:
+Install-Package Microsoft.MSChart -ProviderName NuGet
+Desde Microsoft:
+https://www.microsoft.com/en-us/download/details.aspx?id=14422
+#>
+
+Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms.DataVisualization
 
