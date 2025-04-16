@@ -86,47 +86,47 @@
            padding :8px ; /* Más fácil de tocar */
        }
 
-       @media (max-width :768px ) {
-          header { 
-              flex-wrap:w rap ; 
-          }
+       @media (max-width: 768px) {
+    header {
+        flex-wrap: wrap;
+    }
 
-          .logo { 
-              margin-right auto ; 
-              height auto ; 
-              max-height none ; 
-          }
+    .logo {
+        margin-right: auto;
+        height: auto;
+        max-height: none;
+    }
 
-          .hamburger { 
-              display block ; 
-          }
+    .hamburger {
+        display: block;
+    }
 
-          nav { 
-              flex-basis auto ; 
-              width calc(100% +2rem ) ; /* Full width */  
-              margin-left :-1rem !important  
-              display none  
-          }  
+    nav {
+        flex-basis: auto;
+        width: calc(100% + 2rem); /* Full width */
+        margin-left: -1rem !important;
+        display: none;
+    }
 
-         nav.active {  
-             display block  
-         }  
+    nav.active {
+        display: block;
+    }
 
-         nav ul {  
-             flex-direction column  
-             background var(--primary-color )  
-             padding-bottom:.5rem  
-         }  
+    nav ul {
+        flex-direction: column;
+        background: var(--primary-color);
+        padding-bottom: 0.5rem;
+    }
 
-         nav ul li {  
-             margin:.25rem .5rem  
-         }  
+    nav ul li {
+        margin: 0.25rem 0.5rem;
+    }
 
-         nav ul li a {  
-             display block  
-             text-align center  
-         }  
-      }  
+    nav ul li a {
+        display: block;
+        text-align: center;
+    }
+}
 
      /* Transiciones suaves */   
      @media(prefers-reduced-motion no-preference ){   
@@ -144,10 +144,11 @@
     </button >   
 
     <nav id ="nav-menu" role ="navigation">   
-      <ul role ="menubar">   
-         <li role ="none"><a href ="Bienvenido.html " onclick =handleNavigation(event ,this.href ) role =menuitem >Inicio </a></li >   
+      <ul role ="menubar"> 
+          
+         <li role ="none"><a href ="Bienvenido.html " onclick =handleNavigation(event,this.href) role =menuitem >Inicio </a></li >   
 
-         <li role =none ><a href =".../MisScripts.html " onclick =handleNavigation(event ,this.href ) role =menuitem >Mis scripts </a></li >   
+         <li role =none ><a href =".../MisScripts.html " onclick =handleNavigation(event,this.href) role =menuitem >Mis scripts </a></li >   
 
          <li role =none ><a href =https://github.com/campossv/campossv.github.io/tree/main/MisScripts target=_blank rel=noopener noreferrer role=menuitem>Código</a></li>   
 
