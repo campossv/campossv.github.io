@@ -206,8 +206,19 @@
 </head>
 <body>
   <header>
-    <h1>Calculadora avanzada de PowerShell</h1>
+    <section id="overview">
+      <h1>Calculadora avanzada de PowerShell</h1>
+    </section>
+    
   </header>
+  <nav>
+    <ul>
+      <li><a href="#overview">Descripción General</a></li>
+      <li><a href="#functions">Funciones</a></li>
+      <li><a href="#Uso">Uso</a></li>
+      <li><a href="#script-completo">Script Completo</a></li>
+    </ul>
+  </nav>
   <center>
     <div class="vertical-align">
       <a
@@ -230,7 +241,8 @@
     </div><br>
     
     <section class="code-container">
-        <h2>Funciones Principales</h2>
+      <section id="Functions">
+        <h2>Funciones Principales</h2></section>
         <ul>
           <li>Plot-Function</li>
           <li>Update-MemoryDisplay</li>
@@ -513,7 +525,9 @@ function Set-Theme {
   
 </section>
 <section class="instructions">
+  <section id="Uso">
  <h2>Formato básico para funciones</h2>
+  </section>
 <ol>
   <li>Variable: Usa x como la variable independiente.</li>
   <li>Operaciones aritméticas básicas:
@@ -576,7 +590,9 @@ Si quieres graficar una parábola, podrías ingresar:<br>
 Recuerda que el rango de valores de x que se graficará está determinado por los valores xMin y xMax que ingreses en los campos correspondientes.
 
 </section>
+<section id="script-completo">
 <h1>Código Completo</h1>
+</section>
 <section id="codigo-ProtegerConfig">
   <div class="code-container">
       <pre><code class="language-powershell"><#
