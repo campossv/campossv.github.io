@@ -22,3 +22,15 @@ function copyCode(button) {
         confirmation.classList.remove("show");
     }, 2000);
 }
+function copyCodeToClipboard(codeBlockId) {
+  var codeBlock = document.getElementById(codeBlockId);
+  var code = codeBlock.innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    Toastify({
+      text: "Código copiado",
+      duration: 2000,
+      backgroundColor: "#4CAF50",
+      className: "toastify"
+    }).showToast();
+  });
+}

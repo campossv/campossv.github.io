@@ -1,0 +1,587 @@
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    h2 {
+      color: #4267b2;
+    }
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .copy-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    /* Estilo global para la barra de desplazamiento */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+
+    /* Webkit browsers like Chrome and Safari */
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+
+    /* Contenedor de ejemplo */
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .linkedin-logo {
+      width: 25%;
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Automatización con PowerShell" />
+  <meta
+    name="keywords"
+    content="PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+  />
+  <title>Scripts de Vladi</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+<body>
+  <header>
+    <h1>Calculadora avanzada de PowerShell</h1>
+  </header>
+  <center>
+    <div class="vertical-align">
+      <a
+        href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+        target="_blank"
+      >
+        <img
+          src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png"
+          class="linkedin-logo"
+        />
+      </a>
+    </div>
+  </center>
+  <main>
+    <p>
+      Este script de PowerShell crea una interfaz gráfica de usuario (GUI) para una calculadora avanzada con funcionalidades como operaciones aritméticas básicas, memoria, historial de operaciones, funciones trigonométricas, raíz cuadrada, potencia al cuadrado, potencia a una potencia dada, porcentaje y la capacidad de graficar funciones matemáticas.
+    </p>
+    <div class="video-container">
+      <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/%24/embed/calculadora%3Ad?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe>
+    </div><br>
+    
+    <section class="code-container">
+        <h2>Funciones Principales</h2>
+        <ul>
+          <li>Plot-Function</li>
+          <li>Update-MemoryDisplay</li>
+                      <li>Update-History</li>
+            <li>Add-ToHistory</li>
+            <li>Set-Theme</li>
+
+        </p>
+        <section id="codigo-LlaveEncriptacion">
+        <div class="code-container">
+            <pre><code class="language-powershell" ># Función para graficar
+function Plot-Function {
+    param(
+        [string]$functionExpression,
+        [double]$xMin = -10,
+        [double]$xMax = 10,
+        [double]$step = 0.1
+    )
+    
+    try {
+        $chart.Series[0].Points.Clear()
+        
+        # Configurar los ejes
+        $chart.ChartAreas[0].AxisX.Minimum = $xMin
+        $chart.ChartAreas[0].AxisX.Maximum = $xMax
+        $chart.ChartAreas[0].AxisX.Title = "X"
+        $chart.ChartAreas[0].AxisY.Title = "Y"
+        
+        # Graficar la función
+        for ($x = $xMin; $x -le $xMax; $x += $step) {
+            # Preparar la expresión para evaluación
+            $expression = $functionExpression -replace "x", "($x)"
+            
+            # Evaluar la expresión de manera segura
+            try {
+                # Usar Invoke-Expression con precaución
+                $y = Invoke-Expression $expression
+                
+                # Agregar el punto al gráfico si es un número válido
+                if ($y -is [double] -or $y -is [int]) {
+                    $chart.Series[0].Points.AddXY($x, $y) | Out-Null
+                }
+            }
+            catch {
+                # Ignorar puntos que causan errores (como divisiones por cero)
+                Write-Host "Error en x=$x : $_"
+            }
+        }
+        
+        $graphPanel.Visible = $true
+        return $true
+    }
+    catch {
+        Write-Error "Error al graficar: $_"
+        return $false
+    }
+}
+    </code></pre>
+    <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+    <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+    </div>
+    </section>
+    <section class="instructions">
+        <li>Grafica una función matemática en un rango especificado de valores para X.. </li>
+        <li><b>Parámetros:</li></b></li>
+        <ul>
+          <li>functionExpression: Expresión matemática que utiliza 'x' como variable (ej. "[Math]::Sin(x)")</li>
+          <li>xMin: Valor mínimo del eje X (default: -10)</li>
+          <li>xMax: Valor máximo del eje X (default: 10)</li>
+          <li>step: Incremento entre puntos (default: 0.1)</li>
+        </ul>
+<li><b>  
+  Proceso:</b>
+</li>
+<ul>
+    <li>Limpiar los puntos existentes en el gráfico</li>
+    <li>Configurar los rangos y títulos de los ejes</li>
+    <li>Evaluar la función para cada valor de X en el rango especificado</li>
+    <li>Agregar cada punto (X,Y) al gráfico</li>
+    <li>Manejar errores para valores no válidos (como divisiones por cero)</li>
+</ul>
+<li><b>
+    Retorno:
+    </b>
+</li>
+<ul>
+    <li>$true si la gráfica se generó correctamente, $false si hubo errores</li>
+</ul>
+    </section>
+<br>
+
+<section id="codigo-ProtegerConfig">
+    <h3>Funcion Update-MemoryDisplay:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell">
+function Update-MemoryDisplay {
+    $lblMemory.Text = if ($script:memory -ne 0) { "M: $($script:memory)" } else { "" }
+}
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+  <li><b>Descripción:</b> Actualiza la etiqueta que muestra el valor almacenado en memoria.</li>
+  <li><b>Proceso:</b></li>
+   <ul> <li>Verifica si la variable $script:memory no es cero.</li>
+    <li>Si no es cero, actualiza el texto del Label con el valor de memoria.</li>
+    <li>Si es cero, establece el texto del Label en una cadena vacía.</li>  </ul>
+ 
+</section>
+<br>
+
+<section id="codigo-ProbarConexion">
+    <h3>Funcion Update-History:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell" >
+          function Update-History {
+            $listHistory.Items.Clear()
+            $listHistory.Items.AddRange($script:history)
+        }
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+    <li><b>Descripción:</b> Actualiza el ListBox que muestra el historial de operaciones.</li>
+    <li><b>Proceso:</b> 
+      <ul>
+        <li>Limpia todos los items actuales</li>
+        <li>Agrega cada entrada del array $script:history</li>
+        <li>Limita el historial a las últimas 10 operaciones</li>
+        <li>No tiene parámetros ni retorno explícito</li>
+      </ul>
+</section>
+<br>
+
+<!-- ************************************************************ -->
+
+<section id="codigo-configurar">
+    <h3>Funcion Add-ToHistory:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell">
+          function Add-ToHistory {
+            param($operation, $result)
+            $script:history += "$operation = $result"
+            if ($script:history.Count -gt 10) {
+                $script:history = $script:history[-10..-1]
+            }
+            Update-History
+        }
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation4" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+    <li><b>Descripción:</b> Agrega una nueva operación al historial.</li>
+      <li><b>Parámetros:</b>
+      <ul>
+        <li>operation: Cadena que representa la operación realizada (ej. "5 + 3")</li>
+        <li>result: Resultado de la operación (ej. "8")</li>
+      </ul>
+      <li><b>Proceso:</b> Agrega la cadena "[operation] = [result]" al array $script:history</li>
+      <ul><li>Llama a Update-History para refrescar la visualización</li>
+ <li>No retorna ningún valor </li></ul>
+</section>
+<br>
+
+ <!-- ************************************************************ -->
+ <section id="codigo-completo">
+    <h3>función Set-Theme:</h3>
+    <div class="code-container">
+        <pre><code class="language-powershell">
+function Set-Theme {
+  param($themeName)
+  $script:currentTheme = $themeName
+  $colors = $theme[$themeName]
+  
+  $form.BackColor = $colors['FormBG']
+  $txtDisplay.BackColor = $colors['DisplayBG']
+  $txtDisplay.ForeColor = $colors['DisplayText']
+  $listHistory.BackColor = $colors['DisplayBG']
+  $listHistory.ForeColor = $colors['DisplayText']
+  
+  foreach ($control in $form.Controls) {
+      if ($control -is [System.Windows.Forms.Button]) {
+          if ($control.Text -match "[+|\-|*|/|%|√|^]") {
+              $control.BackColor = $colors['SpecialBtnBG']
+          } elseif ($control.Text -match "sin|cos|tan") {
+              $control.BackColor = $colors['FunctionBtnBG']
+          } elseif ($control.Text -eq "C") {
+              $control.BackColor = $colors['ClearBtnBG']
+          } elseif ($control.Text -eq "=") {
+              $control.BackColor = $colors['EqualsBtnBG']
+          } elseif ($control.Text -match "MC|MR|M\+|M\-") {
+              $control.BackColor = [System.Drawing.Color]::FromArgb(220, 220, 255)
+          } else {
+              $control.BackColor = $colors['ButtonBG']
+          }
+      }
+  }
+}
+</code></pre>
+<button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+<div id="copyConfirmation5" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+</div>
+</section>
+<section class="instructions">
+  <li><b>Descripción:</b> Función: Cambia el tema visual de toda la calculadora.</li>
+  <li><b>Parámetros:</b></li>
+  <ul>
+    <li>themeName: Nombre del tema ('Light' para claro, 'Dark' para oscuro)</li>
+  </ul>
+    
+  <li><b>Proceso:</b></li>
+  <ul>
+    <li>Recibe el nombre del tema y lo asigna a la variable $script:currentTheme</li>
+    <li>Obtiene los colores correspondientes al tema seleccionado</li>
+    <li>Aplica los colores a:</li>
+    <ul>
+      <li>El formulario principal</li>
+      <li>Las pantallas de display y historial</li>
+      <li>Todos los botones (según su categoría)</li>
+    </ul>
+  </ul>
+</section>
+<br>
+<br>
+  <!-- ************************************************************ -->
+<br>
+<section class="instructions">
+  <h3>Funciones de los Botones</h3>
+  <h4>Operaciones Básicas</h4>
+  <li><b>Suma/Resta/Multiplicación/División: </b> Almacenan el primer operando y la operación, limpian el display para recibir el segundo operando </li>
+  <li><b>Igual (=): </b> Realiza la operación pendiente con los dos operandos</li>
+  <li><b>Porcentaje (%): </b> Divide el valor actual por 100</li>
+  <li><b>Cambio de signo (±): </b> Multiplica el valor actual por -1</li>
+  <h4>Funciones Científicas</h4>
+  <li><b>Raíz cuadrada (√): </b> Calcula la raíz cuadrada del valor actual</li>
+  <li><b>Cuadrado (x²): </b> Eleva el valor actual al cuadrado</li>
+  <li><b>Potencia (x^y): </b> Similar a las operaciones básicas, pero para exponenciación</li>
+  <li><b>Funciones trigonométricas (sin/cos/tan): </b> Calculan la función correspondiente, considerando la unidad actual (grados o radianes)</li>
+  <h4>Memoria</h4>
+  <li><b>MC (Memory Clear): </b> Establece la memoria a 0</li>
+ 
+  
+<li><b>MR (Memory Recall): </b> Muestra el valor almacenado en memoria</li>
+<li><b>M+ (Memory Add): </b> Suma el valor actual a la memoria</li>
+<li><b>M- (Memory Subtract): </b> Resta el valor actual de la memoria</li>
+<h4>Otras Funciones</h4>
+<li><b>C (Clear): </b> Limpia completamente la calculadora (operandos y operación pendiente)</li>
+<li><b>⌫ (Backspace): </b> Elimina el último dígito ingresado</li>
+<li><b>. (Punto decimal): </b> Agrega un punto decimal al número actual</li>
+<h4>Funciones de los Menú</h4>
+<li><b>Logaritmo: </b> Abre un formulario para calcular logaritmos en cualquier base</li>
+<li><b>Exponencial (e^x): </b> Calcula el exponencial del valor actual</li>
+<li><b>Factorial: </b> Calcula el factorial del valor actual (solo para enteros ≤ 20)</li>
+<li><b>Graficar Función: </b> Abre un formulario para ingresar una función y rango para graficar</li>
+<h4>Menú Tema</h4>
+<li><b>Claro: </b> Aplica el tema con colores claros</li>
+<li><b>Oscuro: </b> Aplica el tema con colores oscuros</li>
+
+  <h4>Menú Unidades</h4>
+  <li><b>Grados: </b> Establece las funciones trigonométricas para trabajar con grados</li>
+  <li><b>Radianes: </b> Establece las funciones trigonométricas para trabajar con radianes</li>
+  <h4>Menú Conversión</h4>
+  <li><b>Grados a Radianes: </b> Convierte el valor actual de grados a radianes</li>
+  <li><b>Radianes a Grados: </b> Convierte el valor actual de radianes a grados</li>
+  <h4>Manejo de Eventos</h4>
+  Cada botón tiene asociado un evento Click que:
+  <ul>
+    <li>Obtiene el valor actual del display</li>
+    <li>Realiza la operación correspondiente</li>
+    <li>Actualiza el display con el resultado</li>
+    <li>En algunos casos, actualiza el historial o la memoria</li>
+  </ul>
+  Para operaciones binarias (como +, -, *, /), el primer operando y la operación se almacenan temporalmente hasta que se ingresa el segundo operando y se presiona "=".
+  
+</section>
+<section class="instructions">
+ <h2>Formato básico para funciones</h2>
+<ol>
+  <li>Variable: Usa x como la variable independiente.</li>
+  <li>Operaciones aritméticas básicas:
+    <ul>
+      <li>Suma: x + 2</li>
+      <li>Resta: x - 3</li>
+      <li>Multiplicación: x * 4</li>
+      <li>División: x / 2</li>
+      <li>Potencia: [Math]::Pow(x, 2) (para x²)</li>
+    </ul>
+  </li>
+  <li>Funciones trigonométricas:
+    <ul>
+      <li>Seno: [Math]::Sin(x)</li>
+      <li>Coseno: [Math]::Cos(x)</li>
+      <li>Tangente: [Math]::Tan(x)</li>
+    </ul>
+  </li>
+  <li>Otras funciones matemáticas:
+    <ul>
+      <li>Raíz cuadrada: [Math]::Sqrt(x)</li>
+      <li>Exponencial: [Math]::Exp(x)</li>
+      <li>Logaritmo natural: [Math]::Log(x)</li>
+      <li>Valor absoluto: [Math]::Abs(x)</li>
+    </ul>
+  </li>
+</ol>
+<p>Ejemplos de funciones válidas:</p>
+<ul>
+  <li>[Math]::Sin(x)</li>
+  <li>[Math]::Cos(x)</li>
+  <li>x * x</li>
+  <li>[Math]::Pow(x, 2)</li>
+  <li>2 * x + 5</li>
+  <li>[Math]::Sqrt(x)</li>
+  <li>[Math]::Sin(x) * [Math]::Cos(x)</li>
+</ul>
+<p><strong>Consejos importantes:</strong></p>
+<ol>
+  <li>Usa la sintaxis de PowerShell: Recuerda que estás escribiendo expresiones que serán evaluadas por PowerShell, no por un motor matemático especializado.</li>
+  <li>Funciones compuestas: Para funciones compuestas, asegúrate de usar la sintaxis correcta:
+    <code>[Math]::Sin([Math]::Pow(x, 2))</code>
+  </li>
+  <li>Paréntesis: Usa paréntesis para asegurar el orden correcto de las operaciones:
+    <code>(x + 1) * (x - 2)</code>
+  </li>
+  <li>Constantes matemáticas:
+    <ul>
+      <li>Pi: <code>[Math]::PI</code></li>
+      <li>e: <code>[Math]::E</code></li>
+    </ul>
+  </li>
+</ol>
+Si la función simple sin(x) no funciona directamente, intenta con [Math]::Sin(x) que es la forma correcta de llamar a las funciones matemáticas en PowerShell.
+<br><b>Ejemplo completo:</b> <br>
+Si quieres graficar una parábola, podrías ingresar:<br>
+<code>[Math]::Pow(x, 2)</code>
+<br>O para una función senoidal:<br>
+<code>[Math]::Sin(x) </code>  <br>
+Recuerda que el rango de valores de x que se graficará está determinado por los valores xMin y xMax que ingreses en los campos correspondientes.
+
+</section>
+<h1>Código Completo</h1>
+
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script src="script.js"></script>
+    
+
+</body>
