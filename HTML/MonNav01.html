@@ -207,7 +207,7 @@
 <body>
   <header>
     <section id="overview">
-      <h1>Calculadora avanzada de PowerShell</h1>
+      <h1>Monitoreo de Navegadores</h1>
     </section>
     
   </header>
@@ -733,9 +733,9 @@ function Get-BrowserUrl {
   <!-- ************************************************************ -->
 <br>
 
-<section id="script-completo">
+
 <h3>Función Test-KeywordsInBrowser</h3>
-</section>
+
 <section id="codigo-ProtegerConfig">
   <div class="code-container">
       <pre><code class="language-powershell">function Test-KeywordsInBrowser {
@@ -829,9 +829,9 @@ return $result
     </li>
   </ul>
 </section>
-<section id="script-completo">
+
   <h3>Monitor-BrowserProcess</h3>
-  </section>
+
   <section id="codigo-ProtegerConfig">
     <div class="code-container">
         <pre><code class="language-powershell">function Monitor-BrowserProcess {
@@ -948,9 +948,9 @@ while ($true) {
     </ul>
   </section>
   </section>  
-  <section id="script-completo">
+
     <h3>Clean-MonitoringState</h3>
-    </section>
+
     <section id="codigo-ProtegerConfig">
       <div class="code-container">
           <pre><code class="language-powershell">function Clean-MonitoringState {
@@ -993,9 +993,9 @@ Escribir-log "Limpieza de estado de monitoreo completada. Procesos actualmente m
       </ul>
     </section>
     </section>
-    <section id="script-completo">
+
       <h3>Detect-ActiveBrowsers</h3>
-      </section>
+
       <section id="codigo-ProtegerConfig">
         <div class="code-container">
             <pre><code class="language-powershell">function Detect-ActiveBrowsers {
@@ -1074,9 +1074,9 @@ foreach ($browserName in $BrowserNames) {
 
       </section>
 
-      <section id="script-completo">
+
         <h3>Monitor-BrowserEvents</h3>
-        </section>
+
         <section id="codigo-ProtegerConfig">
           <div class="code-container">
               <pre><code class="language-powershell">function Monitor-BrowserEvents {
@@ -1227,8 +1227,123 @@ while ($true) {
             </li>
           </ul>
         </section>
-        <section id="script-completo">
-          <h3>Detect-ActiveBrowsers</h3>
+
+    <section id="Uso">     
+    <h2>Guía para Usar el Script de Monitoreo de Navegadores</h2></section>
+    Este script está diseñado para monitorear y controlar el uso de navegadores web en un sistema Windows, detectando accesos a sitios sensibles según palabras clave definidas.
+
+<h3>Requisitos Previos</h3>
+<ul>
+  <li><b>Sistema Operativo:</b> Windows 7/10/11 o Windows Server 2012+</li>
+  <li><b>Permisos:</b> Ejecutar con privilegios de administrador</li>
+  <li><b>PowerShell:</b> Versión 5.1 o superior</li>
+</ul>
+
+<h3>Configuración Inicial</h3>
+Antes de ejecutar el script, debes configurar estos elementos:
+
+<h4>1. Directorios de Logs y Capturas </h4>
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+      <pre><code class="language-powershell">$screenshotDir = "C:\Logs\Screenshots"  # Donde se guardan capturas
+$logDir = "C:\Logs\BrowserMonitor"      # Donde se guardan logs
+</code></pre>
+</div></section>
+ 
+<h4>2. Configuración de Correo Electrónico </h4>
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+      <pre><code class="language-powershell">$emailConfig = @{
+SmtpServer = "smtp.tudominio.com"  # Servidor SMTP
+SmtpPort = 587                     # Puerto SMTP
+EnableSsl = $true                  # Usar SSL
+From = "tucorreo@dominio.com"      # Correo remitente
+To = "destinatario@dominio.com"    # Correo destino
+Username = "tucorreo@dominio.com"  # Usuario SMTP
+Password = "tucontraseña"          # Contraseña SMTP
+}
+</code></pre>
+</div></section>
+
+<h3>Configuración Inicial</h3>
+Antes de ejecutar el script, debes configurar estos elementos:
+
+<h4>3. Palabras Clave a Monitorear</h4>
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+    Edita la variable $Global:ControlDePalabras para definir qué sitios monitorear:
+      <pre><code class="language-powershell">$Global:ControlDePalabras = @{
+    "MEGA" = "Servicio de almacenamiento cifrado"
+    "Dropbox" = "Servicio de almacenamiento en la nube"
+    # Agrega más según necesidades
+}
+</code></pre>
+</div></section>
+
+<h3>Ejecución del Script</h3>
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+    El script puede ser configurado para ejecutarse como servicio, no obstante, tambien puede ejecutarse de manera manual:
+    <ol>
+      <li>Abrir PowerShell como Administrador</li>
+      <li>Ejecutar el script</li>
+    </ol>
+    <pre><code class="language-powershell">.\NombreDelScript.ps1
+</code></pre>
+</div></section>
+3. Para detener: Presionar Ctrl+C
+
+<h3>Funcionamiento</h3>
+El script realiza las siguientes acciones automáticamente:
+
+<ol>
+  <li><b>Monitoreo Continuo:</b>
+    <ul>
+      <li>Detecta cuando se abren navegadores (Chrome, Firefox, Edge, IE).</li>
+      <li>Verifica títulos de ventanas y URLs cada 20 segundos.</li>
+    </ul>
+  </li>
+  <li><b>Acciones al Detectar Sitios Sensibles:</b>
+    <ul>
+      <li>Toma captura de pantalla como evidencia.</li>
+      <li>Cierra el navegador automáticamente.</li>
+      <li>Envía alerta por correo electrónico (si está configurado).</li>
+      <li>Registra evento en el log.</li>
+    </ul>
+  </li>
+  <li><b>Limpieza Automática:</b>
+    <ul>
+      <li>Cada 5 minutos limpia procesos terminados.</li>
+      <li>Cada minuto verifica navegadores activos no detectados por eventos.</li>
+    </ul>
+  </li>
+</ol>
+<br>
+
+<h3>Personalización</h3>
+<h4>Para cambiar los navegadores monitoreados:</h4>
+Edita la lista en la función <b>Monitor-BrowserEvents</b>:
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+        <pre><code class="language-powershell">$browsers = @("chrome.exe", "firefox.exe", "iexplore.exe", "msedge.exe")
+</code></pre>
+</div></section>
+<h4>Para modificar la frecuencia de verificación:</h4>
+Edita el tiempo en <b>Monitor-BrowserProcess</b>:
+<section id="codigo-ProtegerConfig">
+  <div class="code-container">
+        <pre><code class="language-powershell">Start-Sleep -Seconds 20  # Cambia este valor
+</code></pre>
+</div></section>
+<h3>Recomendaciones</h3>
+<ol>
+  <li>Prueba primero en modo supervisión sin acciones (comenta las líneas que cierran navegadores).</li>
+  <li>Asegúrate de que los directorios de logs existan o tengan permisos.</li>
+  <li>Para entornos productivos, considera usar una cuenta de correo dedicada.</li>
+  <li>Revisa periódicamente los logs en <code>C:\Logs\BrowserMonitor</code>.</li>
+</ol>
+<section id="script-completo">
+          <h3>Código completo</h3>
           </section>
           <section id="codigo-ProtegerConfig">
             <div class="code-container">
@@ -1296,16 +1411,16 @@ $inlineLogo.ContentType = New-Object System.Net.Mime.ContentType("image/png")
 
 # Configuración de correo electrónico
 $emailConfig = @{
-    SmtpServer = "smtp.gmail.com"  # Cambia esto por tu servidor SMTP
+    SmtpServer = "Servidor SMTP"  # Cambia esto por tu servidor SMTP
     SmtpPort = 587                     # Puerto SMTP (normalmente 25, 465 o 587)
     EnableSsl = $true                  # Usar SSL para la conexión
-    From = "powershellapplications@gmail.com"     # Dirección de correo del remitente
-    To = "powershellapplications@gmail.com"  # Dirección de correo del destinatario
+    From = "Quien envia el correo"     # Dirección de correo del remitente
+    To = "A quien va dirigido"  # Dirección de correo del destinatario
     Cc = ""                            # Copia a (opcional)
     Subject = "ALERTA: Sitio sensible detectado"  # Asunto del correo
     UseCredentials = $true             # ¿Usar credenciales para autenticación?
-    Username = "powershellapplications@gmail.com" # Usuario para autenticación SMTP
-    Password = "pvdh pvlm sito kfwp"          # Contraseña para autenticación SMTP
+    Username = "Usuario" # Usuario para autenticación SMTP
+    Password = "Aqui la clave"          # Contraseña para autenticación SMTP
 }
 
 # Crear directorios si no existen
