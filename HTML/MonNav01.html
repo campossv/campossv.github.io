@@ -234,71 +234,60 @@
   </center>
   <main>
     <p>
-      Este script PowerShell monitorea la creación de procesos de navegadores web (Chrome, Firefox, Edge e Internet Explorer) y detecta cuando se accede a sitios considerados sensibles según una lista de palabras clave predefinidas. Cuando detecta un sitio sensible, captura la pantalla, registra la información del usuario y envía una alerta por correo electrónico con la evidencia. Al final elimina el proceso.
+      El script es una herramienta de monitoreo en tiempo real diseñada para detectar y controlar el uso de navegadores web (Chrome, Firefox, Edge, Internet Explorer) en sistemas Windows. Su principal función es identificar accesos a sitios web sensibles (almacenamiento en la nube, redes sociales, correos electrónicos, etc.) mediante el análisis de títulos de ventanas y URLs, ejecutando acciones automatizadas como:
+<ul>
+  <li>Captura de pantalla como evidencia.</li>
+  <li>Cierre forzado del navegador.</li>
+  <li>Registro en logs con detalles del evento.</li>
+  <li>Envío de alertas por correo electrónico con pruebas adjuntas.</li>
+</ul>
     </p>
     <div class="video-container">
-      <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/%24/embed/Monitorear-navegadores%3A5?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=true" allowfullscreen></iframe>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/4CJUXGqyLdE?si=lsIdPVooE6t3cn5s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div><br>
     
     <section class="code-container">
-      <section id="funciones">
+      <section id="funciones">  
         <h2>Funciones Principales</h2></section>
         <ul>
-          <li>Plot-Function</li>
-          <li>Update-MemoryDisplay</li>
-                      <li>Update-History</li>
-            <li>Add-ToHistory</li>
-            <li>Set-Theme</li>
-
+          <li>Escribir-log</li>
+          <li>Send-AlertEmail</li>
+          <li>Take-Screenshot</li>
+          <li>Get-BrowserUrl</li>
+          <li>Test-KeywordsInBrowser</li>
+          <li>Monitor-BrowserProcess</li>
+          <li>Close-BrowserProcesses</li> 
+          <li>Clean-MonitoringState</li>
+          <li>Detect-ActiveBrowsers</li>
+          <li>Monitor-BrowserEvents</li>
         </p>
+        <h2>Diagrama de relación entre funciones</h2>
+        <img src="/assets/20250424_f25ff3.svg" class="text-center" alt="Archivos" /><br>
+        <br>
+        <h3>Función Escribir-log:</h3>
         <section id="codigo-LlaveEncriptacion">
         <div class="code-container">
-            <pre><code class="language-powershell" ># Función para graficar
-function Plot-Function {
-    param(
-        [string]$functionExpression,
-        [double]$xMin = -10,
-        [double]$xMax = 10,
-        [double]$step = 0.1
-    )
+            <pre><code class="language-powershell" >function Escribir-log {
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$Message,
     
-    try {
-        $chart.Series[0].Points.Clear()
-        
-        # Configurar los ejes
-        $chart.ChartAreas[0].AxisX.Minimum = $xMin
-        $chart.ChartAreas[0].AxisX.Maximum = $xMax
-        $chart.ChartAreas[0].AxisX.Title = "X"
-        $chart.ChartAreas[0].AxisY.Title = "Y"
-        
-        # Graficar la función
-        for ($x = $xMin; $x -le $xMax; $x += $step) {
-            # Preparar la expresión para evaluación
-            $expression = $functionExpression -replace "x", "($x)"
-            
-            # Evaluar la expresión de manera segura
-            try {
-                # Usar Invoke-Expression con precaución
-                $y = Invoke-Expression $expression
-                
-                # Agregar el punto al gráfico si es un número válido
-                if ($y -is [double] -or $y -is [int]) {
-                    $chart.Series[0].Points.AddXY($x, $y) | Out-Null
-                }
-            }
-            catch {
-                # Ignorar puntos que causan errores (como divisiones por cero)
-                Write-Host "Error en x=$x : $_"
-            }
-        }
-        
-        $graphPanel.Visible = $true
-        return $true
-    }
-    catch {
-        Write-Error "Error al graficar: $_"
-        return $false
-    }
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("INFO", "WARNING", "ERROR", "ALERT")]
+    [string]$Level = "INFO",
+    
+    [Parameter(Mandatory=$false)]
+    [ConsoleColor]$ForegroundColor = [ConsoleColor]::White
+)
+
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$logMessage = "[$timestamp] [$Level] $Message"
+
+# Escribir a consola con color
+Write-Host $logMessage -ForegroundColor $ForegroundColor
+
+# Escribir a archivo
+Add-Content -Path $logFile -Value $logMessage
 }
     </code></pre>
     <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
@@ -306,40 +295,120 @@ function Plot-Function {
     </div>
     </section>
     <section class="instructions">
-        <li>Grafica una función matemática en un rango especificado de valores para X.. </li>
-        <li><b>Parámetros:</li></b></li>
-        <ul>
-          <li>functionExpression: Expresión matemática que utiliza 'x' como variable (ej. "[Math]::Sin(x)")</li>
-          <li>xMin: Valor mínimo del eje X (default: -10)</li>
-          <li>xMax: Valor máximo del eje X (default: 10)</li>
-          <li>step: Incremento entre puntos (default: 0.1)</li>
-        </ul>
-<li><b>  
-  Proceso:</b>
-</li>
-<ul>
-    <li>Limpiar los puntos existentes en el gráfico</li>
-    <li>Configurar los rangos y títulos de los ejes</li>
-    <li>Evaluar la función para cada valor de X en el rango especificado</li>
-    <li>Agregar cada punto (X,Y) al gráfico</li>
-    <li>Manejar errores para valores no válidos (como divisiones por cero)</li>
-</ul>
-<li><b>
-    Retorno:
-    </b>
-</li>
-<ul>
-    <li>$true si la gráfica se generó correctamente, $false si hubo errores</li>
-</ul>
+      <ul>
+        <li><b>Propósito:</b> Registrar eventos en consola y archivo de log con formato estructurado.</li>
+        <li><b>Parámetros:</b>
+          <ul>
+            <li><b>Message:</b> Texto a registrar.</li>
+            <li><b>Level:</b> Nivel de severidad (INFO, WARNING, ERROR, ALERT).</li>
+            <li><b>ForegroundColor:</b> Color de texto en consola.</li>
+          </ul>
+        </li>
+        <li><b>Flujo:</b>
+          <ul>
+            <li>Genera un timestamp.</li>
+            <li>Escribe en consola (con color) y en el archivo <code>$logFile</code>.</li>
+          </ul>
+        </li>
+      </ul>
     </section>
 <br>
 
 <section id="codigo-ProtegerConfig">
-    <h3>Funcion Update-MemoryDisplay:</h3>
+    <h3>Funcion Send-AlertEmail:</h3>
     <div class="code-container">
-        <pre><code class="language-powershell">
-function Update-MemoryDisplay {
-    $lblMemory.Text = if ($script:memory -ne 0) { "M: $($script:memory)" } else { "" }
+        <pre><code class="language-powershell">function Send-AlertEmail {
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$UserInfo,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$AlertReason,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$Details,
+    
+    [Parameter(Mandatory=$true)]
+    [string]$ScreenshotPath,
+    
+    [Parameter(Mandatory=$false)]
+    [string]$AdditionalInfo = ""
+)
+
+try {
+    
+    # Crear objeto de mensaje de correo directamente
+
+    $mail = New-Object System.Net.Mail.MailMessage
+    $mail.From = New-Object System.Net.Mail.MailAddress($emailConfig.From)
+    $mail.To.Add($emailConfig.To)
+    $mail.Subject = "$($emailConfig.Subject): $AlertReason"
+    $mail.IsBodyHtml = $true
+    
+    
+    # Agregar CC si está configurado
+    if (-not [string]::IsNullOrWhiteSpace($emailConfig.Cc)) {
+        $mail.CC.Add($emailConfig.Cc)
+    }
+    
+    
+    # Crear el cuerpo HTML
+    $body = @"
+    &lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;body style="font-family: Arial, sans-serif;"&gt;
+    &lt;img src="cid:$contentId" alt="Logo"&gt;
+    &lt;h2 style="color: #cc0000;"&gt;ALERTA DE SEGURIDAD: Sitio Sensible Detectado&lt;/h2&gt;
+    &lt;p&gt;&lt;strong&gt;Usuario:&lt;/strong&gt; $UserInfo&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Motivo de la alerta:&lt;/strong&gt; $AlertReason&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Detalles:&lt;/strong&gt; $Details&lt;/p&gt;
+    &lt;p&gt;&lt;strong&gt;Fecha y hora:&lt;/strong&gt; $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")&lt;/p&gt;
+    $AdditionalInfo
+    &lt;p&gt;Se adjunta captura de pantalla como evidencia.&lt;/p&gt;
+    &lt;p style="color: #666666; font-size: 12px;"&gt;Este es un mensaje automático generado por el sistema de monitoreo de navegadores.&lt;/p&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+"@
+
+    # Crear vista HTML y agregar el recurso vinculado
+    $htmlView = [System.Net.Mail.AlternateView]::CreateAlternateViewFromString($body, $null, "text/html")
+    $htmlView.LinkedResources.Add($inlineLogo)
+    
+    # Agregar la vista HTML a la colección AlternateViews del mensaje
+    $mail.AlternateViews.Add($htmlView)
+    
+    # Agregar adjunto de captura de pantalla
+    $attachment = New-Object System.Net.Mail.Attachment($ScreenshotPath)
+    $mail.Attachments.Add($attachment)
+    
+    # Crear cliente SMTP
+    $smtp = New-Object System.Net.Mail.SmtpClient($emailConfig.SmtpServer, $emailConfig.SmtpPort)
+    $smtp.EnableSsl = $emailConfig.EnableSsl
+    
+    # Agregar credenciales si es necesario
+    if ($emailConfig.UseCredentials) {
+        $securePassword = ConvertTo-SecureString $emailConfig.Password -AsPlainText -Force
+        $credentials = New-Object System.Management.Automation.PSCredential($emailConfig.Username, $securePassword)
+        $smtp.Credentials = $credentials
+    }
+    
+    # Enviar el correo electrónico
+    $smtp.Send($mail)
+    
+    Escribir-log "Correo electrónico de alerta enviado a $($emailConfig.To)" -Level "INFO" -ForegroundColor Green
+    return $true
+}
+catch {
+    Escribir-log "Error al enviar correo electrónico: $_" -Level "ERROR" -ForegroundColor Red
+    return $false
+}
+finally {
+    
+    # Limpiar recursos
+    if ($null -ne $attachment) { $attachment.Dispose() }
+    if ($null -ne $mail) { $mail.Dispose() }
+    if ($null -ne $smtp) { $smtp.Dispose() }
+}
 }
 </code></pre>
 <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
@@ -347,105 +416,293 @@ function Update-MemoryDisplay {
 </div>
 </section>
 <section class="instructions">
-  <li><b>Descripción:</b> Actualiza la etiqueta que muestra el valor almacenado en memoria.</li>
-  <li><b>Proceso:</b></li>
-   <ul> <li>Verifica si la variable $script:memory no es cero.</li>
-    <li>Si no es cero, actualiza el texto del Label con el valor de memoria.</li>
-    <li>Si es cero, establece el texto del Label en una cadena vacía.</li>  </ul>
- 
+  <ul>
+    <li><b>Propósito:</b> Enviar correo electrónico con captura de pantalla y detalles de la alerta.</li>
+    <li><b>Parámetros:</b>
+      <ul>
+        <li><b>UserInfo:</b> Usuario que activó la alerta.</li>
+        <li><b>AlertReason:</b> Motivo (ej. "Facebook detectado").</li>
+        <li><b>Details:</b> URL o título de la ventana.</li>
+        <li><b>ScreenshotPath:</b> Ruta de la imagen adjunta.</li>
+      </ul>
+    </li>
+    <li><b>Flujo:</b>
+      <ul>
+        <li>Crea un cuerpo HTML con logo incrustado (base64).</li>
+        <li>Adjunta la captura de pantalla.</li>
+        <li>Usa SMTP para enviar el correo (configurable en <code>$emailConfig</code>).</li>
+      </ul>
+    </li>
+  </ul>
 </section>
 <br>
 
 <section id="codigo-ProbarConexion">
-    <h3>Funcion Update-History:</h3>
+    <h3>Función Take-Screenshot:</h3>
     <div class="code-container">
-        <pre><code class="language-powershell" >
-          function Update-History {
-            $listHistory.Items.Clear()
-            $listHistory.Items.AddRange($script:history)
-        }
+        <pre><code class="language-powershell">function Take-Screenshot {
+  param (
+      [string]$UserInfo,
+      [string]$Reason,
+      [string]$Details,
+      [string]$BrowserName = ""
+  )
+  
+  try {
+      $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+      $bitmap = New-Object System.Drawing.Bitmap($screen.Width, $screen.Height)
+      $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+      
+      $graphics.CopyFromScreen($screen.Location, [System.Drawing.Point]::Empty, $screen.Size)
+      
+      $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+      $path = "$screenshotDir\Alert_${UserInfo}_$timestamp.png"
+      
+      $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+      Escribir-log "¡ALERTA! $Reason : '$Details'" -Level "ALERT" -ForegroundColor Red
+      Escribir-log "Captura guardada en: $path" -Level "INFO" -ForegroundColor Green
+
+      # Enviar correo electrónico con la evidencia
+      $additionalInfo = "<p><strong>Nombre del equipo:</strong> $env:COMPUTERNAME</p>"
+      
+      # Intentar enviar el correo electrónico pero continuar incluso si falla
+      try {
+          $emailResult = Send-AlertEmail -UserInfo $UserInfo -AlertReason $Reason -Details $Details -ScreenshotPath $path -AdditionalInfo $additionalInfo
+      }
+      catch {
+          Escribir-log "Error al enviar correo electrónico: $_" -Level "ERROR" -ForegroundColor Red
+          $emailResult = $false
+      }
+      
+      # Cerrar procesos del navegador independientemente del éxito del correo electrónico
+      if (-not [string]::IsNullOrWhiteSpace($BrowserName)) {
+          Escribir-log "Cerrando procesos de navegador independientemente del resultado del correo" -Level "INFO" -ForegroundColor Yellow
+          Close-BrowserProcesses -BrowserName $BrowserName
+      }
+      
+      return $path
+  } catch {
+      Escribir-log "Error al tomar captura: $_" -Level "ERROR" -ForegroundColor Red
+      
+      # Seguir intentando cerrar procesos del navegador incluso si la captura de pantalla falla
+      if (-not [string]::IsNullOrWhiteSpace($BrowserName)) {
+          Escribir-log "Intentando cerrar procesos de navegador a pesar del error" -Level "INFO" -ForegroundColor Yellow
+          Close-BrowserProcesses -BrowserName $BrowserName
+      }
+      
+      return $null
+  } finally {
+      if ($graphics) { $graphics.Dispose() }
+      if ($bitmap) { $bitmap.Dispose() }
+  }
+}
 </code></pre>
 <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
 <div id="copyConfirmation3" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
 </div>
 </section>
 <section class="instructions">
-    <li><b>Descripción:</b> Actualiza el ListBox que muestra el historial de operaciones.</li>
-    <li><b>Proceso:</b> 
+  <ul>
+    <li><b>Propósito:</b> Capturar la pantalla y guardarla como PNG.</li>
+    <li><b>Parámetros:</b>
       <ul>
-        <li>Limpia todos los items actuales</li>
-        <li>Agrega cada entrada del array $script:history</li>
-        <li>Limita el historial a las últimas 10 operaciones</li>
-        <li>No tiene parámetros ni retorno explícito</li>
+        <li><b>UserInfo:</b> Usuario asociado al evento.</li>
+        <li><b>Reason:</b> Razón de la captura.</li>
+        <li><b>BrowserName:</b> Navegador involucrado (opcional).</li>
       </ul>
+    </li>
+    <li><b>Flujo:</b>
+      <ul>
+        <li>Usa <code>System.Drawing</code> para capturar la pantalla primaria.</li>
+        <li>Guarda la imagen en <code>$screenshotDir</code> con nombre basado en timestamp.</li>
+        <li>Llama a <code>Send-AlertEmail</code> si se requiere.</li>
+      </ul>
+    </li>
+  </ul>
 </section>
 <br>
 
 <!-- ************************************************************ -->
 
 <section id="codigo-configurar">
-    <h3>Funcion Add-ToHistory:</h3>
+    <h3>Funcion Get-BrowserWindowTitles:</h3>
     <div class="code-container">
         <pre><code class="language-powershell">
-          function Add-ToHistory {
-            param($operation, $result)
-            $script:history += "$operation = $result"
-            if ($script:history.Count -gt 10) {
-                $script:history = $script:history[-10..-1]
-            }
-            Update-History
-        }
+function Get-BrowserWindowTitles {
+  param (
+      [string]$BrowserName,
+      [int]$ProcessId = 0
+  )
+  
+  $titles = @()
+  
+  # Obtener todos los procesos del navegador o uno específico
+  $processes = if ($ProcessId -gt 0) {
+      Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+  } else {
+      Get-Process -Name $BrowserName -ErrorAction SilentlyContinue
+  }
+  
+  # Recopilar títulos de ventanas principales
+  foreach ($process in $processes) {
+      if (-not [string]::IsNullOrWhiteSpace($process.MainWindowTitle)) {
+          $titles += [PSCustomObject]@{
+              ProcessId = $process.Id
+              Title = $process.MainWindowTitle
+          }
+      }
+  }
+  
+  # Para Chrome, intentar obtener todos los procesos relacionados
+  if ($BrowserName -eq "chrome") {
+      # Obtener el proceso principal de Chrome (si no se especificó uno)
+      if ($ProcessId -eq 0) {
+          $mainProcess = Get-Process -Name "chrome" | 
+              Where-Object { -not [string]::IsNullOrWhiteSpace($_.MainWindowTitle) } | 
+              Select-Object -First 1
+              
+          if ($mainProcess) {
+              $ProcessId = $mainProcess.Id
+          }
+      }
+      
+      # Si tenemos un ID de proceso, buscar todos los procesos de Chrome
+      if ($ProcessId -gt 0) {
+          # Obtener todos los procesos de Chrome
+          $allChromeProcesses = Get-Process -Name "chrome" -ErrorAction SilentlyContinue
+          
+          # Agregar todos los títulos no vacíos
+          foreach ($proc in $allChromeProcesses) {
+              if (-not [string]::IsNullOrWhiteSpace($proc.MainWindowTitle)) {
+                  $titles += [PSCustomObject]@{
+                      ProcessId = $proc.Id
+                      Title = $proc.MainWindowTitle
+                  }
+              }
+          }
+      }
+  }
+  
+  # Eliminar duplicados
+  return $titles | Sort-Object Title -Unique
+}
 </code></pre>
 <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
 <div id="copyConfirmation4" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
 </div>
 </section>
 <section class="instructions">
-    <li><b>Descripción:</b> Agrega una nueva operación al historial.</li>
-      <li><b>Parámetros:</b>
+  <ul>
+    <li><b>Propósito:</b> Obtener títulos de ventanas de un navegador específico.</li>
+    <li><b>Parámetros:</b>
       <ul>
-        <li>operation: Cadena que representa la operación realizada (ej. "5 + 3")</li>
-        <li>result: Resultado de la operación (ej. "8")</li>
+        <li><b>BrowserName:</b> Nombre del ejecutable (ej. "chrome").</li>
+        <li><b>ProcessId:</b> PID del proceso (opcional).</li>
       </ul>
-      <li><b>Proceso:</b> Agrega la cadena "[operation] = [result]" al array $script:history</li>
-      <ul><li>Llama a Update-History para refrescar la visualización</li>
- <li>No retorna ningún valor </li></ul>
+    </li>
+    <li><b>Retorna:</b> Array de objetos con ProcessId y Title.</li>
+    <li><b>Flujo:</b>
+      <ul>
+        <li>Usa <code>Get-Process</code> para buscar procesos del navegador.</li>
+        <li>Filtra ventanas con título no vacío.</li>
+        <li>Para Chrome, busca procesos hijos adicionales.</li>
+      </ul>
+    </li>
+  </ul>
 </section>
 <br>
 
  <!-- ************************************************************ -->
  <section id="codigo-completo">
-    <h3>función Set-Theme:</h3>
+    <h3>función Get-BrowserUrl:</h3>
     <div class="code-container">
         <pre><code class="language-powershell">
-function Set-Theme {
-  param($themeName)
-  $script:currentTheme = $themeName
-  $colors = $theme[$themeName]
+function Get-BrowserUrl {
+  param (
+      [string]$BrowserName,
+      [int]$ProcessId
+  )
   
-  $form.BackColor = $colors['FormBG']
-  $txtDisplay.BackColor = $colors['DisplayBG']
-  $txtDisplay.ForeColor = $colors['DisplayText']
-  $listHistory.BackColor = $colors['DisplayBG']
-  $listHistory.ForeColor = $colors['DisplayText']
+  $url = $null
   
-  foreach ($control in $form.Controls) {
-      if ($control -is [System.Windows.Forms.Button]) {
-          if ($control.Text -match "[+|\-|*|/|%|√|^]") {
-              $control.BackColor = $colors['SpecialBtnBG']
-          } elseif ($control.Text -match "sin|cos|tan") {
-              $control.BackColor = $colors['FunctionBtnBG']
-          } elseif ($control.Text -eq "C") {
-              $control.BackColor = $colors['ClearBtnBG']
-          } elseif ($control.Text -eq "=") {
-              $control.BackColor = $colors['EqualsBtnBG']
-          } elseif ($control.Text -match "MC|MR|M\+|M\-") {
-              $control.BackColor = [System.Drawing.Color]::FromArgb(220, 220, 255)
-          } else {
-              $control.BackColor = $colors['ButtonBG']
+  try {
+      # Método para Chrome
+      if ($BrowserName -eq "chrome") {
+          # Intentar obtener la URL usando COM (Shell.Application)
+          $shell = New-Object -ComObject Shell.Application
+          $windows = $shell.Windows()
+          
+          for ($i = 0; $i -lt $windows.Count; $i++) {
+              $window = $windows.Item($i)
+              
+              # Verificar si es una ventana de Chrome
+              if ($window.FullName -like "*chrome.exe") {
+                  $url = $window.LocationURL
+                  Escribir-log "URL detectada en Chrome: $url" -Level "INFO" -ForegroundColor Gray
+                  break
+              }
+          }
+          
+          # Si no se encontró URL, intentar con otro método
+          if (-not $url) {
+              # Intentar obtener la URL del título (a veces contiene la URL)
+              $titles = Get-BrowserWindowTitles -BrowserName $BrowserName -ProcessId $ProcessId
+              foreach ($title in $titles) {
+                  # Extraer posibles URLs del título
+                  if ($title.Title -match '(https?://[^\s]+)') {
+                      $url = $matches[1]
+                      Escribir-log "URL extraída del título: $url" -Level "INFO" -ForegroundColor Gray
+                      break
+                  }
+              }
+          }
+      }
+      # Método para Firefox
+      elseif ($BrowserName -eq "firefox") {
+          # Similar al método de Chrome
+          $shell = New-Object -ComObject Shell.Application
+          $windows = $shell.Windows()
+          
+          for ($i = 0; $i -lt $windows.Count; $i++) {
+              $window = $windows.Item($i)
+              if ($window.FullName -like "*firefox.exe") {
+                  $url = $window.LocationURL
+                  break
+              }
+          }
+      }
+      # Método para Internet Explorer
+      elseif ($BrowserName -eq "iexplore") {
+          $shell = New-Object -ComObject Shell.Application
+          $windows = $shell.Windows()
+          
+          for ($i = 0; $i -lt $windows.Count; $i++) {
+              $window = $windows.Item($i)
+              if ($window.FullName -like "*iexplore.exe") {
+                  $url = $window.LocationURL
+                  break
+              }
+          }
+      }
+      # Método para Internet Edge
+      elseif ($BrowserName -eq "msedge") {
+          $shell = New-Object -ComObject Shell.Application
+          $windows = $shell.Windows()
+          
+          for ($i = 0; $i -lt $windows.Count; $i++) {
+              $window = $windows.Item($i)
+              if ($window.FullName -like "*msedge.exe") {
+                  $url = $window.LocationURL
+                  break
+              }
           }
       }
   }
+  catch {
+      Escribir-log "Error al obtener URL: $_" -Level "ERROR" -ForegroundColor Red
+  }
+  
+  return $url
 }
 </code></pre>
 <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
