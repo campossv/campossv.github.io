@@ -243,7 +243,7 @@
 </ul>
     </p>
     <div class="video-container">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/4CJUXGqyLdE?si=lsIdPVooE6t3cn5s" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/4CJUXGqyLdE?si=lsIdPVooE6t3cn5s&autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div><br>
     
     <section class="code-container">
@@ -949,18 +949,1269 @@ while ($true) {
   </section>
   </section>  
   <section id="script-completo">
-    <h1>Código Completo</h1>
+    <h3>Clean-MonitoringState</h3>
     </section>
     <section id="codigo-ProtegerConfig">
       <div class="code-container">
-          <pre><code class="language-powershell"><#
-    .SYNOPSIS
+          <pre><code class="language-powershell">function Clean-MonitoringState {
+Escribir-log "Limpiando estado de monitoreo..." -Level "INFO" -ForegroundColor Cyan
+
+$keysToRemove = @()
+foreach ($key in $Global:MonitorDeProcesesos.Keys) {
+    # Verificar si el proceso aún existe
+    try {
+        $process = Get-Process -Id $key -ErrorAction Stop
+        # El proceso existe, manténgalo en estado de monitoreo
+    } catch {
+        # El proceso ya no existe, marcar para eliminar
+        $keysToRemove += $key
+    }
+}
+
+# El proceso ya no existe, marcar para eliminar
+foreach ($key in $keysToRemove) {
+    $Global:MonitorDeProcesesos.Remove($key)
+    Escribir-log "Eliminando proceso $key del registro de monitoreo (ya no existe)" -Level "INFO" -ForegroundColor Gray
+}
+
+Escribir-log "Limpieza de estado de monitoreo completada. Procesos actualmente monitoreados: $($Global:MonitorDeProcesesos.Count)" -Level "INFO" -ForegroundColor Cyan
+}
     </code></pre>
     <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
     <div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
     </div>
     </section>
+    <section class="instructions">
+      <ul>
+        <li><b>Propósito:</b> Limpiar procesos terminados de la tabla hash de monitoreo.</li>
+        <li><b>Flujo:</b>
+          <ul>
+            <li>Itera <code>$Global:MonitorDeProcesesos</code>.</li>
+            <li>Elimina entradas de procesos que ya no existen.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+    </section>
+    <section id="script-completo">
+      <h3>Detect-ActiveBrowsers</h3>
+      </section>
+      <section id="codigo-ProtegerConfig">
+        <div class="code-container">
+            <pre><code class="language-powershell">function Detect-ActiveBrowsers {
+param (
+    [string[]]$BrowserNames = @("chrome", "firefox", "iexplore", "msedge")
+)
+
+Escribir-log "Buscando navegadores activos..." -Level "INFO" -ForegroundColor Cyan
+
+foreach ($browserName in $BrowserNames) {
+    try {
+        # Obtener todos los procesos del navegador actual
+        $processes = Get-Process -Name $browserName -ErrorAction SilentlyContinue
+        
+        if ($processes -and $processes.Count -gt 0) {
+            Escribir-log "Encontrados $($processes.Count) procesos de $browserName" -Level "INFO" -ForegroundColor Green
+            
+            # Filtrar solo procesos con ventana principal
+            $mainProcesses = $processes | Where-Object { -not [string]::IsNullOrWhiteSpace($_.MainWindowTitle) }
+            
+            foreach ($process in $mainProcesses) {
+                # Verificar si ya estamos monitoreando este proceso
+                $processKey = "$($process.Id)"
+                if (-not $Global:MonitorDeProcesesos.ContainsKey($processKey)) {
+                    Escribir-log "Detectado nuevo proceso de navegador: $browserName (PID: $($process.Id)) - Título: '$($process.MainWindowTitle)'" -Level "INFO" -ForegroundColor Green
+                    
+                    # Marcar este proceso como monitoreado
+                    $Global:MonitorDeProcesesos[$processKey] = $true
+                    
+                    # Obtener el nombre de usuario que ejecutó el proceso
+                    $userName = "Usuario"
+                    try {
+                        $ownerInfo = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $($process.Id)" | 
+                            Select-Object -First 1
+                        if ($ownerInfo) {
+                            $owner = $ownerInfo.GetOwner()
+                            if ($owner) {
+                                $userName = $owner.User
+                            }
+                        }
+                    } catch {
+                        Escribir-log "Error al obtener propietario del proceso: $_" -Level "ERROR" -ForegroundColor Red
+                    }
+                    
+                    # Iniciar monitoreo del proceso
+                    Monitor-BrowserProcess -ProcessId $process.Id -UserInfo $userName -ProcessName "$browserName.exe"
+                }
+            }
+        }
+    } catch {
+        Escribir-log "Error al detectar procesos de $browserName : $_" -Level "ERROR" -ForegroundColor Red
+    }
+}
+}
+      </code></pre>
+      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+      </div>
+      </section> 
+      <section class="instructions">
+        <ul>
+          <li><b>Propósito:</b> Detectar navegadores ya en ejecución al iniciar el script.</li>
+          <li><b>Parámetros:</b>
+        <ul>
+          <li><b>BrowserNames:</b> Array con nombres de navegadores (ej. "chrome").</li>
+        </ul>
+          </li>
+          <li><b>Flujo:</b>
+        <ul>
+          <li>Usa <code>Get-Process</code> para buscar procesos activos.</li>
+          <li>Inicia monitoreo para cada uno con <code>Monitor-BrowserProcess</code>.</li>
+        </ul>
+          </li>
+        </ul>
+      </section>
+
+      </section>
+
+      <section id="script-completo">
+        <h3>Monitor-BrowserEvents</h3>
+        </section>
+        <section id="codigo-ProtegerConfig">
+          <div class="code-container">
+              <pre><code class="language-powershell">function Monitor-BrowserEvents {
+# Navegadores a monitorear
+$browsers = @("chrome.exe", "firefox.exe", "iexplore.exe", "msedge.exe")
+$browserNames = $browsers | ForEach-Object { $_ -replace '\.exe$', '' }
+
+Escribir-log "Iniciando monitoreo de navegadores..." -Level "INFO" -ForegroundColor Cyan
+Escribir-log "Monitoreando: $($browsers -join ', ')" -Level "INFO" -ForegroundColor Cyan
+Escribir-log "Presiona Ctrl+C para detener el monitoreo" -Level "INFO" -ForegroundColor Cyan
+
+# Establecer el tiempo de inicio del monitoreo
+$script:monitorStartTime = Get-Date
+Escribir-log "Tiempo de inicio del monitoreo: $script:monitorStartTime" -Level "INFO" -ForegroundColor Cyan
+
+# Mostrar las palabras clave que se están monitoreando
+Escribir-log "Monitoreando las siguientes palabras clave:" -Level "INFO" -ForegroundColor Cyan
+foreach ($keyword in $Global:ControlDePalabras.Keys) {
+    Escribir-log "  - $keyword : $($Global:ControlDePalabras[$keyword])" -Level "INFO" -ForegroundColor Gray
+}
+
+# Verificar la configuración de correo electrónico
+Escribir-log "Verificando configuración de correo electrónico..." -Level "INFO" -ForegroundColor Cyan
+if ([string]::IsNullOrEmpty($emailConfig.SmtpServer) -or $emailConfig.SmtpServer -eq "smtp.tudominio.com") {
+    Escribir-log "ADVERTENCIA: La configuración de correo electrónico no está completa. Las alertas por correo no funcionarán." -Level "WARNING" -ForegroundColor Yellow
+    Escribir-log "Por favor, edita la sección 'Configuración de correo electrónico' al inicio del script." -Level "WARNING" -ForegroundColor Yellow
+} else {
+    Escribir-log "Configuración de correo electrónico verificada. Las alertas se enviarán a: $($emailConfig.To)" -Level "INFO" -ForegroundColor Green
+}
+
+# Contador para limpieza periódica y detección directa
+$cleanupCounter = 0
+$directDetectionCounter = 0
+
+# Bucle principal que monitorea continuamente
+while ($true) {
+    try {
+        # Incrementar contadores
+        $cleanupCounter++
+        $directDetectionCounter++
+        
+        # Limpiar estado cada 60 ciclos (aproximadamente cada 5 minutos)
+        if ($cleanupCounter -ge 60) {
+            Clean-MonitoringState
+            $cleanupCounter = 0
+        }
+        
+        # Detección directa cada 12 ciclos (aproximadamente cada minuto)
+        if ($directDetectionCounter -ge 12) {
+            Detect-ActiveBrowsers -BrowserNames $browserNames
+            $directDetectionCounter = 0
+        }
+        
+        # Obtener eventos de creación de procesos más recientes
+        $events = Get-WinEvent -FilterHashtable @{
+            LogName = 'Security'
+            ID = 4688
+            StartTime = $script:monitorStartTime
+        } -ErrorAction SilentlyContinue
+        
+        if ($events -and $events.Count -gt 0) {
+            # Actualizar el tiempo de inicio para la próxima consulta
+            $script:monitorStartTime = $events[0].TimeCreated
+            
+            # Filtrar solo eventos de navegadores
+            foreach ($event in $events) {
+                # Convertir el XML del evento a un objeto manejable
+                $eventXML = [xml]$event.ToXml()
+                
+                # Extraer el nombre del proceso
+                $processName = $null
+                foreach ($data in $eventXML.Event.EventData.Data) {
+                    if ($data.Name -eq 'NewProcessName') {
+                        $processName = $data.'#text'
+                        break
+                    }
+                }
+                
+                # Verificar si es uno de los navegadores que nos interesan
+                if ($processName -and ($browsers | Where-Object { $processName -match $_ })) {
+                    # Extraer información adicional del evento
+                    $processId = $null
+                    $userName = $null
+                    
+                    foreach ($data in $eventXML.Event.EventData.Data) {
+                        if ($data.Name -eq 'NewProcessId') {
+                            $processId = $data.'#text'
+                        }
+                        elseif ($data.Name -eq 'SubjectUserName') {
+                            $userName = $data.'#text'
+                        }
+                    }
+                    
+                    if ($processId) {
+                        # Convertir el ID de proceso de hexadecimal a decimal si es necesario
+                        if ($processId -match '^0x') {
+                            $processId = [Convert]::ToInt32($processId, 16)
+                        }
+                        
+                        # Verificar si ya hemos monitoreado este proceso
+                        $processKey = "$processId"
+                        if (-not $Global:MonitorDeProcesesos.ContainsKey($processKey)) {
+                            # Marcar este proceso como monitoreado
+                            $Global:MonitorDeProcesesos[$processKey] = $true
+                            
+                            $browserName = ($processName -split '\\')[-1]
+                            $timeCreated = $event.TimeCreated
+                            
+                            Escribir-log "Evento detectado: $browserName (PID: $processId) iniciado por $userName a las $timeCreated" -Level "INFO" -ForegroundColor Green
+                            
+                            # Verificar si el proceso sigue en ejecución antes de monitorearlo
+                            $processInfo = Get-Process -Id $processId -ErrorAction SilentlyContinue
+                            if ($processInfo) {
+                                # Iniciar monitoreo del proceso directamente
+                                Monitor-BrowserProcess -ProcessId $processId -UserInfo $userName -ProcessName $browserName
+                            } else {
+                                Escribir-log "El proceso $browserName (PID: $processId) ya no está en ejecución. Omitiendo monitoreo." -Level "INFO" -ForegroundColor Yellow
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        # Esperar antes de verificar nuevos eventos
+        Start-Sleep -Seconds 5
+        
+    } catch {
+        Escribir-log "Error al monitorear eventos: $_" -Level "ERROR" -ForegroundColor Red
+        Start-Sleep -Seconds 10
+    }
+}
+}</code></pre>
+        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+        <div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+        </div>
+        </section> 
+        <section class="instructions">
+          <ul>
+            <li><b>Propósito:</b> Función principal que coordina el monitoreo continuo.</li>
+            <li><b>Flujo:</b>
+              <ul>
+          <li>Configura directorios y auditoría de eventos.</li>
+          <li>Busca eventos <code>4688</code> en el log de seguridad.</li>
+          <li>Para cada navegador detectado, inicia <code>Monitor-BrowserProcess</code>.</li>
+          <li>Ejecuta <code>Detect-ActiveBrowsers</code> periódicamente.</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+        <section id="script-completo">
+          <h3>Detect-ActiveBrowsers</h3>
+          </section>
+          <section id="codigo-ProtegerConfig">
+            <div class="code-container">
+                <pre><code class="language-powershell"><#
+.CREADO POR
+Vladimir Antonio Campos Herrera
+
+.SYNOPSIS
+    Monitorea y controla el uso de navegadores web para detectar y prevenir el acceso a sitios sensibles.
+
+.DESCRIPTION
+    Este script realiza las siguientes funciones:
     
+    1. Monitoreo en tiempo real:
+        - Detecta la ejecución de navegadores (Chrome, Firefox, Edge, Internet Explorer) mediante eventos 4688
+        - Verifica periódicamente títulos de ventanas y URLs en busca de palabras clave sensibles
+    
+    2. Acciones de control:
+        - Captura pantallas como evidencia cuando detecta sitios sensibles
+        - Cierra automáticamente los navegadores que acceden a sitios prohibidos
+        - Registra todas las actividades con marcas de tiempo
+    
+    3. Notificaciones:
+        - Envía alertas por correo electrónico con capturas de pantalla adjuntas
+        - Genera logs detallados con información de usuario, procesos y sitios detectados
+    
+    4. Características avanzadas:
+        - Monitoreo continuo incluso para procesos hijos de navegadores
+        - Detección directa de navegadores ya en ejecución
+        - Limpieza automática de procesos terminados
+        - Manejo seguro de credenciales SMTP
+
+.NOTES
+    Requerimientos:
+    - Permisos de administrador para monitorear eventos de seguridad
+    - Acceso al registro de eventos de Windows
+    - Credenciales SMTP válidas para enviar alertas por correo
+    
+    Configuración:
+    - Editar la sección de $emailConfig con los datos del servidor SMTP
+    - Modificar $screenshotDir y $logDir según necesidades
+    - Actualizar $Global:ControlDePalabras con las palabras clave relevantes
+    
+    Uso:
+    - Ejecutar el script con privilegios elevados
+    - Presionar Ctrl+C para detener el monitoreo
+    - Las alertas se registran en el archivo de log especificado
+
+#>
+
+# Configuración inicial
+$screenshotDir = "C:\Logs\Screenshots"
+$logDir = "C:\Logs\BrowserMonitor"
+$logFile = "$logDir\BrowserMonitor_$(Get-Date -Format 'yyyyMMdd').log"
+$LPNG = "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoxMzQ5N2M2ZS1lYzU4LTMzNGEtYWVmNi1hYTFhZTg0YzRhNGIiIHN0RXZ0OndoZW49IjIwMjQtMTEtMjBUMTc6NTE6NDMtMDY6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy4wIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz55i9rdAAAuNUlEQVR4nO2deXyU1fnovzOTmclkZ0IC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"
+$imageBytes = [Convert]::FromBase64String($LPNG)
+$stream = New-Object System.IO.MemoryStream
+$stream.Write($imageBytes, 0, $imageBytes.Length)
+$stream.Seek(0, [System.IO.SeekOrigin]::Begin) | Out-Null
+$contentId = [System.Guid]::NewGuid().ToString()
+$inlineLogo = New-Object System.Net.Mail.LinkedResource($stream)
+$inlineLogo.ContentId = $contentId
+$inlineLogo.ContentType = New-Object System.Net.Mime.ContentType("image/png")
+
+
+# Configuración de correo electrónico
+$emailConfig = @{
+    SmtpServer = "smtp.gmail.com"  # Cambia esto por tu servidor SMTP
+    SmtpPort = 587                     # Puerto SMTP (normalmente 25, 465 o 587)
+    EnableSsl = $true                  # Usar SSL para la conexión
+    From = "powershellapplications@gmail.com"     # Dirección de correo del remitente
+    To = "powershellapplications@gmail.com"  # Dirección de correo del destinatario
+    Cc = ""                            # Copia a (opcional)
+    Subject = "ALERTA: Sitio sensible detectado"  # Asunto del correo
+    UseCredentials = $true             # ¿Usar credenciales para autenticación?
+    Username = "powershellapplications@gmail.com" # Usuario para autenticación SMTP
+    Password = "pvdh pvlm sito kfwp"          # Contraseña para autenticación SMTP
+}
+
+# Crear directorios si no existen
+foreach ($dir in @($screenshotDir, $logDir)) {
+    if (-not (Test-Path $dir)) {
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    }
+}
+
+# Variable global para rastrear procesos ya monitoreados
+$Global:MonitorDeProcesesos = @{}
+
+# Definir las palabras clave a monitorear
+$Global:ControlDePalabras = @{
+    # Servicios de almacenamiento en la nube
+    "MEGA" = "Servicio de almacenamiento cifrado"
+    "Dropbox" = "Servicio de almacenamiento en la nube"
+    "Drive" = "Google Drive - Almacenamiento en la nube"
+    "OneDrive" = "Servicio de almacenamiento de Microsoft"
+    "box.com" = "Plataforma de almacenamiento empresarial"
+    "pCloud" = "Servicio de almacenamiento con énfasis en privacidad"
+    "File sharing" = "MediaFire Servicio de alojamiento de archivos"
+    "4shared" = "Plataforma de compartición de archivos"
+    
+    # Servicios de transferencia de archivos
+    "WeTransfer" = "Servicio para enviar archivos grandes"
+    "SendSpace" = "Transferencia de archivos sin registro"
+    "TransferNow" = "Servicio de transferencia de archivos"
+    "Smash" = "Transferencia de archivos sin límite de tamaño"
+    "FileTransfer" = "Servicio de transferencia segura"
+    
+    # Servicios de correo electrónico web
+    "mail.google" = "Servicio de correo de Google"
+    "Outlook" = "Servicio de correo de Microsoft"
+    "Proton Mail" = "Correo con cifrado de extremo a extremo"
+    "Tutanota" = "Servicio de correo cifrado"
+    "Yahoo Mail" = "Servicio de correo de Yahoo"
+    
+    # Repositorios de código
+    "GitHub" = "Plataforma de desarrollo colaborativo"
+    "GitLab" = "Plataforma de gestión de repositorios"
+    "Bitbucket" = "Servicio de alojamiento de código"
+    "Pastebin" = "Servicio para compartir texto/código"
+    
+    # Plataformas de mensajería y redes sociales
+    "Facebook" = "Red social con mensajería"
+    "x.com" = "Plataforma de microblogging"
+    "Discord" = "Plataforma de comunicación"
+    "Telegram" = "Servicio de mensajería con énfasis en privacidad"
+    "WhatsApp" = "Servicio de mensajería"
+    "Signal.org" = "Mensajería cifrada"
+    
+    # Herramientas de acceso remoto
+    "TeamViewer" = "Software de control remoto"
+    "AnyDesk" = "Aplicación de escritorio remoto"
+    "Remote.it" = "Plataforma de acceso remoto"
+    "Remotedesktop.google.com" = "Servicio de acceso remoto de Google"
+}
+
+# Función de registro a archivo y consola
+function Escribir-log {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory=$false)]
+        [ValidateSet("INFO", "WARNING", "ERROR", "ALERT")]
+        [string]$Level = "INFO",
+        
+        [Parameter(Mandatory=$false)]
+        [ConsoleColor]$ForegroundColor = [ConsoleColor]::White
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "[$timestamp] [$Level] $Message"
+    
+    # Escribir a consola con color
+    Write-Host $logMessage -ForegroundColor $ForegroundColor
+    
+    # Escribir a archivo
+    Add-Content -Path $logFile -Value $logMessage
+}
+
+# Función para enviar correo electrónico con evidencia
+function Send-AlertEmail {
+  param (
+      [Parameter(Mandatory=$true)]
+      [string]$UserInfo,
+      
+      [Parameter(Mandatory=$true)]
+      [string]$AlertReason,
+      
+      [Parameter(Mandatory=$true)]
+      [string]$Details,
+      
+      [Parameter(Mandatory=$true)]
+      [string]$ScreenshotPath,
+      
+      [Parameter(Mandatory=$false)]
+      [string]$AdditionalInfo = ""
+  )
+  
+  try {
+      
+      # Crear objeto de mensaje de correo directamente
+  
+      $mail = New-Object System.Net.Mail.MailMessage
+      $mail.From = New-Object System.Net.Mail.MailAddress($emailConfig.From)
+      $mail.To.Add($emailConfig.To)
+      $mail.Subject = "$($emailConfig.Subject): $AlertReason"
+      $mail.IsBodyHtml = $true
+      
+      
+      # Agregar CC si está configurado
+      if (-not [string]::IsNullOrWhiteSpace($emailConfig.Cc)) {
+          $mail.CC.Add($emailConfig.Cc)
+      }
+      
+      
+      # Crear el cuerpo HTML
+      $body = @"
+      &lt;!DOCTYPE html&gt;
+      &lt;html&gt;
+      &lt;body style="font-family: Arial, sans-serif;"&gt;
+      &lt;img src="cid:$contentId" alt="Logo"&gt;
+      &lt;h2 style="color: #cc0000;"&gt;ALERTA DE SEGURIDAD: Sitio Sensible Detectado&lt;/h2&gt;
+      &lt;p&gt;&lt;strong&gt;Usuario:&lt;/strong&gt; $UserInfo&lt;/p&gt;
+      &lt;p&gt;&lt;strong&gt;Motivo de la alerta:&lt;/strong&gt; $AlertReason&lt;/p&gt;
+      &lt;p&gt;&lt;strong&gt;Detalles:&lt;/strong&gt; $Details&lt;/p&gt;
+      &lt;p&gt;&lt;strong&gt;Fecha y hora:&lt;/strong&gt; $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")&lt;/p&gt;
+      $AdditionalInfo
+      &lt;p&gt;Se adjunta captura de pantalla como evidencia.&lt;/p&gt;
+      &lt;p style="color: #666666; font-size: 12px;"&gt;Este es un mensaje automático generado por el sistema de monitoreo de navegadores.&lt;/p&gt;
+      &lt;/body&gt;
+      &lt;/html&gt;
+  "@
+  
+      # Crear vista HTML y agregar el recurso vinculado
+      $htmlView = [System.Net.Mail.AlternateView]::CreateAlternateViewFromString($body, $null, "text/html")
+      $htmlView.LinkedResources.Add($inlineLogo)
+      
+      # Agregar la vista HTML a la colección AlternateViews del mensaje
+      $mail.AlternateViews.Add($htmlView)
+      
+      # Agregar adjunto de captura de pantalla
+      $attachment = New-Object System.Net.Mail.Attachment($ScreenshotPath)
+      $mail.Attachments.Add($attachment)
+      
+      # Crear cliente SMTP
+      $smtp = New-Object System.Net.Mail.SmtpClient($emailConfig.SmtpServer, $emailConfig.SmtpPort)
+      $smtp.EnableSsl = $emailConfig.EnableSsl
+      
+      # Agregar credenciales si es necesario
+      if ($emailConfig.UseCredentials) {
+          $securePassword = ConvertTo-SecureString $emailConfig.Password -AsPlainText -Force
+          $credentials = New-Object System.Management.Automation.PSCredential($emailConfig.Username, $securePassword)
+          $smtp.Credentials = $credentials
+      }
+      
+      # Enviar el correo electrónico
+      $smtp.Send($mail)
+      
+      Escribir-log "Correo electrónico de alerta enviado a $($emailConfig.To)" -Level "INFO" -ForegroundColor Green
+      return $true
+  }
+  catch {
+      Escribir-log "Error al enviar correo electrónico: $_" -Level "ERROR" -ForegroundColor Red
+      return $false
+  }
+  finally {
+      
+      # Limpiar recursos
+      if ($null -ne $attachment) { $attachment.Dispose() }
+      if ($null -ne $mail) { $mail.Dispose() }
+      if ($null -ne $smtp) { $smtp.Dispose() }
+  }
+  }
+
+# Activar auditoría de creación de procesos
+Escribir-log "Activando auditoría de creación de procesos..." -Level "INFO" -ForegroundColor Cyan
+auditpol /set /subcategory:"Process Creation" /success:enable /failure:enable
+
+# Cargar ensamblados necesarios
+try {
+    Add-Type -AssemblyName System.Windows.Forms, System.Drawing -ErrorAction Stop
+} catch {
+    Escribir-log "Error al cargar ensamblados: $_" -Level "ERROR" -ForegroundColor Red
+    exit 1
+}
+
+# Función para captura de pantalla
+function Take-Screenshot {
+    param (
+        [string]$UserInfo,
+        [string]$Reason,
+        [string]$Details,
+        [string]$BrowserName = ""
+    )
+    
+    try {
+        $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+        $bitmap = New-Object System.Drawing.Bitmap($screen.Width, $screen.Height)
+        $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+        
+        $graphics.CopyFromScreen($screen.Location, [System.Drawing.Point]::Empty, $screen.Size)
+        
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        $path = "$screenshotDir\Alert_${UserInfo}_$timestamp.png"
+        
+        $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
+        Escribir-log "¡ALERTA! $Reason : '$Details'" -Level "ALERT" -ForegroundColor Red
+        Escribir-log "Captura guardada en: $path" -Level "INFO" -ForegroundColor Green
+
+        # Enviar correo electrónico con la evidencia
+        $additionalInfo = "<p><strong>Nombre del equipo:</strong> $env:COMPUTERNAME</p>"
+        
+        # Intentar enviar el correo electrónico pero continuar incluso si falla
+        try {
+            $emailResult = Send-AlertEmail -UserInfo $UserInfo -AlertReason $Reason -Details $Details -ScreenshotPath $path -AdditionalInfo $additionalInfo
+        }
+        catch {
+            Escribir-log "Error al enviar correo electrónico: $_" -Level "ERROR" -ForegroundColor Red
+            $emailResult = $false
+        }
+        
+        # Cerrar procesos del navegador independientemente del éxito del correo electrónico
+        if (-not [string]::IsNullOrWhiteSpace($BrowserName)) {
+            Escribir-log "Cerrando procesos de navegador independientemente del resultado del correo" -Level "INFO" -ForegroundColor Yellow
+            Close-BrowserProcesses -BrowserName $BrowserName
+        }
+        
+        return $path
+    } catch {
+        Escribir-log "Error al tomar captura: $_" -Level "ERROR" -ForegroundColor Red
+        
+        # Seguir intentando cerrar procesos del navegador incluso si la captura de pantalla falla
+        if (-not [string]::IsNullOrWhiteSpace($BrowserName)) {
+            Escribir-log "Intentando cerrar procesos de navegador a pesar del error" -Level "INFO" -ForegroundColor Yellow
+            Close-BrowserProcesses -BrowserName $BrowserName
+        }
+        
+        return $null
+    } finally {
+        if ($graphics) { $graphics.Dispose() }
+        if ($bitmap) { $bitmap.Dispose() }
+    }
+}
+
+# Función simplificada para obtener títulos de ventanas de navegadores
+function Get-BrowserWindowTitles {
+    param (
+        [string]$BrowserName,
+        [int]$ProcessId = 0
+    )
+    
+    $titles = @()
+    
+    # Obtener todos los procesos del navegador o uno específico
+    $processes = if ($ProcessId -gt 0) {
+        Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+    } else {
+        Get-Process -Name $BrowserName -ErrorAction SilentlyContinue
+    }
+    
+    # Recopilar títulos de ventanas principales
+    foreach ($process in $processes) {
+        if (-not [string]::IsNullOrWhiteSpace($process.MainWindowTitle)) {
+            $titles += [PSCustomObject]@{
+                ProcessId = $process.Id
+                Title = $process.MainWindowTitle
+            }
+        }
+    }
+    
+    # Para Chrome, intentar obtener todos los procesos relacionados
+    if ($BrowserName -eq "chrome") {
+        # Obtener el proceso principal de Chrome (si no se especificó uno)
+        if ($ProcessId -eq 0) {
+            $mainProcess = Get-Process -Name "chrome" | 
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_.MainWindowTitle) } | 
+                Select-Object -First 1
+                
+            if ($mainProcess) {
+                $ProcessId = $mainProcess.Id
+            }
+        }
+        
+        # Si tenemos un ID de proceso, buscar todos los procesos de Chrome
+        if ($ProcessId -gt 0) {
+            # Obtener todos los procesos de Chrome
+            $allChromeProcesses = Get-Process -Name "chrome" -ErrorAction SilentlyContinue
+            
+            # Agregar todos los títulos no vacíos
+            foreach ($proc in $allChromeProcesses) {
+                if (-not [string]::IsNullOrWhiteSpace($proc.MainWindowTitle)) {
+                    $titles += [PSCustomObject]@{
+                        ProcessId = $proc.Id
+                        Title = $proc.MainWindowTitle
+                    }
+                }
+            }
+        }
+    }
+    
+    # Eliminar duplicados
+    return $titles | Sort-Object Title -Unique
+}
+
+# Función para obtener la URL actual del navegador
+function Get-BrowserUrl {
+    param (
+        [string]$BrowserName,
+        [int]$ProcessId
+    )
+    
+    $url = $null
+    
+    try {
+        # Método para Chrome
+        if ($BrowserName -eq "chrome") {
+            # Intentar obtener la URL usando COM (Shell.Application)
+            $shell = New-Object -ComObject Shell.Application
+            $windows = $shell.Windows()
+            
+            for ($i = 0; $i -lt $windows.Count; $i++) {
+                $window = $windows.Item($i)
+                
+                # Verificar si es una ventana de Chrome
+                if ($window.FullName -like "*chrome.exe") {
+                    $url = $window.LocationURL
+                    Escribir-log "URL detectada en Chrome: $url" -Level "INFO" -ForegroundColor Gray
+                    break
+                }
+            }
+            
+            # Si no se encontró URL, intentar con otro método
+            if (-not $url) {
+                # Intentar obtener la URL del título (a veces contiene la URL)
+                $titles = Get-BrowserWindowTitles -BrowserName $BrowserName -ProcessId $ProcessId
+                foreach ($title in $titles) {
+                    # Extraer posibles URLs del título
+                    if ($title.Title -match '(https?://[^\s]+)') {
+                        $url = $matches[1]
+                        Escribir-log "URL extraída del título: $url" -Level "INFO" -ForegroundColor Gray
+                        break
+                    }
+                }
+            }
+        }
+        # Método para Firefox
+        elseif ($BrowserName -eq "firefox") {
+            # Similar al método de Chrome
+            $shell = New-Object -ComObject Shell.Application
+            $windows = $shell.Windows()
+            
+            for ($i = 0; $i -lt $windows.Count; $i++) {
+                $window = $windows.Item($i)
+                if ($window.FullName -like "*firefox.exe") {
+                    $url = $window.LocationURL
+                    break
+                }
+            }
+        }
+        # Método para Internet Explorer
+        elseif ($BrowserName -eq "iexplore") {
+            $shell = New-Object -ComObject Shell.Application
+            $windows = $shell.Windows()
+            
+            for ($i = 0; $i -lt $windows.Count; $i++) {
+                $window = $windows.Item($i)
+                if ($window.FullName -like "*iexplore.exe") {
+                    $url = $window.LocationURL
+                    break
+                }
+            }
+        }
+        # Método para Internet Edge
+        elseif ($BrowserName -eq "msedge") {
+            $shell = New-Object -ComObject Shell.Application
+            $windows = $shell.Windows()
+            
+            for ($i = 0; $i -lt $windows.Count; $i++) {
+                $window = $windows.Item($i)
+                if ($window.FullName -like "*msedge.exe") {
+                    $url = $window.LocationURL
+                    break
+                }
+            }
+        }
+    }
+    catch {
+        Escribir-log "Error al obtener URL: $_" -Level "ERROR" -ForegroundColor Red
+    }
+    
+    return $url
+}
+
+# Función para verificar si algún navegador tiene palabras clave en el título o URL
+function Test-KeywordsInBrowser {
+    param (
+        [string]$BrowserName,
+        [int]$ProcessId = 0
+    )
+    
+    $result = @{
+        Found = $false
+        Keyword = ""
+        Description = ""
+        Title = ""
+        Url = ""
+        ProcessId = 0
+        FoundInTitle = $false
+        FoundInUrl = $false
+    }
+    
+    # Obtener todos los títulos de ventanas del navegador
+    $titles = Get-BrowserWindowTitles -BrowserName $BrowserName -ProcessId $ProcessId
+    
+    # Mostrar todos los títulos encontrados (para diagnóstico)
+    Escribir-log "Títulos de ventana encontrados para $BrowserName (PID: $ProcessId):" -Level "INFO" -ForegroundColor Cyan
+    foreach ($window in $titles) {
+        Escribir-log "  - PID: $($window.ProcessId), Título: '$($window.Title)'" -Level "INFO" -ForegroundColor Gray
+    }
+    
+    # Verificar si alguno contiene alguna de las palabras clave
+    foreach ($keyword in $Global:ControlDePalabras.Keys) {
+        $matchWindow = $titles | Where-Object { $_.Title -match "(?i)$keyword" } | Select-Object -First 1
+        
+        if ($matchWindow) {
+            $result.Found = $true
+            $result.Keyword = $keyword
+            $result.Description = $Global:ControlDePalabras[$keyword]
+            $result.Title = $matchWindow.Title
+            $result.ProcessId = $matchWindow.ProcessId
+            $result.FoundInTitle = $true
+            break
+        }
+    }
+    
+    # Intentar obtener la URL actual
+    $url = Get-BrowserUrl -BrowserName $BrowserName -ProcessId $ProcessId
+    
+    if ($url) {
+        Escribir-log "URL detectada: $url" -Level "INFO" -ForegroundColor Gray
+        
+        # Verificar si la URL contiene alguna de las palabras clave
+        foreach ($keyword in $Global:ControlDePalabras.Keys) {
+            if ($url -match "(?i)$keyword") {
+                $result.Found = $true
+                $result.Keyword = $keyword
+                $result.Description = $Global:ControlDePalabras[$keyword]
+                $result.Url = $url
+                $result.FoundInUrl = $true
+                break
+            }
+        }
+    }
+    
+    return $result
+}
+
+# Función para monitorear un proceso específico
+function Monitor-BrowserProcess {
+    param (
+        [int]$ProcessId,
+        [string]$UserInfo,
+        [string]$ProcessName
+    )
+    
+    # Extraer el nombre base del navegador (sin .exe)
+    $browserBaseName = $ProcessName -replace '\.exe$', ''
+    
+    Escribir-log "Iniciando monitoreo del proceso $ProcessName (PID: $ProcessId) iniciado por $UserInfo" -Level "INFO" -ForegroundColor Yellow
+    
+    # Verificar si el proceso sigue en ejecución antes de iniciar el monitoreo
+    $processInfo = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+    if (-not $processInfo) {
+        Escribir-log "El proceso $ProcessName (PID: $ProcessId) ya no está en ejecución. Omitiendo monitoreo." -Level "INFO" -ForegroundColor Yellow
+        return
+    }
+    
+    # Bucle de monitoreo que continúa hasta que el proceso termina
+    $capturedKeyword = $false
+    $lastKeyword = ""
+    $shouldCloseBrowser = $false
+    
+    while ($true) {
+        # Verificar si el proceso sigue en ejecución
+        $processInfo = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+        if (-not $processInfo) {
+            Escribir-log "El proceso $ProcessName (PID: $ProcessId) ha terminado. Finalizando monitoreo." -Level "INFO" -ForegroundColor Yellow
+            break
+        }
+        
+        # Verificar si alguna ventana del navegador contiene alguna palabra clave en el título o URL
+        $result = Test-KeywordsInBrowser -BrowserName $browserBaseName -ProcessId $ProcessId
+        
+        if ($result.Found) {
+            # Solo capturar si es una palabra clave nueva o si ya no estamos capturando
+            if (-not $capturedKeyword -or $lastKeyword -ne $result.Keyword) {
+                $capturedKeyword = $true
+                $lastKeyword = $result.Keyword
+                $shouldCloseBrowser = $true
+                
+                # Determinar la razón de la captura
+                $reason = ""
+                $details = ""
+                
+                if ($result.FoundInTitle) {
+                    $reason = "Sitio sensible detectado en título: $($result.Keyword)"
+                    $details = $result.Title
+                }
+                elseif ($result.FoundInUrl) {
+                    $reason = "URL sensible detectada: $($result.Keyword)"
+                    $details = $result.Url
+                }
+                
+                Take-Screenshot -UserInfo $UserInfo -Reason $reason -Details $details -BrowserName $ProcessName
+                
+                Escribir-log "Usuario detectado: $UserInfo" -Level "ALERT" -ForegroundColor Red
+                Escribir-log "Sitio sensible: $($result.Keyword) - $($result.Description)" -Level "ALERT" -ForegroundColor Red
+                
+                if ($result.FoundInTitle) {
+                    Escribir-log "Título de ventana: $($result.Title)" -Level "ALERT" -ForegroundColor Red
+                }
+                
+                if ($result.FoundInUrl) {
+                    Escribir-log "URL detectada: $($result.Url)" -Level "ALERT" -ForegroundColor Red
+                }
+                
+                # Si debemos cerrar el navegador pero no se ha cerrado aún, forzar el cierre
+                if ($shouldCloseBrowser) {
+                    # Verificar si el proceso sigue en ejecución
+                    $processStillRunning = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+                    if ($processStillRunning) {
+                        Escribir-log "Forzando cierre del navegador después de detectar sitio sensible" -Level "INFO" -ForegroundColor Yellow
+                        Close-BrowserProcesses -BrowserName $ProcessName
+                        # Salir del bucle de monitoreo ya que el proceso debería estar cerrado
+                        break
+                    }
+                }
+            }
+        } else {
+            # Resetear la bandera si ya no contiene ninguna palabra clave
+            $capturedKeyword = $false
+            $lastKeyword = ""
+        }
+        
+        # Esperar 20 segundos antes de la siguiente verificación
+        Escribir-log "Esperando 20 segundos para la siguiente verificación de '$ProcessName'..." -Level "INFO" -ForegroundColor Gray
+        Start-Sleep -Seconds 20
+    }
+}
+
+# Función principal para monitorear eventos de creación de procesos
+function Monitor-BrowserEvents {
+    # Navegadores a monitorear
+    $browsers = @("chrome.exe", "firefox.exe", "iexplore.exe", "msedge.exe")
+    $browserNames = $browsers | ForEach-Object { $_ -replace '\.exe$', '' }
+    
+    Escribir-log "Iniciando monitoreo de navegadores..." -Level "INFO" -ForegroundColor Cyan
+    Escribir-log "Monitoreando: $($browsers -join ', ')" -Level "INFO" -ForegroundColor Cyan
+    Escribir-log "Presiona Ctrl+C para detener el monitoreo" -Level "INFO" -ForegroundColor Cyan
+    
+    # Establecer el tiempo de inicio del monitoreo
+    $script:monitorStartTime = Get-Date
+    Escribir-log "Tiempo de inicio del monitoreo: $script:monitorStartTime" -Level "INFO" -ForegroundColor Cyan
+    
+    # Mostrar las palabras clave que se están monitoreando
+    Escribir-log "Monitoreando las siguientes palabras clave:" -Level "INFO" -ForegroundColor Cyan
+    foreach ($keyword in $Global:ControlDePalabras.Keys) {
+        Escribir-log "  - $keyword : $($Global:ControlDePalabras[$keyword])" -Level "INFO" -ForegroundColor Gray
+    }
+    
+    # Verificar la configuración de correo electrónico
+    Escribir-log "Verificando configuración de correo electrónico..." -Level "INFO" -ForegroundColor Cyan
+    if ([string]::IsNullOrEmpty($emailConfig.SmtpServer) -or $emailConfig.SmtpServer -eq "smtp.tudominio.com") {
+        Escribir-log "ADVERTENCIA: La configuración de correo electrónico no está completa. Las alertas por correo no funcionarán." -Level "WARNING" -ForegroundColor Yellow
+        Escribir-log "Por favor, edita la sección 'Configuración de correo electrónico' al inicio del script." -Level "WARNING" -ForegroundColor Yellow
+    } else {
+        Escribir-log "Configuración de correo electrónico verificada. Las alertas se enviarán a: $($emailConfig.To)" -Level "INFO" -ForegroundColor Green
+    }
+    
+    # Contador para limpieza periódica y detección directa
+    $cleanupCounter = 0
+    $directDetectionCounter = 0
+    
+    # Bucle principal que monitorea continuamente
+    while ($true) {
+        try {
+            # Incrementar contadores
+            $cleanupCounter++
+            $directDetectionCounter++
+            
+            # Limpiar estado cada 60 ciclos (aproximadamente cada 5 minutos)
+            if ($cleanupCounter -ge 60) {
+                Clean-MonitoringState
+                $cleanupCounter = 0
+            }
+            
+            # Detección directa cada 12 ciclos (aproximadamente cada minuto)
+            if ($directDetectionCounter -ge 12) {
+                Detect-ActiveBrowsers -BrowserNames $browserNames
+                $directDetectionCounter = 0
+            }
+            
+            # Obtener eventos de creación de procesos más recientes
+            $events = Get-WinEvent -FilterHashtable @{
+                LogName = 'Security'
+                ID = 4688
+                StartTime = $script:monitorStartTime
+            } -ErrorAction SilentlyContinue
+            
+            if ($events -and $events.Count -gt 0) {
+                # Actualizar el tiempo de inicio para la próxima consulta
+                $script:monitorStartTime = $events[0].TimeCreated
+                
+                # Filtrar solo eventos de navegadores
+                foreach ($event in $events) {
+                    # Convertir el XML del evento a un objeto manejable
+                    $eventXML = [xml]$event.ToXml()
+                    
+                    # Extraer el nombre del proceso
+                    $processName = $null
+                    foreach ($data in $eventXML.Event.EventData.Data) {
+                        if ($data.Name -eq 'NewProcessName') {
+                            $processName = $data.'#text'
+                            break
+                        }
+                    }
+                    
+                    # Verificar si es uno de los navegadores que nos interesan
+                    if ($processName -and ($browsers | Where-Object { $processName -match $_ })) {
+                        # Extraer información adicional del evento
+                        $processId = $null
+                        $userName = $null
+                        
+                        foreach ($data in $eventXML.Event.EventData.Data) {
+                            if ($data.Name -eq 'NewProcessId') {
+                                $processId = $data.'#text'
+                            }
+                            elseif ($data.Name -eq 'SubjectUserName') {
+                                $userName = $data.'#text'
+                            }
+                        }
+                        
+                        if ($processId) {
+                            # Convertir el ID de proceso de hexadecimal a decimal si es necesario
+                            if ($processId -match '^0x') {
+                                $processId = [Convert]::ToInt32($processId, 16)
+                            }
+                            
+                            # Verificar si ya hemos monitoreado este proceso
+                            $processKey = "$processId"
+                            if (-not $Global:MonitorDeProcesesos.ContainsKey($processKey)) {
+                                # Marcar este proceso como monitoreado
+                                $Global:MonitorDeProcesesos[$processKey] = $true
+                                
+                                $browserName = ($processName -split '\\')[-1]
+                                $timeCreated = $event.TimeCreated
+                                
+                                Escribir-log "Evento detectado: $browserName (PID: $processId) iniciado por $userName a las $timeCreated" -Level "INFO" -ForegroundColor Green
+                                
+                                # Verificar si el proceso sigue en ejecución antes de monitorearlo
+                                $processInfo = Get-Process -Id $processId -ErrorAction SilentlyContinue
+                                if ($processInfo) {
+                                    # Iniciar monitoreo del proceso directamente
+                                    Monitor-BrowserProcess -ProcessId $processId -UserInfo $userName -ProcessName $browserName
+                                } else {
+                                    Escribir-log "El proceso $browserName (PID: $processId) ya no está en ejecución. Omitiendo monitoreo." -Level "INFO" -ForegroundColor Yellow
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            # Esperar antes de verificar nuevos eventos
+            Start-Sleep -Seconds 5
+            
+        } catch {
+            Escribir-log "Error al monitorear eventos: $_" -Level "ERROR" -ForegroundColor Red
+            Start-Sleep -Seconds 10
+        }
+    }
+}
+
+#Funcion para cerrar el navegador
+function Close-BrowserProcesses {
+    param (
+        [string]$BrowserName
+    )
+    
+    try {
+        # Extraer el nombre base del navegador sin .exe
+        $browserBaseName = $BrowserName -replace '\.exe$', ''
+        
+        Escribir-log "Cerrando todos los procesos de $browserBaseName..." -Level "INFO" -ForegroundColor Yellow
+        
+        # Obtener todos los procesos con el nombre del navegador
+        $processes = Get-Process -Name $browserBaseName -ErrorAction SilentlyContinue
+        
+        if ($processes -and $processes.Count -gt 0) {
+            # Cerrar cada proceso
+            foreach ($process in $processes) {
+                # Eliminar este proceso de la tabla hash de procesos monitoreados
+                $processKey = "$($process.Id)"
+                if ($Global:MonitorDeProcesesos.ContainsKey($processKey)) {
+                    $Global:MonitorDeProcesesos.Remove($processKey)
+                    Escribir-log "Eliminando proceso $processKey del registro de monitoreo" -Level "INFO" -ForegroundColor Gray
+                }
+                
+                $process.CloseMainWindow() | Out-Null
+                Start-Sleep -Milliseconds 500
+                
+                # Si el proceso no se cerró correctamente, elimínelo
+                if (-not $process.HasExited) {
+                    $process | Stop-Process -Force
+                }
+            }
+            
+            Escribir-log "Se cerraron $($processes.Count) procesos de $browserBaseName" -Level "INFO" -ForegroundColor Green
+            
+            # Restablecer el estado de monitoreo para este tipo de navegador
+            $keysToRemove = @()
+            foreach ($key in $Global:MonitorDeProcesesos.Keys) {
+                # Obtener el nombre del proceso para esta clave si aún existe
+                try {
+                    $proc = Get-Process -Id $key -ErrorAction SilentlyContinue
+                    if ($proc -and $proc.Name -eq $browserBaseName) {
+                        $keysToRemove += $key
+                    }
+                } catch {
+                    # El proceso ya no existe, por lo que podemos eliminarlo
+                    $keysToRemove += $key
+                }
+            }
+            # Eliminar todas las claves para este tipo de navegador
+            foreach ($key in $keysToRemove) {
+                $Global:MonitorDeProcesesos.Remove($key)
+                Escribir-log "Eliminando proceso $key del registro de monitoreo" -Level "INFO" -ForegroundColor Gray
+            }
+            
+            # Actualice la hora de inicio del monitor a ahora para garantizar que detectemos nuevos procesos
+            $script:monitorStartTime = Get-Date
+            Escribir-log "Actualizando tiempo de inicio del monitoreo a: $script:monitorStartTime" -Level "INFO" -ForegroundColor Cyan
+            
+            # Forzar una detección inmediata de navegadores activos
+            Escribir-log "Iniciando detección inmediata de nuevos navegadores..." -Level "INFO" -ForegroundColor Cyan
+            Start-Sleep -Seconds 2  # Pequeña pausa para permitir que los procesos se cierren completamente
+            Detect-ActiveBrowsers -BrowserNames @($browserBaseName)
+            
+        } else {
+            Escribir-log "No se encontraron procesos activos de $browserBaseName" -Level "INFO" -ForegroundColor Yellow
+        }
+    } catch {
+        Escribir-log "Error al cerrar procesos de $BrowserName : $_" -Level "ERROR" -ForegroundColor Red
+    }
+}
+
+function Clean-MonitoringState {
+    Escribir-log "Limpiando estado de monitoreo..." -Level "INFO" -ForegroundColor Cyan
+    
+    $keysToRemove = @()
+    foreach ($key in $Global:MonitorDeProcesesos.Keys) {
+        # Verificar si el proceso aún existe
+        try {
+            $process = Get-Process -Id $key -ErrorAction Stop
+            # El proceso existe, manténgalo en estado de monitoreo
+        } catch {
+            # El proceso ya no existe, marcar para eliminar
+            $keysToRemove += $key
+        }
+    }
+    
+    # El proceso ya no existe, marcar para eliminar
+    foreach ($key in $keysToRemove) {
+        $Global:MonitorDeProcesesos.Remove($key)
+        Escribir-log "Eliminando proceso $key del registro de monitoreo (ya no existe)" -Level "INFO" -ForegroundColor Gray
+    }
+    
+    Escribir-log "Limpieza de estado de monitoreo completada. Procesos actualmente monitoreados: $($Global:MonitorDeProcesesos.Count)" -Level "INFO" -ForegroundColor Cyan
+}
+
+# Función para detectar y monitorear procesos de navegador activos
+function Detect-ActiveBrowsers {
+    param (
+        [string[]]$BrowserNames = @("chrome", "firefox", "iexplore", "msedge")
+    )
+    
+    Escribir-log "Buscando navegadores activos..." -Level "INFO" -ForegroundColor Cyan
+    
+    foreach ($browserName in $BrowserNames) {
+        try {
+            # Obtener todos los procesos del navegador actual
+            $processes = Get-Process -Name $browserName -ErrorAction SilentlyContinue
+            
+            if ($processes -and $processes.Count -gt 0) {
+                Escribir-log "Encontrados $($processes.Count) procesos de $browserName" -Level "INFO" -ForegroundColor Green
+                
+                # Filtrar solo procesos con ventana principal
+                $mainProcesses = $processes | Where-Object { -not [string]::IsNullOrWhiteSpace($_.MainWindowTitle) }
+                
+                foreach ($process in $mainProcesses) {
+                    # Verificar si ya estamos monitoreando este proceso
+                    $processKey = "$($process.Id)"
+                    if (-not $Global:MonitorDeProcesesos.ContainsKey($processKey)) {
+                        Escribir-log "Detectado nuevo proceso de navegador: $browserName (PID: $($process.Id)) - Título: '$($process.MainWindowTitle)'" -Level "INFO" -ForegroundColor Green
+                        
+                        # Marcar este proceso como monitoreado
+                        $Global:MonitorDeProcesesos[$processKey] = $true
+                        
+                        # Obtener el nombre de usuario que ejecutó el proceso
+                        $userName = "Usuario"
+                        try {
+                            $ownerInfo = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $($process.Id)" | 
+                                Select-Object -First 1
+                            if ($ownerInfo) {
+                                $owner = $ownerInfo.GetOwner()
+                                if ($owner) {
+                                    $userName = $owner.User
+                                }
+                            }
+                        } catch {
+                            Escribir-log "Error al obtener propietario del proceso: $_" -Level "ERROR" -ForegroundColor Red
+                        }
+                        
+                        # Iniciar monitoreo del proceso
+                        Monitor-BrowserProcess -ProcessId $process.Id -UserInfo $userName -ProcessName "$browserName.exe"
+                    }
+                }
+            }
+        } catch {
+            Escribir-log "Error al detectar procesos de $browserName : $_" -Level "ERROR" -ForegroundColor Red
+        }
+    }
+}
+
+# Manejador de eventos para la terminación del script
+$scriptCleanup = {
+    Escribir-log "Terminando script. Limpiando recursos..." -Level "INFO" -ForegroundColor Cyan
+    
+    # Obtener todos los navegadores que estamos monitoreando
+    $browsers = @("chrome", "firefox", "iexplore", "msedge")
+    
+    foreach ($browser in $browsers) {
+        try {
+            # Verificar si hay procesos activos de este navegador
+            $processes = Get-Process -Name $browser -ErrorAction SilentlyContinue
+            
+            if ($processes -and $processes.Count -gt 0) {
+                Escribir-log "Cerrando $($processes.Count) procesos de $browser durante la terminación del script..." -Level "INFO" -ForegroundColor Yellow
+                
+                # Intentar cerrar cada proceso
+                foreach ($process in $processes) {
+                    try {
+                        $process.CloseMainWindow() | Out-Null
+                        Start-Sleep -Milliseconds 500
+                        
+                        # Si el proceso no se cerró correctamente, forzar su cierre
+                        if (-not $process.HasExited) {
+                            $process | Stop-Process -Force
+                        }
+                    } catch {
+                        Escribir-log "Error al cerrar proceso $($process.Id): $_" -Level "ERROR" -ForegroundColor Red
+                    }
+                }
+                
+                Escribir-log "Procesos de $browser cerrados correctamente" -Level "INFO" -ForegroundColor Green
+            }
+        } catch {
+            Escribir-log "Error al cerrar procesos de $browser : $_" -Level "ERROR" -ForegroundColor Red
+        }
+    }
+    
+    Escribir-log "Limpieza completada. Saliendo del script." -Level "INFO" -ForegroundColor Cyan
+}
+
+
+try {
+    # Registrar el evento para cuando se presiona Ctrl+C
+    $null = Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action $scriptCleanup
+    
+    # También podemos usar un bloque try/finally para asegurar la limpieza
+    try {
+        # Código principal del script aquí
+        
+        # Iniciar el monitoreo de navegadores
+        Monitor-BrowserEvents
+    }
+    finally {
+        # Este bloque se ejecutará incluso si el script se interrumpe con Ctrl+C
+        # Invocar la limpieza manualmente
+        & $scriptCleanup
+    }
+}
+catch {
+    Escribir-log "Error al registrar el manejador de eventos de terminación: $_" -Level "ERROR" -ForegroundColor Red
+}
+          </code></pre>
+          <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+          <div id="copyConfirmation2" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+          </div>
+          </section> 
+   
+        </section>
   </main>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
