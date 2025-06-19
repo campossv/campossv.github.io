@@ -971,7 +971,7 @@ $resultado.Analisis | Format-List</code></pre>
     <section id="examples">
       <h2>Casos de Uso</h2>
       <div class="instructions">
-        <h3>Casos de Uso del Clasificador de Logs con Modo Rápido</h3>
+        <h3>Casos de Uso del Clasificador</h3>
 
         <div class="use-case">
           <h4>🔒 1. Auditoría de Seguridad Proactiva</h4>
@@ -1163,9 +1163,2928 @@ $script:regexCompilados.HIPAA = $patronesHIPAA | ForEach-Object {
         <button class="copy-button" onclick="copiarCodigo(this)">Copiar</button>
         <div class="copy-confirmation">¡Copiado!</div>
         <pre><code class="language-powershell">
-# Script completo aquí
-# Este será reemplazado con el código completo cuando esté disponible
-</code></pre>
+<#
+.SYNOPSIS
+    Clasificador de Logs con Modo de Análisis Rápido
+.DESCRIPTION
+    Versión optimizada con threading, clasificación automática por extensiones,
+    muestreo inteligente y cache SQLite para máximo rendimiento.
+.NOTES
+    Autor: Vladimir Campos
+#>
+# Cargar ensamblados necesarios
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Data
+
+# Logo del programa en Base64
+$LPNG = "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoxMzQ5N2M2ZS1lYzU4LTMzNGEtYWVmNi1hYTFhZTg0YzRhNGIiIHN0RXZ0OndoZW49IjIwMjQtMTEtMjBUMTc6NTE6NDMtMDY6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy4wIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz55i9rdAAAuNUlEQVR4nO2deXyU1fnovzOTmclkZ0IC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"
+$lenbytes = [Convert]::FromBase64String($LPNG)
+$lenmemoria = New-Object System.IO.MemoryStream
+$lenmemoria.Write($lenbytes, 0, $lenbytes.Length)
+$lenmemoria.Position = 0
+$imagenl = [System.Drawing.Image]::FromStream($lenmemoria, $true)
+
+# Función para estilizar TextBox
+function Set-TextBoxStyle {
+    param($textbox)
+    $textbox.Font = $fuenteModerna
+    $textbox.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    $textbox.BackColor = $colorSecundario
+    $textbox.ForeColor = $colorTexto
+}
+
+# Función para estilizar Label
+function Set-LabelStyle {
+    param($label)
+    $label.Font = $fuenteModerna
+    $label.ForeColor = $colorTexto
+}
+
+# Función para estilizar botones
+function Set-ButtonStyle {
+    param($button)
+    $button.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+    $button.FlatAppearance.BorderSize = 0
+    $button.BackColor = $colorPrimario
+    $button.ForeColor = [System.Drawing.Color]::White
+    $button.Font = $fuenteModerna
+    $button.Cursor = [System.Windows.Forms.Cursors]::Hand
+    $button.FlatAppearance.MouseOverBackColor = [System.Drawing.Color]::FromArgb(0, 99, 177)
+    $button.Padding = New-Object System.Windows.Forms.Padding(5)
+}
+
+# Definir colores y estilos
+$colorPrimario = [System.Drawing.Color]::FromArgb(0, 120, 212)     # Azul moderno
+$colorSecundario = [System.Drawing.Color]::FromArgb(243, 243, 243) # Gris claro
+$colorTexto = [System.Drawing.Color]::FromArgb(51, 51, 51)        # Gris oscuro
+$colorFondo = [System.Drawing.Color]::White
+$fuenteModerna = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Regular)
+$fuenteTitulo = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Regular)
+
+
+class Logger {
+    [string]$LogPath
+    [string]$LogLevel
+    [bool]$ConsoleOutput
+    [System.IO.StreamWriter]$LogWriter
+    
+    Logger([string]$logPath, [string]$logLevel = "INFO", [bool]$consoleOutput = $true) {
+        try {
+            $this.LogPath = $logPath
+            $this.LogLevel = $logLevel
+            $this.ConsoleOutput = $consoleOutput
+            
+            # Crear directorio si no existe
+            $logDir = Split-Path $logPath -Parent
+            if (-not (Test-Path $logDir)) {
+                New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+            }
+            
+            # Generar un nombre de archivo único con timestamp y un GUID aleatorio para evitar conflictos
+            $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+            $randomGuid = [Guid]::NewGuid().ToString().Substring(0, 8)
+            $uniqueLogPath = [System.IO.Path]::Combine(
+                [System.IO.Path]::GetDirectoryName($logPath),
+                [System.IO.Path]::GetFileNameWithoutExtension($logPath) + "_${timestamp}_${randomGuid}" + [System.IO.Path]::GetExtension($logPath)
+            )
+            
+            # Intentar inicializar StreamWriter con un nuevo nombre de archivo
+            $this.LogWriter = [System.IO.StreamWriter]::new($uniqueLogPath, $true, [System.Text.Encoding]::UTF8)
+            $this.LogWriter.AutoFlush = $true
+            
+            $this.WriteLog("INFO", "Logger inicializado - Nivel: $logLevel - Archivo: $uniqueLogPath")
+        }
+        catch {
+            # Manejar errores de inicialización
+            Write-Host "Error inicializando logger: $_" -ForegroundColor Red
+            $this.LogWriter = $null
+            # Aún así, configurar para poder usar la salida a consola
+            $this.ConsoleOutput = $true
+        }
+    }
+    
+    [void] WriteLog([string]$level, [string]$message) {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss.fff"
+        $logEntry = "[$timestamp] [$level] $message"
+        
+        # Escribir a archivo
+        if ($this.LogWriter) {
+            $this.LogWriter.WriteLine($logEntry)
+        }
+        
+        # Escribir a consola si está habilitado
+        if ($this.ConsoleOutput) {
+            $color = switch ($level) {
+                "ERROR" { "Red" }
+                "WARN" { "Yellow" }
+                "INFO" { "Green" }
+                "DEBUG" { "Gray" }
+                default { "White" }
+            }
+            Write-Host $logEntry -ForegroundColor $color
+        }
+    }
+    
+    [void] Info([string]$message) { $this.WriteLog("INFO", $message) }
+    [void] Warn([string]$message) { $this.WriteLog("WARN", $message) }
+    [void] Error([string]$message) { $this.WriteLog("ERROR", $message) }
+    [void] Debug([string]$message) { 
+        if ($this.LogLevel -eq "DEBUG") {
+            $this.WriteLog("DEBUG", $message) 
+        }
+    }
+    
+    [void] LogAnalisis([string]$archivo, [string]$clasificacion, [string]$patrones, [double]$tiempo) {
+        $mensaje = "ANÁLISIS - Archivo: $archivo | Clasificación: $clasificacion | Patrones: $patrones | Tiempo: ${tiempo}ms"
+        $this.WriteLog("INFO", $mensaje)
+    }
+    
+    [void] LogError([string]$archivo, [string]$mensajeError) {
+        $mensaje = "ERROR_ANÁLISIS - Archivo: $archivo | Error: $mensajeError"
+        $this.WriteLog("ERROR", $mensaje)
+    }
+    
+    [void] Close() {
+        if ($this.LogWriter) {
+            $this.WriteLog("INFO", "Cerrando logger")
+            $this.LogWriter.Close()
+            $this.LogWriter.Dispose()
+        }
+    }
+}
+
+# Inicializar logger global
+$script:logger = $null
+
+function Inicializar-Logger {
+    param(
+        [string]$logLevel = "INFO",
+        [bool]$consoleOutput = $true
+    )
+    
+    try {
+        $logDir = Join-Path $env:TEMP "ClasificadorDeLogs\Logs"
+        $logFile = Join-Path $logDir "clasificador_$(Get-Date -Format 'yyyyMMdd').log"
+        
+        # Crear la instancia del logger
+        $script:logger = [Logger]::new($logFile, $logLevel, $consoleOutput)
+        
+        # Verificar que se creó correctamente antes de usarlo
+        if ($script:logger -and $script:logger.LogWriter) {
+            $script:logger.Info("=== NUEVA SESIÓN DE CLASIFICACIÓN ===")
+            $script:logger.Info("Usuario: $env:USERNAME | Equipo: $env:COMPUTERNAME")
+            return $true
+        } else {
+            # Si no se pudo crear el LogWriter pero tenemos el objeto logger
+            if ($script:logger) {
+                Write-Host "=== NUEVA SESIÓN DE CLASIFICACIÓN ===" -ForegroundColor Cyan
+                Write-Host "Usuario: $env:USERNAME | Equipo: $env:COMPUTERNAME" -ForegroundColor Cyan
+            }
+            return $false
+        }
+    }
+    catch {
+        Write-Host "Error grave al inicializar el sistema de logging: $_" -ForegroundColor Red
+        Write-Host "El programa continuará sin registro de logs" -ForegroundColor Yellow
+        $script:logger = $null
+        return $false
+    }
+}
+
+# Funciones de logging simplificadas
+function Write-LogInfo { 
+    param([string]$message) 
+    if ($script:logger -and $script:logger.LogWriter) { 
+        $script:logger.Info($message) 
+    } else {
+        Write-Host $message -ForegroundColor Green
+    }
+}
+
+function Write-LogWarn { 
+    param([string]$message) 
+    if ($script:logger -and $script:logger.LogWriter) { 
+        $script:logger.Warn($message) 
+    } else {
+        Write-Host $message -ForegroundColor Yellow
+    }
+}
+
+function Write-LogError { 
+    param([string]$message) 
+    if ($script:logger -and $script:logger.LogWriter) { 
+        $script:logger.Error($message) 
+    } else {
+        Write-Host $message -ForegroundColor Red
+    }
+}
+
+# Sistema de configuración externalizada en JSON
+
+# Estructura de configuración por defecto
+$script:configPorDefecto = @{
+    General = @{
+        ModoRapido = $true
+        UsarCache = $true
+        TiempoCacheHoras = 24
+        LogLevel = "INFO"
+        ConsoleOutput = $true
+    }
+    Rendimiento = @{
+        TamanoMaximoArchivo = 52428800  # 50MB en bytes
+        TamanoMuestra = 65536           # 64KB en bytes
+        NumeroMuestras = 5
+        MaximoHilosParalelos = [Environment]::ProcessorCount
+        TamanoLoteArchivos = 50
+        SaltarBinarios = $true
+    }
+    Clasificacion = @{
+        ExtensionesConfidenciales = @(
+            ".log", ".logs", ".trace", ".audit", ".event", ".syslog", ".out",
+            ".evtx", ".evt", ".journal", ".etl", ".diag", ".mta",
+            ".db", ".sqlite", ".sqlite3", ".mdb", ".accdb", ".dbf",
+            ".kdbx", ".psafe3", ".walletx", ".kwallet",
+            ".sql", ".bak", ".dmp", ".backup", ".frm", ".ibd", ".ldf", ".mdf",
+            ".csv", ".tsv", ".export", ".dump", ".data",
+            ".env", ".secrets", ".key", ".pem", ".p12", ".pfx", ".keystore",
+            ".cer", ".crt", ".passwd", ".shadow", ".htpasswd", ".credentials",
+            ".vsdx", ".drawio", ".lucid", ".odg", ".dia"
+        )
+        ExtensionesTexto = @(
+            ".txt", ".text", ".rtf", ".md", ".markdown",
+            ".xml", ".json", ".yaml", ".yml", ".config", ".conf", ".ini", ".properties",
+            ".ps1", ".bat", ".cmd", ".sh", ".py", ".js", ".html", ".htm", ".css",
+            ".c", ".cpp", ".h", ".java", ".cs", ".vb", ".php", ".rb", ".go"
+        )
+        ExtensionesExcluir = @(
+            ".exe", ".dll", ".bin", ".sys", ".drv", ".ocx",
+            ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".tiff",
+            ".mp3", ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv",
+            ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2",
+            ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"
+        )
+    }
+    Patrones = @{
+        ValidarTelefonos = $true
+        ValidarEmails = $true
+        ValidarIPs = $true
+        ValidarDNI = $true
+        ValidarTarjetas = $true
+        ValidarHashes = $true
+        BuscarFrasesConfidenciales = $true
+        PatronesTelefonoPersonalizados = @()
+        FrasesConfidencialesPersonalizadas = @()
+    }
+}
+
+# Variable global para la configuración cargada
+$script:config = $null
+
+# Función para convertir PSCustomObject a hashtable
+function ConvertTo-Hashtable {
+    param(
+        [Parameter(ValueFromPipeline=$true)]
+        $InputObject
+    )
+
+    process {
+        if ($null -eq $InputObject) { return $null }
+        
+        if ($InputObject -is [System.Collections.IEnumerable] -and $InputObject -isnot [string]) {
+            $collection = @()
+            foreach ($object in $InputObject) { $collection += ConvertTo-Hashtable $object }
+            return $collection
+        }
+        
+        if ($InputObject -is [PSCustomObject]) {
+            $hash = @{}
+            foreach ($property in $InputObject.PSObject.Properties) {
+                $hash[$property.Name] = ConvertTo-Hashtable $property.Value
+            }
+            return $hash
+        }
+        
+        return $InputObject
+    }
+}
+
+# Función para combinar configuraciones
+function Merge-Configuracion {
+    param(
+        [hashtable]$base,
+        [hashtable]$overlay
+    )
+    
+    $resultado = @{}
+    
+    # Copiar todos los valores de la configuración base
+    foreach ($key in $base.Keys) {
+        $resultado[$key] = $base[$key]
+    }
+    
+    # Aplicar valores de la configuración sobrepuesta
+    if ($overlay) {
+        foreach ($key in $overlay.Keys) {
+            if ($resultado.ContainsKey($key)) {
+                if ($resultado[$key] -is [hashtable] -and $overlay[$key] -is [hashtable]) {
+                    # Recursivamente combinar sub-hashtables
+                    $resultado[$key] = Merge-Configuracion $resultado[$key] $overlay[$key]
+                } else {
+                    # Sobrescribir valor
+                    $resultado[$key] = $overlay[$key]
+                }
+            } else {
+                # Añadir nueva clave
+                $resultado[$key] = $overlay[$key]
+            }
+        }
+    }
+    
+    return $resultado
+}
+
+# Función para cargar la configuración desde un archivo JSON
+function Cargar-Configuracion {
+    param([string]$rutaConfig = "")
+    
+    if ([string]::IsNullOrEmpty($rutaConfig)) {
+        $configDir = Join-Path $env:TEMP "ClasificadorDeLogs"
+        $rutaConfig = Join-Path $configDir "config.json"
+    }
+    
+    try {
+        if (Test-Path $rutaConfig) {
+            Write-LogInfo "Cargando configuración desde: $rutaConfig"
+            $configJson = Get-Content $rutaConfig -Raw -Encoding UTF8
+            $configCargada = $configJson | ConvertFrom-Json
+            
+            # Convertir PSCustomObject a hashtable recursivamente
+            $config = ConvertTo-Hashtable $configCargada
+            
+            # Validar y completar configuración faltante
+            $config = Merge-Configuracion $script:configPorDefecto $config
+            
+            Write-LogInfo "Configuración cargada exitosamente"
+            return $config
+        } else {
+            Write-LogWarn "Archivo de configuración no encontrado, usando configuración por defecto"
+            Guardar-Configuracion -config $script:configPorDefecto -rutaConfig $rutaConfig
+            return $script:configPorDefecto
+        }
+    } catch {
+        Write-LogError "Error cargando configuración: $_"
+        Write-LogWarn "Usando configuración por defecto"
+        return $script:configPorDefecto
+    }
+}
+
+# Función para guardar la configuración en un archivo JSON
+function Guardar-Configuracion {
+    param(
+        [hashtable]$config,
+        [string]$rutaConfig = ""
+    )
+    
+    if ([string]::IsNullOrEmpty($rutaConfig)) {
+        $configDir = Join-Path $env:TEMP "ClasificadorDeLogs"
+        $rutaConfig = Join-Path $configDir "config.json"
+    }
+    
+    try {
+        # Crear directorio si no existe
+        $configDir = Split-Path $rutaConfig -Parent
+        if (-not (Test-Path $configDir)) {
+            New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+        }
+        
+        # Convertir a JSON y guardar
+        $configJson = $config | ConvertTo-Json -Depth 10
+        $configJson | Out-File -FilePath $rutaConfig -Encoding UTF8 -Force
+        
+        Write-LogInfo "Configuración guardada en: $rutaConfig"
+        return $true
+    } catch {
+        Write-LogError "Error guardando configuración: $_"
+        return $false
+    }
+}
+
+
+
+# Variables globales para control
+$script:cancelarProceso = $false
+$script:procesoEnEjecucion = $false
+$script:modoRapido = $true
+$script:cacheDB = $null
+
+# Configuración del modo rápido
+$script:configRapido = @{
+    TamañoMaximoArchivo = 50MB
+    TamañoMuestra = 64KB
+    NumeroMuestras = 5
+    MaximoHilosParalelos = [Environment]::ProcessorCount
+    TamañoLoteArchivos = 50
+    UsarCache = $true
+    TiempoCacheHoras = 24
+    SaltarBinarios = $true
+}
+
+# Extensiones para clasificación automática
+$script:extensionesConfidenciales = @(
+    # Logs
+    ".log", ".logs", ".trace", ".audit", ".event", ".syslog", ".out",
+    ".evtx", ".evt", ".journal", ".etl", ".diag", ".mta"
+    
+    # Bases de datos
+    ".db", ".sqlite", ".sqlite3", ".mdb", ".accdb", ".dbf",
+    ".kdbx", ".psafe3", ".walletx", ".kwallet",
+    ".sql", ".bak", ".dmp", ".backup", ".frm", ".ibd", ".ldf", ".mdf"
+    
+    # Exports y dumps
+    ".csv", ".tsv", ".export", ".dump", ".data"
+    
+    # Configuraciones sensibles
+    ".env", ".secrets", ".key", ".pem", ".p12", ".pfx", ".keystore",
+    ".cer", ".crt"
+    
+    # Archivos de sistema sensibles
+    ".passwd", ".shadow", ".htpasswd", ".credentials"
+)
+
+$script:extensionesBinarias = @(
+    ".exe", ".dll", ".bin", ".sys", ".drv", ".ocx"
+    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico", ".tiff"
+    ".mp3", ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv"
+    ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"
+    ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"
+)
+
+$script:extensionesTexto = @(
+    ".txt", ".text", ".rtf", ".md", ".markdown"
+    ".xml", ".json", ".yaml", ".yml", ".config", ".conf", ".ini", ".properties"
+    ".ps1", ".bat", ".cmd", ".sh", ".py", ".js", ".html", ".htm", ".css"
+    ".c", ".cpp", ".h", ".java", ".cs", ".vb", ".php", ".rb", ".go"
+)
+
+# Función para detectar automáticamente la codificación de los archivos
+function Detectar-Encoding {
+    param([string]$rutaArchivo)
+    
+    try {
+        # Leer los primeros bytes para detectar BOM
+        $bytes = [System.IO.File]::ReadAllBytes($rutaArchivo) | Select-Object -First 4
+        
+        # Detectar BOM
+        if ($bytes.Count -ge 3) {
+            if ($bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+                return [System.Text.Encoding]::UTF8
+            }
+            if ($bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
+                return [System.Text.Encoding]::Unicode  # UTF-16 LE
+            }
+            if ($bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) {
+                return [System.Text.Encoding]::BigEndianUnicode  # UTF-16 BE
+            }
+        }
+        
+        # Si no hay BOM, intentar detectar por contenido
+        $muestra = [System.IO.File]::ReadAllBytes($rutaArchivo) | Select-Object -First 1024
+        
+        # Probar UTF-8
+        try {
+            $textoUTF8 = [System.Text.Encoding]::UTF8.GetString($muestra)
+            if (-not $textoUTF8.Contains([char]0xFFFD)) {  # No hay caracteres de reemplazo
+                return [System.Text.Encoding]::UTF8
+            }
+        } catch { }
+        
+        # Probar Windows-1252 (ANSI)
+        try {
+            return [System.Text.Encoding]::GetEncoding(1252)
+        } catch { }
+        
+        # Fallback a UTF-8
+        return [System.Text.Encoding]::UTF8
+        
+    } catch {
+        Write-Host "Error detectando encoding para $rutaArchivo : $_" -ForegroundColor Yellow
+        return [System.Text.Encoding]::UTF8
+    }
+}
+
+# Patrones de teléfono mejorados
+# Diccionario mejorado de patrones telefónicos con descripción
+$patronesTelefonoMejorados = @{
+    "CodigoInternacional" = @{
+        Patron = "\b\+\d{1,4}[\s-]?\d{6,12}\b"
+        Descripcion = "Número con código internacional"
+    }
+    "ConParentesis" = @{
+        Patron = "\b\(\d{1,4}\)[\s-]?\d{6,10}\b"
+        Descripcion = "Número con paréntesis"
+    }
+    "Estandar" = @{
+        Patron = "\b\d{4}[\s-]?\d{4}\b"
+        Descripcion = "Número estándar"
+    }
+    "Completo" = @{
+        Patron = "\b\d{8,9}\b"
+        Descripcion = "Número completo sin separadores"
+    }
+}
+
+# Función para validar si un número telefónico es legítimo
+function Validar-NumeroTelefono {
+    param(
+        [string]$numero,
+        [string]$contexto
+    )
+    
+    # Limpiar el número para análisis
+    $numeroLimpio = $numero -replace '[^\d+]', ''
+    
+    # Si es demasiado corto o largo
+    if ($numeroLimpio.Length -lt 7 -or $numeroLimpio.Length -gt 15) {
+        return $false
+    }
+    
+    # Si contiene demasiados dígitos repetidos
+    $digitosRepetidos = $numeroLimpio -match '(\d)\1{5,}'
+    if ($digitosRepetidos) {
+        return $false
+    }
+    
+    # Si está en un formato típico de contacto
+    if ($contexto -match '(?i)(contactar|llamar|tel:|phone:|móvil:)') {
+        return $true
+    }
+    
+    return $true
+}
+
+# Función mejorada para buscar teléfonos
+function Buscar-TelefonosValidados {
+    param([string]$contenido)
+    
+    $telefonosEncontrados = @()
+    
+    foreach ($tipoTelefono in $patronesTelefonoMejorados.Keys) {
+        $patron = $patronesTelefonoMejorados[$tipoTelefono].Patron
+        $regex = [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+        
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            # Obtener contexto (50 caracteres antes y después)
+            $inicio = [Math]::Max(0, $match.Index - 50)
+            $longitud = [Math]::Min(100, $contenido.Length - $inicio)
+            $contexto = $contenido.Substring($inicio, $longitud)
+            
+            # Validar el número
+            if (Validar-NumeroTelefono -numero $match.Value -contexto $contexto) {
+                $telefonosEncontrados += @{
+                    Numero = $match.Value
+                    Tipo = $patronesTelefonoMejorados[$tipoTelefono].Descripcion
+                    Contexto = $contexto.Trim()
+                    Posicion = $match.Index
+                }
+            }
+        }
+    }
+    
+    return $telefonosEncontrados
+}
+
+# Patrones de teléfono (originales - mantenidos para compatibilidad)
+$patronesTelefono = @(
+    "\b\d{8}\b",                           # Formato 00000000 - cualquier 8 dígitos juntos
+    "\b\d{4}-\d{4}\b",                     # Formato 0000-0000
+    "\b\(\d{3}\)\d{8}\b",                  # Formato (000)00000000
+    "\b\+\d{11}\b",                        # Formato +00000000000
+    "\b\(\+\d{3}\)\d{8}\b",                # Formato (+000)00000000
+    "\b\(\d{3}\)\d{4}-\d{4}\b",            # Formato (000)0000-0000
+    "\b\+\d{6}-\d{5}\b",                   # Formato +000000-00000
+    "\b\(\+\d{3}\)\d{4}-\d{4}\b",          # Formato (+000)0000-0000
+    "\b77973359\b",                        # Número específico
+    "\b\+50377973359\b"                    # Número específico con prefijo
+)
+
+# Patrones de Posibles Logs (corregidos y extendidos)
+$patronesPosibleLog = @(
+    '\d{2}:\d{2}:\d{2}:\d{3}\|\d{2}-\d{2}-\d{4}\|[\w\.]+\|(INFO|DEBUG|ERROR|WARNING|FATAL|WARN)', # Original 1
+    '^\d{2}:\d{2}:\d{2}:\d{3}\|\d{2}-\d{2}-\d{4}\|[\w\.]+\|[A-Z]+\|\d+:',                         # Original 2
+    '^\[\d{2}:\d{2}:\d{2}:\d{3}\]\|\[\d{2}-\d{2}-\d{4}\]\|\[.+?\]\|\[(INFO|DEBUG|ERROR|WARNING|FATAL|WARN|TRACE|SEVERE)\]\|\[\d+\]:.*', # Patrón para formato con corchetes, componente más robusto
+    '^([\w.:\d]+)\s+-\s+([\w/\.-]*)\s+([A-Z]+)\s+\[([^\]]+)\]\s+(\d+)\s+([\d-]+)\s+(\d{3})\s+"([^"]+)"' # Patrón para logs de acceso web (ej. Apache/Nginx)
+)
+
+# Patrones de identidad (corregidos)
+$patronesIdentidad = @(
+    "\b\d{8}[A-Z]\b",                      # DNI español
+    "\b[XYZ]\d{7}[A-Z]\b",                 # NIE español
+    "\b[A-Z]{2}\d{6}\b",                   # Pasaporte
+    "\b\d{9}\b"                            # SSN u otros números de 9 dígitos
+)
+
+# Patrones financieros (corregidos)
+$patronesFinancieros = @(
+    "\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b",                    # Tarjetas de crédito
+    "\b[A-Z]{2}\d{2}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b"  # IBAN
+)
+
+# Patrones de credenciales (corregidos)
+$patronesCredenciales = @(
+    "\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b",           # Email
+    "\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b",                       # IP
+    "\beyJ[a-zA-Z0-9_-]+\.eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\b"      # JWT tokens
+)
+
+# Patrones de solicitudes de firma de certificados (CSR)
+$patronesCSRs = @(
+    '-----BEGIN CERTIFICATE REQUEST-----'
+)
+
+# Patrones de Claves (Privadas y Públicas)
+$patronesKeys = @(
+    '-----BEGIN PRIVATE KEY-----',
+    '-----BEGIN PUBLIC KEY-----'
+)
+
+# Patrones de UserID (SIDs de Windows)
+$patronesSID = @(
+    '\bS-1-\d+(?:-\d+){3,}\b'  # Patrón para SIDs ej: S-1-5-21-xxxx-xxxx-xxxx-xxx
+)
+
+# Patrones para hashes y tokens criptográficos
+$patronesHash = @(
+    "\b[0-9a-f]{40}\b",          # Hashes SHA-1 (git commits, etc.)
+    "\b[0-9a-f]{32}\b",          # Hashes MD5
+    "\b[0-9a-f]{64}\b",          # Hashes SHA-256
+    "\b([0-9a-f])\1{30,}\b",     # Secuencias repetidas (posibles tokens)
+    "\b[0-9]{30,}\b"             # Secuencias largas de dígitos
+)
+
+# Patrones para timestamps y valores de tiempo
+$patronesTimestamps = @(
+    "\b\d{10}\b",                # Timestamp Unix (segundos)
+    "\b\d{13}\b"                 # Timestamp Unix (milisegundos)
+)
+
+# Frases clave (corregidas)
+$frasesClave = @(
+    "(?i)\bconfidencial\b", 
+    "(?i)\bsecreto\b", 
+    "(?i)\brestringido\b",
+    "(?i)\bprivado\b", 
+    "(?i)\bpropiedad de\b", 
+    "(?i)\bno distribuir\b"
+)
+
+# Compilar regex una sola vez
+$script:regexCompilados = @{}
+
+function Inicializar-Regex {
+    Write-Host "Compilando expresiones regulares optimizadas..." -ForegroundColor Yellow
+    
+    $script:regexCompilados.Telefono = @()
+    $script:regexCompilados.PosibleLog = @()
+    $script:regexCompilados.Identidad = @()
+    $script:regexCompilados.Financieros = @()
+    $script:regexCompilados.Credenciales = @()
+    $script:regexCompilados.FrasesClave = @()
+    $script:regexCompilados.CSRs = @()
+    $script:regexCompilados.Keys = @()
+    $script:regexCompilados.SID = @() # Categoría SID
+    $script:regexCompilados.Hash = @() # Nueva categoría para hashes y tokens
+    $script:regexCompilados.Timestamps = @() # Nueva categoría para timestamps
+    
+    foreach ($patron in $patronesTelefono) {
+        $script:regexCompilados.Telefono += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesPosibleLog) {
+        $script:regexCompilados.PosibleLog += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesIdentidad) {
+        $script:regexCompilados.Identidad += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesFinancieros) {
+        $script:regexCompilados.Financieros += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesCredenciales) {
+        $script:regexCompilados.Credenciales += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesCSRs) {
+        $script:regexCompilados.CSRs += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($patron in $patronesKeys) {
+        $script:regexCompilados.Keys += [regex]::new($patron, ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase))
+    }
+    
+    foreach ($patron in $patronesSID) {
+        $script:regexCompilados.SID += [regex]::new($patron, ([System.Text.RegularExpressions.RegexOptions]::Compiled -bor [System.Text.RegularExpressions.RegexOptions]::IgnoreCase))
+    }
+    
+    # Compilar patrones para hashes y tokens criptográficos
+    foreach ($patron in $patronesHash) {
+        $script:regexCompilados.Hash += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    # Compilar patrones para timestamps
+    foreach ($patron in $patronesTimestamps) {
+        $script:regexCompilados.Timestamps += [regex]::new($patron, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    foreach ($frase in $frasesClave) {
+        $script:regexCompilados.FrasesClave += [regex]::new($frase, [System.Text.RegularExpressions.RegexOptions]::Compiled)
+    }
+    
+    Write-Host "Regex compilados exitosamente." -ForegroundColor Green
+}
+
+# Inicializar base de datos de cache
+function Inicializar-Cache {
+    try {
+        $cacheDir = Join-Path $env:TEMP "ClasificadorDeLogs"
+        if (-not (Test-Path $cacheDir)) {
+            New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
+        }
+        
+        $cacheFile = Join-Path $cacheDir "cache.db"
+        $connectionString = "Data Source=$cacheFile;Version=3;"
+        
+        $script:cacheDB = New-Object System.Data.SQLite.SQLiteConnection($connectionString)
+        $script:cacheDB.Open()
+        
+        $createTable = @"
+CREATE TABLE IF NOT EXISTS archivo_cache (
+    ruta TEXT PRIMARY KEY,
+    hash TEXT NOT NULL,
+    fecha_modificacion TEXT NOT NULL,
+    clasificacion TEXT NOT NULL,
+    patrones TEXT,
+    fecha_analisis TEXT NOT NULL
+)
+"@
+        
+        $command = $script:cacheDB.CreateCommand()
+        $command.CommandText = $createTable
+        $command.ExecuteNonQuery() | Out-Null
+        
+        Write-Host "Cache SQLite inicializado." -ForegroundColor Green
+    } catch {
+        Write-Host "Error inicializando cache: $_" -ForegroundColor Yellow
+        $script:configRapido.UsarCache = $false
+    }
+}
+# Función auxiliar para verificar el mapeo de columnas
+function Verificar-MapeoColumnas {
+    param(
+        [string]$archivoCSV
+    )
+    
+    Write-Host "`n=== VERIFICACIÓN DE MAPEO DE COLUMNAS ===" -ForegroundColor Yellow
+    
+    try {
+        # Cargar una muestra del CSV
+        $muestra = Import-Csv -Path $archivoCSV -Delimiter ';' | Select-Object -First 1
+        
+        Write-Host "`nColumnas en el archivo CSV:" -ForegroundColor Cyan
+        $muestra.PSObject.Properties | ForEach-Object {
+            Write-Host "  '$($_.Name)' = '$($_.Value)'" -ForegroundColor Gray
+        }
+        
+        Write-Host "`nColumnas en el DataGridView:" -ForegroundColor Cyan
+        foreach ($col in $dataGridView.Columns) {
+            Write-Host "  Índice $($col.Index): Nombre='$($col.Name)', HeaderText='$($col.HeaderText)'" -ForegroundColor Gray
+        }
+        
+        Write-Host "`nMapeo esperado:" -ForegroundColor Green
+        Write-Host "  CSV 'Archivo' -> DataGridView 'Nombre'" -ForegroundColor Gray
+        Write-Host "  CSV 'Clasificacion' -> DataGridView 'Clasificacion'" -ForegroundColor Gray
+        Write-Host "  CSV 'Tamano' -> DataGridView 'Tamaño'" -ForegroundColor Gray
+        Write-Host "  CSV 'Patrones' -> DataGridView 'Patrones'" -ForegroundColor Gray
+        Write-Host "  CSV 'Tiempo' -> DataGridView 'Tiempo'" -ForegroundColor Gray
+        Write-Host "  CSV 'Ruta' -> DataGridView 'Ruta'" -ForegroundColor Gray
+        
+    } catch {
+        Write-Host "Error verificando mapeo: $($_.Exception.Message)" -ForegroundColor Red
+    }
+    
+    Write-Host "============================================`n" -ForegroundColor Yellow
+}
+
+# Función para obtener hash rápido de archivo
+function Get-ArchivoHash {
+    param([string]$rutaArchivo)
+    
+    try {
+        $info = Get-Item $rutaArchivo
+        $tamaño = $info.Length
+        $fechaMod = $info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        
+        # Para archivos pequeños, usar contenido completo
+        if ($tamaño -lt 1MB) {
+            $contenido = Get-Content $rutaArchivo -Raw -ErrorAction Stop
+            $hash = [System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($contenido))
+        } else {
+            # Para archivos grandes, usar tamaño + fecha + primeros bytes
+            $primerosBytesStream = [System.IO.File]::OpenRead($rutaArchivo)
+            $buffer = New-Object byte[] 1024
+            $primerosBytesStream.Read($buffer, 0, 1024) | Out-Null
+            $primerosBytesStream.Close()
+            
+            $hashInput = "$tamaño-$fechaMod-$([System.Convert]::ToBase64String($buffer))"
+            $hash = [System.Security.Cryptography.MD5]::Create().ComputeHash([System.Text.Encoding]::UTF8.GetBytes($hashInput))
+        }
+        
+        return [System.Convert]::ToBase64String($hash)
+    } catch {
+        return $null
+    }
+}
+
+# Verificar cache
+function Get-ResultadoCache {
+    param([string]$rutaArchivo)
+    
+    if (-not $script:configRapido.UsarCache -or -not $script:cacheDB) {
+        return $null
+    }
+    
+    try {
+        $hash = Get-ArchivoHash -rutaArchivo $rutaArchivo
+        if (-not $hash) { return $null }
+        
+        $info = Get-Item $rutaArchivo
+        $fechaMod = $info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        
+        $query = "SELECT * FROM archivo_cache WHERE ruta = @ruta AND hash = @hash AND fecha_modificacion = @fecha"
+        $command = $script:cacheDB.CreateCommand()
+        $command.CommandText = $query
+        $command.Parameters.AddWithValue("@ruta", $rutaArchivo) | Out-Null
+        $command.Parameters.AddWithValue("@hash", $hash) | Out-Null
+        $command.Parameters.AddWithValue("@fecha", $fechaMod) | Out-Null
+        
+        $reader = $command.ExecuteReader()
+        
+        if ($reader.Read()) {
+            $fechaAnalisis = [DateTime]::Parse($reader["fecha_analisis"])
+            $horasTranscurridas = ([DateTime]::Now - $fechaAnalisis).TotalHours
+            
+            if ($horasTranscurridas -lt $script:configRapido.TiempoCacheHoras) {
+                $resultado = @{
+                    Clasificacion = $reader["clasificacion"]
+                    Patrones = $reader["patrones"]
+                    EsCache = $true
+                }
+                $reader.Close()
+                return $resultado
+            }
+        }
+        $reader.Close()
+        return $null
+    } catch {
+        return $null
+    }
+}
+
+# Guardar en cache
+function Set-ResultadoCache {
+    param(
+        [string]$rutaArchivo,
+        [string]$clasificacion,
+        [string]$patrones
+    )
+    
+    if (-not $script:configRapido.UsarCache -or -not $script:cacheDB) {
+        return
+    }
+    
+    try {
+        $hash = Get-ArchivoHash -rutaArchivo $rutaArchivo
+        if (-not $hash) { return }
+        
+        $info = Get-Item $rutaArchivo
+        $fechaMod = $info.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        $fechaAnalisis = [DateTime]::Now.ToString("yyyy-MM-dd HH:mm:ss")
+        
+        $insert = @"
+INSERT OR REPLACE INTO archivo_cache 
+(ruta, hash, fecha_modificacion, clasificacion, patrones, fecha_analisis)
+VALUES (@ruta, @hash, @fecha_mod, @clasificacion, @patrones, @fecha_analisis)
+"@
+        
+        $command = $script:cacheDB.CreateCommand()
+        $command.CommandText = $insert
+        $command.Parameters.AddWithValue("@ruta", $rutaArchivo) | Out-Null
+        $command.Parameters.AddWithValue("@hash", $hash) | Out-Null
+        $command.Parameters.AddWithValue("@fecha_mod", $fechaMod) | Out-Null
+        $command.Parameters.AddWithValue("@clasificacion", $clasificacion) | Out-Null
+        $command.Parameters.AddWithValue("@patrones", $patrones) | Out-Null
+        $command.Parameters.AddWithValue("@fecha_analisis", $fechaAnalisis) | Out-Null
+        
+        $command.ExecuteNonQuery() | Out-Null
+    } catch {
+        # Silenciar errores de cache
+    }
+}
+
+# Función de muestreo inteligente para archivos grandes
+function Get-MuestraArchivo {
+    param([string]$rutaArchivo)
+    
+    try {
+        $info = Get-Item $rutaArchivo
+        $tamaño = $info.Length
+        
+        if ($tamaño -le $script:configRapido.TamañoMuestra) {
+            # Archivo pequeño, leer completo
+            return Get-Content $rutaArchivo -Raw -ErrorAction Stop
+        }
+        
+        # Archivo grande, usar muestreo
+        $stream = [System.IO.File]::OpenRead($rutaArchivo)
+        $muestras = @()
+        
+        # Muestra del inicio (headers, metadatos)
+        $buffer = New-Object byte[] ($script:configRapido.TamañoMuestra / 4)
+        $stream.Read($buffer, 0, $buffer.Length) | Out-Null
+        $muestras += [System.Text.Encoding]::UTF8.GetString($buffer)
+        
+        # Muestras aleatorias del medio
+        $tamañoMuestra = $script:configRapido.TamañoMuestra / $script:configRapido.NumeroMuestras
+        for ($i = 1; $i -lt $script:configRapido.NumeroMuestras; $i++) {
+            $posicion = [Math]::Floor(($tamaño / $script:configRapido.NumeroMuestras) * $i)
+            $stream.Seek($posicion, [System.IO.SeekOrigin]::Begin) | Out-Null
+            
+            $buffer = New-Object byte[] $tamañoMuestra
+            $stream.Read($buffer, 0, $buffer.Length) | Out-Null
+            $muestras += [System.Text.Encoding]::UTF8.GetString($buffer)
+        }
+        
+        # Muestra del final (logs recientes)
+        $posicionFinal = [Math]::Max(0, $tamaño - ($script:configRapido.TamañoMuestra / 4))
+        $stream.Seek($posicionFinal, [System.IO.SeekOrigin]::Begin) | Out-Null
+        $buffer = New-Object byte[] ($script:configRapido.TamañoMuestra / 4)
+        $stream.Read($buffer, 0, $buffer.Length) | Out-Null
+        $muestras += [System.Text.Encoding]::UTF8.GetString($buffer)
+        
+        $stream.Close()
+        
+        return ($muestras -join "`n")
+    } catch {
+        return $null
+    }
+}
+
+# Clasificación rápida por extensión
+function Get-ClasificacionPorExtension {
+    param([string]$rutaArchivo)
+    
+    $extension = [System.IO.Path]::GetExtension($rutaArchivo).ToLower()
+    
+    # Clasificación específica para diagramas
+    if ($extension -eq ".vsdx") {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Posible diagrama (.vsdx)"
+            EsAutomatico = $true
+        }
+    }
+    if ($extension -eq ".drawio") {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Posible diagrama (.drawio)"
+            EsAutomatico = $true
+        }
+    }
+    if ($extension -eq ".lucid") {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Posible diagrama (.lucid)"
+            EsAutomatico = $true
+        }
+    }
+    if ($extension -eq ".odg") {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Posible diagrama (.odg)"
+            EsAutomatico = $true
+        }
+    }
+    if ($extension -eq ".dia") {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Posible diagrama (.dia)"
+            EsAutomatico = $true
+        }
+    }
+    
+    if ($extension -in $script:extensionesConfidenciales) {
+        return @{
+            Clasificacion = "Confidencial"
+            Razon = "Extensión automática: $extension"
+            EsAutomatico = $true
+        }
+    }
+    
+    if ($script:configRapido.SaltarBinarios -and $extension -in $script:extensionesBinarias) {
+        return @{
+            Clasificacion = "Saltado"
+            Razon = "Archivo binario: $extension"
+            EsAutomatico = $true
+        }
+    }
+    
+    return $null
+}
+
+# Análisis rápido de contenido
+function Analizar-ContenidoRapido {
+    param([string]$contenido)
+
+    if ([string]::IsNullOrEmpty($contenido)) {
+        return @{
+            TelefonosEncontrados = @()
+            PatronesPosibleLogEncontrados = @()
+            IdentidadesEncontradas = @()
+            FinancierosEncontrados = @()
+            CredencialesEncontradas = @()
+            FrasesClaveEncontradas = @()
+            CSRsEncontrados = @()
+            KeysEncontradas = @()
+            SIDsEncontrados = @()
+            HashesEncontrados = @() # Nueva categoría para hashes y tokens
+            TimestampsEncontrados = @() # Nueva categoría para timestamps
+        }
+    }
+
+    $resultado = @{
+        TelefonosEncontrados = @()
+        PatronesPosibleLogEncontrados = @()
+        IdentidadesEncontradas = @()
+        FinancierosEncontrados = @()
+        CredencialesEncontradas = @()
+        FrasesClaveEncontradas = @()
+        CSRsEncontrados = @()
+        KeysEncontradas = @()
+        SIDsEncontrados = @()
+        HashesEncontrados = @() # Nueva categoría para hashes y tokens
+        TimestampsEncontrados = @() # Nueva categoría para timestamps
+    }
+
+    # Buscar patrones usando el sistema mejorado de detección de teléfonos
+    $telefonosValidados = Buscar-TelefonosValidados -contenido $contenido
+    foreach ($telefono in $telefonosValidados) {
+        if ($telefono.Numero -notin $resultado.TelefonosEncontrados -and $resultado.TelefonosEncontrados.Count -lt 10) {
+            # Almacenar el número y tipo de teléfono con formato mejorado
+            $resultado.TelefonosEncontrados += "$($telefono.Numero) - $($telefono.Tipo)"
+        }
+    }
+    
+    # Mantener compatibilidad usando también el método anterior
+    foreach ($regex in $script:regexCompilados.Telefono) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            # Verificar que este teléfono no haya sido detectado por el método mejorado
+            $yaDetectado = $false
+            foreach ($telefono in $telefonosValidados) {
+                if ($telefono.Numero -eq $match.Value) {
+                    $yaDetectado = $true
+                    break
+                }
+            }
+            
+            if (-not $yaDetectado -and $match.Value -notin $resultado.TelefonosEncontrados -and $resultado.TelefonosEncontrados.Count -lt 10) {
+                $resultado.TelefonosEncontrados += $match.Value
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.PosibleLog) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            if ($match.Value -notin $resultado.PatronesPosibleLogEncontrados -and $resultado.PatronesPosibleLogEncontrados.Count -lt 5) {
+                $resultado.PatronesPosibleLogEncontrados += $match.Value
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.Identidad) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            if ($match.Value -notin $resultado.IdentidadesEncontradas -and $resultado.IdentidadesEncontradas.Count -lt 10) {
+                $resultado.IdentidadesEncontradas += $match.Value
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.Financieros) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            if ($match.Value -notin $resultado.FinancierosEncontrados -and $resultado.FinancierosEncontrados.Count -lt 10) {
+                $resultado.FinancierosEncontrados += $match.Value
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.Credenciales) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            if ($match.Value -notin $resultado.CredencialesEncontradas -and $resultado.CredencialesEncontradas.Count -lt 10) {
+                $resultado.CredencialesEncontradas += $match.Value
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.FrasesClave) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            $inicio = [Math]::Max(0, $match.Index - 20)
+            $longitud = [Math]::Min(40 + $match.Length, $contenido.Length - $inicio)
+            $contexto = $contenido.Substring($inicio, $longitud).Trim()
+            $contexto = $contexto -replace '[\r\n\t]+', ' ' -replace '\s+', ' '
+
+            if ($contexto -notin $resultado.FrasesClaveEncontradas -and $resultado.FrasesClaveEncontradas.Count -lt 5) {
+                $resultado.FrasesClaveEncontradas += $contexto
+            }
+        }
+    }
+
+    foreach ($regex in $script:regexCompilados.CSRs) {
+        if ($script:cancelarProceso) { break }
+        $coincidencias = $regex.Matches($contenido)
+        foreach ($match in $coincidencias) {
+            if ($match.Value -notin $resultado.CSRsEncontrados -and $resultado.CSRsEncontrados.Count -lt 5) {
+                $resultado.CSRsEncontrados += $match.Value
+            }
+        }
+    }
+
+    # Búsqueda de Claves (Privadas y Públicas)
+    foreach ($regex in $script:regexCompilados.Keys) {
+        if ($script:cancelarProceso) { break }
+        $keyMatches = $regex.Matches($contenido)
+        foreach ($match in $keyMatches) {
+            # Diferenciar entre Private y Public Key basado en el patrón encontrado
+            $keyType = "Key"
+            if ($match.Value -match 'PRIVATE') {
+                $keyType = "Private Key"
+            } elseif ($match.Value -match 'PUBLIC') {
+                $keyType = "Public Key"
+            }
+            if (($keyType + ": " + $match.Value) -notin $resultado.KeysEncontradas -and $resultado.KeysEncontradas.Count -lt 5) {
+                $resultado.KeysEncontradas += ($keyType + ": " + $match.Value)
+            }
+        }
+    }
+
+    # Búsqueda de SIDs
+    foreach ($regex in $script:regexCompilados.SID) {
+        if ($script:cancelarProceso) { break }
+        $sidMatches = $regex.Matches($contenido)
+        foreach ($match in $sidMatches) {
+            if ($match.Value -notin $resultado.SIDsEncontrados -and $resultado.SIDsEncontrados.Count -lt 5) {
+                $resultado.SIDsEncontrados += $match.Value
+            }
+        }
+    }
+    
+    # Búsqueda de Hashes y Tokens Criptográficos
+    foreach ($regex in $script:regexCompilados.Hash) {
+        if ($script:cancelarProceso) { break }
+        $hashMatches = $regex.Matches($contenido)
+        foreach ($match in $hashMatches) {
+            if ($match.Value -notin $resultado.HashesEncontrados -and $resultado.HashesEncontrados.Count -lt 10) {
+                $resultado.HashesEncontrados += $match.Value
+            }
+        }
+    }
+    
+    # Búsqueda de Timestamps Unix
+    foreach ($regex in $script:regexCompilados.Timestamps) {
+        if ($script:cancelarProceso) { break }
+        $tsMatches = $regex.Matches($contenido)
+        foreach ($match in $tsMatches) {
+            if ($match.Value -notin $resultado.TimestampsEncontrados -and $resultado.TimestampsEncontrados.Count -lt 10) {
+                $resultado.TimestampsEncontrados += $match.Value
+            }
+        }
+    }
+
+    return $resultado
+}
+
+function Clasificar-ArchivoRapido {
+    param([string]$rutaArchivo)
+
+    if ($script:cancelarProceso) {
+        return $null
+    }
+
+    # Verificar que el archivo existe
+    if (-not (Test-Path -Path $rutaArchivo -PathType Leaf)) {
+        return $null
+    }
+
+    try {
+        # Verificar cache primero
+        $resultadoCache = Get-ResultadoCache -rutaArchivo $rutaArchivo
+        if ($resultadoCache) {
+            # Registrar uso de cache en el log
+            Write-LogInfo "Usando resultado en cache para: $rutaArchivo"
+            
+            return @{
+                Archivo = $rutaArchivo
+                Clasificacion = $resultadoCache.Clasificacion
+                Patrones = $resultadoCache.Patrones
+                EsCache = $true
+                TiempoAnalisis = 0
+            }
+        }
+
+        $tiempoInicio = Get-Date
+
+        # 2. Clasificación automática por extensión
+        $clasificacionAuto = Get-ClasificacionPorExtension -rutaArchivo $rutaArchivo
+        if ($clasificacionAuto) {
+            if ($clasificacionAuto.Clasificacion -eq "Saltado") {
+                return $null
+            }
+
+            $patrones = $clasificacionAuto.Razon
+            Set-ResultadoCache -rutaArchivo $rutaArchivo -clasificacion $clasificacionAuto.Clasificacion -patrones $patrones
+
+            # Calcular tiempo total de análisis
+            $tiempoTotal = ((Get-Date) - $tiempoInicio).TotalMilliseconds
+            
+            # Registrar en el log el resultado de la clasificación
+            if ($script:logger) {
+                $script:logger.LogAnalisis($rutaArchivo, $clasificacionAuto.Clasificacion, $patrones, $tiempoTotal)
+            }
+
+            return @{
+                Archivo = $rutaArchivo
+                Clasificacion = $clasificacionAuto.Clasificacion
+                Patrones = $patrones
+                EsAutomatico = $true
+                TiempoAnalisis = $tiempoTotal
+            }
+        }
+
+        # 3. Análisis de contenido (con muestreo si es necesario)
+        
+        # Detectar encoding del archivo
+        try {
+            $encoding = Detectar-Encoding -rutaArchivo $rutaArchivo
+            
+            # Registro informativo sobre la codificación detectada
+            Write-Host ("Encoding detectado para '{0}': {1}" -f $rutaArchivo, $encoding.EncodingName) -ForegroundColor Cyan
+            
+            $contenido = if ($script:modoRapido -and (Get-Item $rutaArchivo).Length -gt $script:configRapido.TamanoMaximoSinMuestreoBytes) {
+                # En modo rápido con archivos grandes usamos muestreo
+                Get-MuestraArchivo -rutaArchivo $rutaArchivo
+            } else {
+                # Usar el encoding detectado para leer el archivo
+                [System.IO.File]::ReadAllText($rutaArchivo, $encoding)
+            }
+        } catch {
+            # Si falla la detección de encoding, usar el método tradicional como respaldo
+            Write-Host ("Error detectando encoding para '{0}', usando método estándar" -f $rutaArchivo) -ForegroundColor Yellow
+            
+            $contenido = if ($script:modoRapido -and (Get-Item $rutaArchivo).Length -gt $script:configRapido.TamanoMaximoSinMuestreoBytes) {
+                # Modo rápido con método tradicional
+                Get-MuestraArchivo -rutaArchivo $rutaArchivo
+            } else {
+                # Método tradicional
+                Get-Content -Path $rutaArchivo -Raw -ErrorAction Stop
+            }
+        }
+
+        if ([string]::IsNullOrEmpty($contenido)) {
+            return @{
+                Archivo = $rutaArchivo
+                Clasificacion = "No Clasificado"
+                Patrones = "Archivo vacío o no legible"
+                TiempoAnalisis = ((Get-Date) - $tiempoInicio).TotalMilliseconds
+            }
+        }
+
+        # 4. Buscar patrones
+        $analisis = Analizar-ContenidoRapido -contenido $contenido # Llama a la función restaurada
+
+        # 5. Determinar clasificación
+        $esArchivoLog = $analisis.PatronesPosibleLogEncontrados.Count -gt 0
+        $contieneDatosSensibles = ($analisis.TelefonosEncontrados.Count -gt 0) -or
+                                    ($analisis.IdentidadesEncontradas.Count -gt 0) -or
+                                    ($analisis.FinancierosEncontrados.Count -gt 0) -or
+                                    ($analisis.CredencialesEncontradas.Count -gt 0)
+        $contieneFrasesClave = $analisis.FrasesClaveEncontradas.Count -gt 0
+        $contieneCSR = $analisis.CSRsEncontrados.Count -gt 0
+        $contieneKey = $analisis.KeysEncontradas.Count -gt 0
+        $contieneSID = $analisis.SIDsEncontrados.Count -gt 0 # Categoría SID
+        $contieneHash = $analisis.HashesEncontrados.Count -gt 0 # Categoría hashes y tokens
+        $contieneTimestamp = $analisis.TimestampsEncontrados.Count -gt 0 # Categoría timestamps
+
+        $clasificacion = "Público"
+        if ($contieneDatosSensibles) {
+            $clasificacion = "Confidencial"
+        } elseif ($contieneFrasesClave) { 
+            $clasificacion = "Confidencial" # O "Interno" según tu política para frases clave
+        } elseif ($contieneCSR) { 
+            $clasificacion = "Confidencial" # O "Interno" según tu política para CSRs
+        } elseif ($contieneKey) { 
+            $clasificacion = "Confidencial" # O "Interno" según tu política para Keys
+        } elseif ($contieneSID) { 
+            $clasificacion = "Confidencial" # O "Interno" según tu política para SIDs
+        } elseif ($contieneHash) { 
+            $clasificacion = "Interno" # Categorizamos hashes/tokens como datos internos
+        } elseif ($contieneTimestamp) { 
+            $clasificacion = "Interno" # Categorizamos timestamps como datos internos
+        } elseif ($esArchivoLog) {
+            $clasificacion = "Interno"
+        }
+
+        # 6. Preparar resumen de patrones
+        $patronesEncontrados = @()
+        if ($analisis.TelefonosEncontrados.Count -gt 0) { $patronesEncontrados += "TEL($($analisis.TelefonosEncontrados.Count))" }
+        if ($analisis.IdentidadesEncontradas.Count -gt 0) { $patronesEncontrados += "ID($($analisis.IdentidadesEncontradas.Count))" }
+        if ($analisis.FinancierosEncontrados.Count -gt 0) { $patronesEncontrados += "FIN($($analisis.FinancierosEncontrados.Count))" }
+        if ($analisis.CredencialesEncontradas.Count -gt 0) { $patronesEncontrados += "CRED($($analisis.CredencialesEncontradas.Count))" }
+        if ($analisis.FrasesClaveEncontradas.Count -gt 0) { $patronesEncontrados += "FRASE($($analisis.FrasesClaveEncontradas.Count))" }
+        if ($analisis.CSRsEncontrados.Count -gt 0) { $patronesEncontrados += "CSR($($analisis.CSRsEncontrados.Count))" }
+        if ($analisis.KeysEncontradas.Count -gt 0) { $patronesEncontrados += "KEY($($analisis.KeysEncontradas.Count))" }
+        if ($analisis.SIDsEncontrados.Count -gt 0) { $patronesEncontrados += "SID($($analisis.SIDsEncontrados.Count))" }
+        if ($analisis.HashesEncontrados.Count -gt 0) { $patronesEncontrados += "HASH($($analisis.HashesEncontrados.Count))" }
+        if ($analisis.TimestampsEncontrados.Count -gt 0) { $patronesEncontrados += "TIME($($analisis.TimestampsEncontrados.Count))" }
+        if ($esArchivoLog) { $patronesEncontrados += "Posible Log" }
+
+        $patronesTexto = if ($patronesEncontrados.Count -gt 0) { $patronesEncontrados -join ", " } else { "Ninguno" }
+
+        # 7. Guardar en cache
+        Set-ResultadoCache -rutaArchivo $rutaArchivo -clasificacion $clasificacion -patrones $patronesTexto
+
+        $tiempoAnalisis = ((Get-Date) - $tiempoInicio).TotalMilliseconds
+
+        return @{
+            Archivo = $rutaArchivo
+            Clasificacion = $clasificacion
+            Patrones = $patronesTexto
+            Analisis = $analisis 
+            TiempoAnalisis = $tiempoAnalisis
+        }
+
+    } catch {
+        $mensajeError = "Error procesando $rutaArchivo : $_"
+        Write-Host $mensajeError -ForegroundColor Red
+        
+        # Registrar el error en el log
+        if ($script:logger) {
+            $script:logger.LogError($rutaArchivo, $mensajeError)
+        }
+        
+        return $null
+    }
+}
+# Función principal de clasificación rápida
+
+# Función para agregar resultado al DataGridView
+function Agregar-ResultadoAGrid {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Windows.Forms.DataGridView]$dataGrid,
+        [Parameter(Mandatory = $true)]
+        [hashtable]$resultado
+    )
+    
+    $nombreArchivo = Split-Path -Path $resultado.Archivo -Leaf
+    $tamaño = if (Test-Path $resultado.Archivo) { 
+        [math]::Round((Get-Item $resultado.Archivo).Length / 1KB, 2) 
+    } else { 
+        0 
+    }
+    
+    # Agregar indicadores especiales
+    $indicadores = @()
+    if ($resultado.EsCache) { $indicadores += "📋" }
+    if ($resultado.EsAutomatico) { $indicadores += "⚡" }
+    
+    $nombreConIndicadores = if ($indicadores.Count -gt 0) {
+        "$($indicadores -join '') $nombreArchivo"
+    } else {
+        $nombreArchivo
+    }
+    
+    # Agregar fila al DataGridView
+    $fila = $dataGrid.Rows.Add()
+    $dataGrid.Rows[$fila].Cells["Nombre"].Value = $nombreConIndicadores
+    $dataGrid.Rows[$fila].Cells["Clasificacion"].Value = $resultado.Clasificacion
+    $dataGrid.Rows[$fila].Cells["Tamaño"].Value = "$tamaño KB"
+    $dataGrid.Rows[$fila].Cells["Patrones"].Value = $resultado.Patrones
+    $dataGrid.Rows[$fila].Cells["Tiempo"].Value = "$([math]::Round($resultado.TiempoAnalisis, 1))ms"
+    $dataGrid.Rows[$fila].Cells["Ruta"].Value = $resultado.Archivo
+    
+    # Colorear según clasificación
+    $color = switch ($resultado.Clasificacion) {
+        "Público" { [System.Drawing.Color]::LightGreen }
+        "Interno" { [System.Drawing.Color]::LightYellow }
+        "Confidencial" { [System.Drawing.Color]::LightCoral }
+        default { [System.Drawing.Color]::White }
+    }
+    
+    $dataGrid.Rows[$fila].DefaultCellStyle.BackColor = $color
+    
+    # Guardar datos completos en Tag
+    $dataGrid.Rows[$fila].Tag = $resultado
+    
+    # Hacer scroll hacia la nueva fila
+    if ($dataGrid.Rows.Count > 0) {
+        $dataGrid.FirstDisplayedScrollingRowIndex = [Math]::Max(0, $dataGrid.Rows.Count - 10)
+    }
+    
+    # Actualizar la interfaz
+    $dataGrid.Update()
+    [System.Windows.Forms.Application]::DoEvents()
+}
+
+# Función para crear la interfaz gráfica con modo rápido
+function Mostrar-InterfazGrafica {
+    # Inicializar el sistema de logging
+    Inicializar-Logger -logLevel "INFO" -consoleOutput $true
+    Write-LogInfo "Iniciando interfaz gráfica del Clasificador de Logs"
+    
+    # Cargar configuración externa
+    $script:config = Cargar-Configuracion
+    Write-LogInfo "Usando configuración: Modo Rápido = $($script:config.General.ModoRapido), Cache = $($script:config.General.UsarCache)"
+    
+    # Crear el formulario principal
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Clasificador de documentos"
+    $form.Size = New-Object System.Drawing.Size(1200, 1000)
+    $form.StartPosition = "CenterScreen"
+    $form.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+    $form.MinimumSize = New-Object System.Drawing.Size(1000, 600)
+    $form.BackColor = [System.Drawing.Color]::White
+    $form.Font = $fuenteModerna
+    
+    # Agregar logo en la parte superior del formulario
+    try {
+    $pictureBox = New-Object System.Windows.Forms.PictureBox
+    $pictureBox.Size = New-Object System.Drawing.Size(250, 60)
+    $pictureBox.Location = New-Object System.Drawing.Point(10, 10)
+    $pictureBox.Image = $imagenl
+    $form.Controls.Add($pictureBox)
+    Write-LogInfo "Logo cargado correctamente"
+    } catch {
+        Write-LogWarn "No se pudo cargar el logo: $_"
+    }
+    
+    # Panel superior para controles
+    $panelSuperior = New-Object System.Windows.Forms.Panel
+    $panelSuperior.Dock = [System.Windows.Forms.DockStyle]::Top
+    $panelSuperior.Size = New-Object System.Drawing.Size(950, 220) # Aumentar altura a 160
+    $panelSuperior.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    $panelSuperior.BackColor = [System.Drawing.Color]::White
+    
+    # Label para la ruta
+    $lblRuta = New-Object System.Windows.Forms.Label
+    $lblRuta.Location = New-Object System.Drawing.Point(10, 65)
+    $lblRuta.Size = New-Object System.Drawing.Size(200, 20)
+    $lblRuta.Text = "Ruta de archivo o directorio:"
+    Set-LabelStyle $lblRuta
+    
+    # Textbox para la ruta
+    $txtRuta = New-Object System.Windows.Forms.TextBox
+    $txtRuta.Location = New-Object System.Drawing.Point(10, 90)
+    $txtRuta.Size = New-Object System.Drawing.Size(600, 25)
+    $txtRuta.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    
+    # Botones para selección
+    $btnBuscarArchivo = New-Object System.Windows.Forms.Button
+    $btnBuscarArchivo.Location = New-Object System.Drawing.Point(620, 90)
+    $btnBuscarArchivo.Size = New-Object System.Drawing.Size(80, 30)
+    $btnBuscarArchivo.Text = "Archivo..."
+    $btnBuscarArchivo.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
+    Set-ButtonStyle $btnBuscarArchivo
+    
+    $btnBuscarCarpeta = New-Object System.Windows.Forms.Button
+    $btnBuscarCarpeta.Location = New-Object System.Drawing.Point(710, 90)
+    $btnBuscarCarpeta.Size = New-Object System.Drawing.Size(80, 30)
+    $btnBuscarCarpeta.Text = "Carpeta..."
+    $btnBuscarCarpeta.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
+    Set-ButtonStyle $btnBuscarCarpeta
+    
+    # Checkboxes para opciones
+    $chkRecursivo = New-Object System.Windows.Forms.CheckBox
+    $chkRecursivo.Location = New-Object System.Drawing.Point(10, 125)
+    $chkRecursivo.Size = New-Object System.Drawing.Size(120, 20)
+    $chkRecursivo.Text = "Recursivo"
+    $chkRecursivo.BackColor = [System.Drawing.Color]::Transparent
+    
+    $chkModoRapido = New-Object System.Windows.Forms.CheckBox
+    $chkModoRapido.Location = New-Object System.Drawing.Point(140, 125)
+    $chkModoRapido.Size = New-Object System.Drawing.Size(120, 20)
+    $chkModoRapido.Text = "Modo Rápido ⚡"
+    $chkModoRapido.Checked = $true
+    $chkModoRapido.BackColor = [System.Drawing.Color]::Transparent
+    
+    $chkUsarCache = New-Object System.Windows.Forms.CheckBox
+    $chkUsarCache.Location = New-Object System.Drawing.Point(270, 125)
+    $chkUsarCache.Size = New-Object System.Drawing.Size(120, 20)
+    $chkUsarCache.Text = "Usar Cache 📋"
+    $chkUsarCache.Checked = $true
+    $chkUsarCache.BackColor = [System.Drawing.Color]::Transparent
+    
+    $chkGuardarCSV = New-Object System.Windows.Forms.CheckBox
+    $chkGuardarCSV.Location = New-Object System.Drawing.Point(400, 125)
+    $chkGuardarCSV.Size = New-Object System.Drawing.Size(120, 20)
+    $chkGuardarCSV.Text = "Guardar CSV"
+    $chkGuardarCSV.BackColor = [System.Drawing.Color]::Transparent
+    
+    # Label de configuración
+    $lblConfig = New-Object System.Windows.Forms.Label
+    $lblConfig.Location = New-Object System.Drawing.Point(10, 190)
+    $lblConfig.Size = New-Object System.Drawing.Size(600, 20)
+    $lblConfig.Text = "Extensiones confidenciales: .log, .db, .sql, .csv, .env, .key, .backup, .dump (automático)"
+    $lblConfig.ForeColor = [System.Drawing.Color]::DarkBlue
+    
+    # Botones de acción
+    $btnAnalizar = New-Object System.Windows.Forms.Button
+    $btnAnalizar.Location = New-Object System.Drawing.Point(10, 160)
+    $btnAnalizar.Size = New-Object System.Drawing.Size(110, 30)
+    $btnAnalizar.Text = "🚀 ANALIZAR"
+    Set-ButtonStyle $btnAnalizar
+    #$btnAnalizar.BackColor = [System.Drawing.Color]::LightGreen
+    
+    $btnCancelar = New-Object System.Windows.Forms.Button
+    $btnCancelar.Location = New-Object System.Drawing.Point(140, 160)
+    $btnCancelar.Size = New-Object System.Drawing.Size(120, 30)
+    $btnCancelar.Text = "❌ CANCELAR"
+    $btnCancelar.Font = New-Object System.Drawing.Font("Arial", 9, [System.Drawing.FontStyle]::Bold)
+    Set-ButtonStyle $btnCancelar
+    $btnCancelar.Enabled = $false
+    
+    $btnLimpiar = New-Object System.Windows.Forms.Button
+    $btnLimpiar.Location = New-Object System.Drawing.Point(280, 160)
+    $btnLimpiar.Size = New-Object System.Drawing.Size(110, 30)
+    $btnLimpiar.Text = "🧹 LIMPIAR"
+    Set-ButtonStyle $btnLimpiar
+    
+    $btnConfiguracion = New-Object System.Windows.Forms.Button
+    $btnConfiguracion.Location = New-Object System.Drawing.Point(410, 160)
+    $btnConfiguracion.Size = New-Object System.Drawing.Size(110, 30)
+    $btnConfiguracion.Text = "⚙️ CONFIG"
+    Set-ButtonStyle $btnConfiguracion
+    
+    # Nuevos Botones (Guardar, Cargar, Verificar)
+    $btnGuardarResultados = New-Object System.Windows.Forms.Button
+    $btnGuardarResultados.Text = "Guardar"
+    $btnGuardarResultados.Size = New-Object System.Drawing.Size(100, 30)
+    $btnGuardarResultados.Location = New-Object System.Drawing.Point(560, 160) # Y = 110
+    $btnGuardarResultados.Anchor = ([System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right)
+    $btnGuardarResultados.Enabled = $false # Deshabilitado hasta que haya resultados
+    Set-ButtonStyle $btnGuardarResultados
+
+$btnGuardarResultados.add_Click({
+    if ($dataGridView.Rows.Count -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show("No hay resultados para guardar.", "Información", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        return
+    }
+
+    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+    $saveFileDialog.Filter = "Archivos CSV (*.csv)|*.csv|Todos los archivos (*.*)|*.*"
+    $saveFileDialog.Title = "Guardar Resultados Como"
+    $saveFileDialog.FileName = "Resultados_Clasificacion_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+
+    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        try {
+            $datosCSV = @()
+            foreach ($fila in $dataGridView.Rows) {
+                # Asegurarse de que la fila no sea la fila de nueva entrada si está visible
+                if (-not $fila.IsNewRow) { 
+                    # Obtener datos directamente del Tag (datos originales completos)
+                    $datosFila = $fila.Tag
+                    
+                    if ($datosFila) {
+                        # Crear objeto con mapeo correcto de campos
+                        $filaObj = [PSCustomObject]@{
+                            Archivo = [System.IO.Path]::GetFileName($datosFila.Archivo)
+                            Clasificacion = $datosFila.Clasificacion
+                            Tamano = $fila.Cells["Tamaño"].Value  # Usar el valor formateado de la celda
+                            Patrones = $datosFila.Patrones
+                            Tiempo = if ($datosFila.TiempoAnalisis) { 
+                                "{0:N2} ms" -f $datosFila.TiempoAnalisis 
+                            } else { 
+                                $fila.Cells["Tiempo"].Value  # Fallback al valor de la celda
+                            }
+                            Ruta = $datosFila.Archivo
+                        }
+                    } else {
+                        # Fallback: extraer directamente de las celdas con índices correctos
+                        $filaObj = [PSCustomObject]@{
+                            Archivo = $fila.Cells["Nombre"].Value
+                            Clasificacion = $fila.Cells["Clasificacion"].Value
+                            Tamano = $fila.Cells["Tamaño"].Value
+                            Patrones = $fila.Cells["Patrones"].Value
+                            Tiempo = $fila.Cells["Tiempo"].Value
+                            Ruta = $fila.Cells["Ruta"].Value
+                        }
+                    }
+                    
+                    # Agregar la fila al array de datos
+                    $datosCSV += $filaObj
+                }
+            }
+
+            if ($datosCSV.Count -gt 0) {
+                $datosCSV | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8 -Delimiter ';'
+                [System.Windows.Forms.MessageBox]::Show("Resultados guardados exitosamente en:`n$($saveFileDialog.FileName)", "Guardado Exitoso", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("No se encontraron datos válidos para exportar.", "Advertencia", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+            }
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("Error al guardar el archivo CSV:`n$($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        }
+    }
+})
+
+    # Función para limpiar la tabla de resultados
+    function LimpiarTablaResultados {
+        # Limpiar filas del DataGridView
+        $dataGridView.Rows.Clear()
+        
+        # Reiniciar estadísticas
+        $script:totalArchivos = 0
+        $script:totalSIDs = 0
+        $script:totalIPs = 0
+        $script:totalNumeros = 0
+        $script:totalEmails = 0
+        $script:totalURLs = 0
+        $script:totalClaves = 0
+        $script:totalTokens = 0
+        $script:confidenciales = 0
+        $script:internos = 0
+        $script:publicos = 0
+        $script:archivosProcesados = 0
+        
+        # Actualizar la interfaz
+        $lblEstado.Text = "Tabla de resultados limpiada"
+        $progressBar.Value = 0
+        
+        # Actualizar etiquetas de estadísticas
+        ActualizarEstadisticas
+    }
+    
+    # Función para actualizar estadísticas en la interfaz
+    function ActualizarEstadisticas {
+        $lblEstadisticas.Text = "Archivos: $script:archivosProcesados/$script:totalArchivos | Confidencial: $script:confidenciales | Interno: $script:internos | Público: $script:publicos"
+        $lblEstadisticas.Update()
+    }
+    
+    # Función para colorear filas según su clasificación
+    function AplicarColorSegunClasificacion {
+        param(
+            [Parameter(Mandatory = $true)]
+            [System.Windows.Forms.DataGridViewRow]$fila,
+            
+            [Parameter(Mandatory = $true)]
+            [string]$clasificacion
+        )
+        
+        # Determinar el color según la clasificación
+        $color = switch ($clasificacion) {
+            "Confidencial" { [System.Drawing.Color]::LightCoral }
+            "Interno"      { [System.Drawing.Color]::LightYellow }
+            "Público"      { [System.Drawing.Color]::LightGreen }
+            default         { [System.Drawing.Color]::White }
+        }
+        
+        # Aplicar el color a la fila
+        $fila.DefaultCellStyle.BackColor = $color
+    }
+    
+    # Función para actualizar los contadores en el pie de página
+    function ActualizarContadorArchivos {
+        # Calcular totales
+        $script:archivosProcesados = $dataGridView.Rows.Count
+        $script:totalArchivos = $script:archivosProcesados
+        $script:confidenciales = 0
+        $script:internos = 0
+        $script:publicos = 0
+        
+        # Contar por clasificación
+        foreach ($fila in $dataGridView.Rows) {
+            if ($fila.Cells["Clasificacion"].Value) {
+                switch ($fila.Cells["Clasificacion"].Value) {
+                    "Confidencial" { $script:confidenciales++ }
+                    "Interno"      { $script:internos++ }
+                    "Público"      { $script:publicos++ }
+                }
+            }
+        }
+        
+        # Actualizar la etiqueta de estadísticas
+        ActualizarEstadisticas
+    }
+    
+    # Asignar el evento al botón de limpiar
+    $btnLimpiar.Add_Click({
+        LimpiarTablaResultados
+    })
+
+    $btnCargarResultados = New-Object System.Windows.Forms.Button
+    $btnCargarResultados.Text = "Cargar"
+    $btnCargarResultados.Size = New-Object System.Drawing.Size(100, 30)
+    $btnCargarResultados.Location = New-Object System.Drawing.Point(670, 160) # Y = 110
+    $btnCargarResultados.Anchor = ([System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right)
+    Set-ButtonStyle $btnCargarResultados
+    
+    $btnCargarResultados.add_Click({
+    $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+    $openFileDialog.Filter = "Archivos CSV (*.csv)|*.csv|Todos los archivos (*.*)|*.*"
+    $openFileDialog.Title = "Cargar Resultados Desde CSV"
+
+    if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        try {
+            # Configurar la interfaz para mostrar progreso
+            $lblEstado.Text = "Cargando datos desde CSV..."
+            $lblEstado.ForeColor = [System.Drawing.Color]::Blue
+            $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+            
+            # Cargar los datos del CSV
+            $datosImportados = Import-Csv -Path $openFileDialog.FileName -Delimiter ';'
+            if ($null -eq $datosImportados -or $datosImportados.Count -eq 0) {
+                [System.Windows.Forms.MessageBox]::Show("El archivo CSV está vacío o no contiene datos válidos.", "Advertencia", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+                return
+            }
+
+            # Debug: Mostrar las columnas del CSV
+            Write-Host "`n[DEBUG] Columnas encontradas en el CSV:" -ForegroundColor Cyan
+            $primeraFila = $datosImportados[0]
+            $columnasCSV = $primeraFila.PSObject.Properties | ForEach-Object { $_.Name }
+            foreach ($col in $columnasCSV) {
+                Write-Host "  - '$col'" -ForegroundColor Gray
+            }
+
+            # Debug: Mostrar las columnas del DataGridView
+            Write-Host "`n[DEBUG] Columnas del DataGridView:" -ForegroundColor Cyan
+            foreach ($col in $dataGridView.Columns) {
+                Write-Host "  - Nombre: '$($col.Name)', HeaderText: '$($col.HeaderText)'" -ForegroundColor Gray
+            }
+
+            # Verificar que las columnas esperadas existan en el CSV
+            $columnasNecesarias = @("Archivo", "Clasificacion", "Tamano", "Patrones", "Tiempo", "Ruta")
+            $faltanColumnas = $false
+            foreach ($col in $columnasNecesarias) {
+                if ($columnasCSV -notcontains $col) {
+                    [System.Windows.Forms.MessageBox]::Show("El archivo CSV no contiene la columna esperada: '$col'.`n`nColumnas encontradas: $($columnasCSV -join ', ')", "Error de Formato", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                    $faltanColumnas = $true
+                    break
+                }
+            }
+            if ($faltanColumnas) { return }
+
+            # Limpiar tabla actual antes de cargar nuevos datos
+            LimpiarTablaResultados
+            
+            # Configurar barra de progreso
+            $progressBar.Minimum = 0
+            $progressBar.Maximum = $datosImportados.Count
+            $progressBar.Value = 0
+            $progressBar.Visible = $true
+            
+            # Suspender el layout del DataGridView para mejorar rendimiento
+            $dataGridView.SuspendLayout()
+            $dataGridView.Visible = $false
+
+            # Procesar cada fila del CSV
+            $contador = 0
+            foreach ($filaCSV in $datosImportados) {
+                $contador++
+                $progressBar.Value = $contador
+                
+                # Debug: Mostrar valores de la primera fila para verificación
+                if ($contador -eq 1) {
+                    Write-Host "`n[DEBUG] Valores de la primera fila del CSV:" -ForegroundColor Cyan
+                    Write-Host "  Archivo: '$($filaCSV.Archivo)'" -ForegroundColor Gray
+                    Write-Host "  Clasificacion: '$($filaCSV.Clasificacion)'" -ForegroundColor Gray
+                    Write-Host "  Tamano: '$($filaCSV.Tamano)'" -ForegroundColor Gray
+                    Write-Host "  Patrones: '$($filaCSV.Patrones)'" -ForegroundColor Gray
+                    Write-Host "  Tiempo: '$($filaCSV.Tiempo)'" -ForegroundColor Gray
+                    Write-Host "  Ruta: '$($filaCSV.Ruta)'" -ForegroundColor Gray
+                }
+                
+                # Crear objeto para el Tag (datos completos)
+                $resultadoTag = [PSCustomObject]@{
+                    Archivo = $filaCSV.Ruta  # La ruta completa va en el Tag
+                    NombreArchivo = $filaCSV.Archivo  # Solo el nombre del archivo
+                    Clasificacion = $filaCSV.Clasificacion
+                    Tamano = $filaCSV.Tamano
+                    PatronesEncontradosTexto = $filaCSV.Patrones
+                    Patrones = $filaCSV.Patrones
+                    TiempoAnalisis = $filaCSV.Tiempo
+                    RutaCompleta = $filaCSV.Ruta
+                    ContenidoMuestra = "Datos cargados desde CSV"
+                    LineasCoincidentes = @{}
+                    SIDsEncontrados = @()
+                    EsCache = $true  # Marcar como cargado desde archivo
+                }
+                
+                # Actualizar contadores por tipo de clasificación
+                switch -Exact ($filaCSV.Clasificacion) {
+                    "Confidencial" { $script:confidenciales++ }
+                    "Interno"      { $script:internos++ }
+                    "Público"      { $script:publicos++ }
+                }
+                
+                # Actualizar el estado cada 10 filas
+                if ($contador % 10 -eq 0) {
+                    $lblEstado.Text = ("Cargando: {0} de {1} registros..." -f $contador, $datosImportados.Count)
+                    ActualizarEstadisticas
+                    [System.Windows.Forms.Application]::DoEvents()
+                }
+                
+                # Añadir fila al DataGridView
+                $nuevaFila = $dataGridView.Rows.Add()
+                $filaActual = $dataGridView.Rows[$nuevaFila]
+                
+                # MAPEO CORRECTO: Asignar cada valor a su columna correspondiente
+                try {
+                    # Asignación EXPLÍCITA por nombre de columna
+                    $filaActual.Cells["Nombre"].Value = $filaCSV.Archivo        # Nombre del archivo
+                    $filaActual.Cells["Clasificacion"].Value = $filaCSV.Clasificacion  # Clasificación
+                    $filaActual.Cells["Tamaño"].Value = $filaCSV.Tamano         # Tamaño
+                    $filaActual.Cells["Patrones"].Value = $filaCSV.Patrones     # Patrones
+                    $filaActual.Cells["Tiempo"].Value = $filaCSV.Tiempo         # Tiempo
+                    $filaActual.Cells["Ruta"].Value = $filaCSV.Ruta             # Ruta completa
+                    
+                    # Debug: Verificar asignación de la primera fila
+                    if ($contador -eq 1) {
+                        Write-Host "`n[DEBUG] Valores asignados al DataGridView:" -ForegroundColor Cyan
+                        Write-Host "  Nombre: '$($filaActual.Cells["Nombre"].Value)'" -ForegroundColor Gray
+                        Write-Host "  Clasificacion: '$($filaActual.Cells["Clasificacion"].Value)'" -ForegroundColor Gray
+                        Write-Host "  Tamaño: '$($filaActual.Cells["Tamaño"].Value)'" -ForegroundColor Gray
+                        Write-Host "  Patrones: '$($filaActual.Cells["Patrones"].Value)'" -ForegroundColor Gray
+                        Write-Host "  Tiempo: '$($filaActual.Cells["Tiempo"].Value)'" -ForegroundColor Gray
+                        Write-Host "  Ruta: '$($filaActual.Cells["Ruta"].Value)'" -ForegroundColor Gray
+                    }
+                    
+                } catch [Exception] {
+                    Write-Host "Error asignando valores a la fila $($contador): $($_.Exception.Message)" -ForegroundColor Red
+                    
+                    # Fallback: Asignación por índice si falla por nombre
+                    try {
+                        $filaActual.Cells[1].Value = $filaCSV.Archivo        # Columna 1: Nombre
+                        $filaActual.Cells[2].Value = $filaCSV.Clasificacion  # Columna 2: Clasificación
+                        $filaActual.Cells[3].Value = $filaCSV.Tamano         # Columna 3: Tamaño
+                        $filaActual.Cells[4].Value = $filaCSV.Patrones       # Columna 4: Patrones
+                        $filaActual.Cells[5].Value = $filaCSV.Tiempo         # Columna 5: Tiempo
+                        $filaActual.Cells[0].Value = $filaCSV.Ruta           # Columna 0: Ruta (para abrir ubicación)
+                    } catch {
+                        Write-Host "Error en fallback de asignación: $($_.Exception.Message)" -ForegroundColor Red
+                    }
+                }
+                
+                # Guardar datos completos en el Tag
+                $filaActual.Tag = $resultadoTag
+                
+                # Aplicar color según clasificación
+                AplicarColorSegunClasificacion $filaActual $filaCSV.Clasificacion
+                
+                $script:totalArchivos++
+            }
+            
+            # Restaurar el layout y actualizar UI
+            $dataGridView.ResumeLayout()
+            $dataGridView.Visible = $true
+            $progressBar.Visible = $false
+            $form.Cursor = [System.Windows.Forms.Cursors]::Default
+            $lblEstado.Text = ("{0} registros cargados exitosamente." -f $contador)
+            $lblEstado.ForeColor = [System.Drawing.Color]::Green
+            
+            # Actualizar estadísticas
+            $script:archivosProcesados = $contador
+            ActualizarContadorArchivos
+            ActualizarEstadisticas
+            
+            $mensajeExito = ("Resultados cargados exitosamente desde:`n{0}`nSe cargaron {1} registros." -f $openFileDialog.FileName, $contador)
+            [System.Windows.Forms.MessageBox]::Show($mensajeExito, "Carga Exitosa", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            
+        } catch {
+            # Restaurar UI en caso de error
+            $dataGridView.ResumeLayout()
+            $dataGridView.Visible = $true
+            $progressBar.Visible = $false
+            $form.Cursor = [System.Windows.Forms.Cursors]::Default
+            $lblEstado.Text = "Error al cargar datos."
+            $lblEstado.ForeColor = [System.Drawing.Color]::Red
+            
+            Write-Host "Error detallado al cargar CSV: $($_.Exception)" -ForegroundColor Red
+            [System.Windows.Forms.MessageBox]::Show("Error al cargar el archivo CSV:`n$($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        }
+    }
+})
+
+    $btnVerificarSeleccion = New-Object System.Windows.Forms.Button
+    $btnVerificarSeleccion.Text = "Verificar Selección"
+    $btnVerificarSeleccion.Size = New-Object System.Drawing.Size(150, 30)
+    $btnVerificarSeleccion.Location = New-Object System.Drawing.Point(780, 160) # Y = 110
+    $btnVerificarSeleccion.Anchor = ([System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right)
+    Set-ButtonStyle $btnVerificarSeleccion
+    $btnVerificarSeleccion.Enabled = $false # Deshabilitado hasta que se seleccione una fila
+    $btnVerificarSeleccion.add_Click({
+    if ($dataGridView.SelectedRows.Count -gt 0) {
+        $filasSeleccionadas = $dataGridView.SelectedRows
+        $script:archivosProcesados = 0 # Reiniciar contador para esta operación
+        $script:cancelarProceso = $false # Asegurar que no esté cancelado de una ejecución anterior
+        $btnCancelar.Enabled = $true # Habilitar cancelación durante la verificación
+        $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+        $lblEstado.Text = "Verificando archivos seleccionados..."
+        $lblEstado.ForeColor = [System.Drawing.Color]::Blue
+        $progressBar.Value = 0
+        $progressBar.Maximum = $filasSeleccionadas.Count
+        $progressBar.Visible = $true
+
+        # Deshabilitar botones mientras se procesa
+        $btnAnalizar.Enabled = $false
+        $btnGuardarResultados.Enabled = $false
+        $btnCargarResultados.Enabled = $false
+        $btnVerificarSeleccion.Enabled = $false
+
+        foreach ($filaDataGridView in $filasSeleccionadas) {
+            if ($script:cancelarProceso) { break }
+
+            $rutaCompletaArchivo = $null
+            # Intentar obtener la ruta del Tag, que es más fiable
+            if ($filaDataGridView.Tag -and $filaDataGridView.Tag.RutaCompleta) {
+                $rutaCompletaArchivo = $filaDataGridView.Tag.RutaCompleta
+            } elseif ($filaDataGridView.Tag -and $filaDataGridView.Tag.Archivo) {
+                $rutaCompletaArchivo = $filaDataGridView.Tag.Archivo
+            } elseif ($filaDataGridView.Cells["Ruta"].Value) { # Fallback a la celda si el Tag no está o no tiene la propiedad
+                $rutaCompletaArchivo = $filaDataGridView.Cells["Ruta"].Value
+            }
+
+            if (-not ([string]::IsNullOrEmpty($rutaCompletaArchivo)) -and (Test-Path $rutaCompletaArchivo -PathType Leaf)) {
+                $lblEstado.Text = "Verificando: $(Split-Path $rutaCompletaArchivo -Leaf)"
+                $form.Refresh() # Forzar actualización de la UI
+                
+                # CORRECCIÓN: Usar Clasificar-ArchivoRapido en lugar de ProcesarArchivo
+                $resultadoAnalisis = Clasificar-ArchivoRapido -rutaArchivo $rutaCompletaArchivo
+                
+                if ($resultadoAnalisis) {
+                    # Actualizar la fila existente en el DataGridView
+                    $nombreArchivo = [System.IO.Path]::GetFileName($resultadoAnalisis.Archivo)
+                    
+                    # Calcular tamaño del archivo
+                    $tamanoStr = ""
+                    try {
+                        if (Test-Path $rutaCompletaArchivo -PathType Leaf) {
+                            $tamanoBytes = (Get-Item $rutaCompletaArchivo).Length
+                            if ($tamanoBytes -ge 1MB) {
+                                $tamanoStr = "{0:N2} MB" -f ($tamanoBytes / 1MB)
+                            } elseif ($tamanoBytes -ge 1KB) {
+                                $tamanoStr = "{0:N2} KB" -f ($tamanoBytes / 1KB)
+                            } else {
+                                $tamanoStr = "{0} bytes" -f $tamanoBytes
+                            }
+                        }
+                    } catch {
+                        $tamanoStr = "Desconocido"
+                    }
+                    
+                    # Formatear tiempo
+                    $tiempoStr = if ($resultadoAnalisis.TiempoAnalisis) { 
+                        "{0:N2} ms" -f $resultadoAnalisis.TiempoAnalisis 
+                    } else { 
+                        "N/A" 
+                    }
+                    
+                    # Actualizar las celdas con los nuevos valores
+                    $filaDataGridView.Cells["Nombre"].Value = $nombreArchivo
+                    $filaDataGridView.Cells["Clasificacion"].Value = $resultadoAnalisis.Clasificacion
+                    $filaDataGridView.Cells["Tamaño"].Value = $tamanoStr
+                    $filaDataGridView.Cells["Patrones"].Value = $resultadoAnalisis.Patrones
+                    $filaDataGridView.Cells["Tiempo"].Value = $tiempoStr
+                    $filaDataGridView.Cells["Ruta"].Value = $rutaCompletaArchivo
+                    
+                    # Crear objeto actualizado para el Tag
+                    $resultadoTag = [PSCustomObject]@{
+                        Archivo = $rutaCompletaArchivo
+                        NombreArchivo = $nombreArchivo
+                        Clasificacion = $resultadoAnalisis.Clasificacion
+                        Tamano = $tamanoStr
+                        PatronesEncontradosTexto = $resultadoAnalisis.Patrones
+                        Patrones = $resultadoAnalisis.Patrones
+                        TiempoAnalisis = $resultadoAnalisis.TiempoAnalisis
+                        RutaCompleta = $rutaCompletaArchivo
+                        ContenidoMuestra = "Re-verificado"
+                        LineasCoincidentes = @{}
+                        SIDsEncontrados = @()
+                        EsCache = $resultadoAnalisis.EsCache
+                        EsAutomatico = $resultadoAnalisis.EsAutomatico
+                        Analisis = $resultadoAnalisis.Analisis
+                    }
+                    
+                    $filaDataGridView.Tag = $resultadoTag # Actualizar el Tag con el nuevo resultado completo
+
+                    # Aplicar color según clasificación
+                    AplicarColorSegunClasificacion $filaDataGridView $resultadoAnalisis.Clasificacion
+                    $script:archivosProcesados++
+                } else {
+                    # Manejar caso donde Clasificar-ArchivoRapido no devuelve resultado (ej. error interno)
+                    $filaDataGridView.Cells["Clasificacion"].Value = "Error en Re-Análisis"
+                    $filaDataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::LightPink
+                }
+            } else {
+                $filaDataGridView.Cells["Clasificacion"].Value = "Archivo no encontrado"
+                $filaDataGridView.DefaultCellStyle.BackColor = [System.Drawing.Color]::LightYellow
+            }
+            $progressBar.PerformStep()
+            [System.Windows.Forms.Application]::DoEvents() # Permitir que la UI se actualice
+        }
+
+        # Restaurar estado de la UI
+        $form.Cursor = [System.Windows.Forms.Cursors]::Default
+        $progressBar.Visible = $false
+        $btnCancelar.Enabled = $false
+        $btnAnalizar.Enabled = $true
+        $btnGuardarResultados.Enabled = ($dataGridView.Rows.Count -gt 0)
+        $btnCargarResultados.Enabled = $true
+        $btnVerificarSeleccion.Enabled = ($dataGridView.SelectedRows.Count -gt 0)
+        
+        if ($script:cancelarProceso) {
+            $lblEstado.Text = "❌ Verificación cancelada. $($script:archivosProcesados) archivos re-verificados."
+            $lblEstado.ForeColor = [System.Drawing.Color]::Red
+        } else {
+            $lblEstado.Text = "✅ Verificación completada. $($script:archivosProcesados) archivos re-verificados."
+            $lblEstado.ForeColor = [System.Drawing.Color]::Green
+        }
+        ActualizarContadorArchivos # Actualiza el pie de página
+    } else {
+        # Esto no debería ocurrir si el botón está correctamente deshabilitado cuando no hay selección
+        [System.Windows.Forms.MessageBox]::Show("Por favor, seleccione al menos una fila para verificar.", "Advertencia", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+    }
+})
+
+    $panelSuperior.Controls.AddRange(@($lblRuta, $txtRuta, $btnBuscarArchivo, $btnBuscarCarpeta, $chkRecursivo, $chkModoRapido, $chkUsarCache, $chkGuardarCSV, $lblConfig, $btnAnalizar, $btnCancelar, $btnLimpiar, $btnConfiguracion, $btnGuardarResultados, $btnCargarResultados, $btnVerificarSeleccion))
+
+    # DataGridView para mostrar resultados
+    $dataGridView = New-Object System.Windows.Forms.DataGridView
+    $dataGridView.Dock = [System.Windows.Forms.DockStyle]::Fill
+    $dataGridView.AutoSizeColumnsMode = [System.Windows.Forms.DataGridViewAutoSizeColumnsMode]::Fill
+    $dataGridView.SelectionMode = [System.Windows.Forms.DataGridViewSelectionMode]::FullRowSelect
+    $dataGridView.MultiSelect = $false
+    $dataGridView.ReadOnly = $true
+    $dataGridView.AllowUserToAddRows = $false
+    $dataGridView.AllowUserToDeleteRows = $false
+    $dataGridView.RowHeadersVisible = $false
+    
+    # Agregar columnas individualmente
+    $colNombre = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colNombre.Name = "Nombre"
+    $colNombre.HeaderText = "Archivo"
+    $colNombre.FillWeight = 25
+    $dataGridView.Columns.Add($colNombre) | Out-Null
+    
+    $colClasificacion = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colClasificacion.Name = "Clasificacion"
+    $colClasificacion.HeaderText = "Clasificación"
+    $colClasificacion.FillWeight = 15
+    $dataGridView.Columns.Add($colClasificacion) | Out-Null
+    
+    $colTamaño = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colTamaño.Name = "Tamaño"
+    $colTamaño.HeaderText = "Tamaño"
+    $colTamaño.FillWeight = 10
+    $dataGridView.Columns.Add($colTamaño) | Out-Null
+    
+    $colPatrones = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colPatrones.Name = "Patrones"
+    $colPatrones.HeaderText = "Patrones"
+    $colPatrones.FillWeight = 25
+    $dataGridView.Columns.Add($colPatrones) | Out-Null
+    
+    $colTiempo = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colTiempo.Name = "Tiempo"
+    $colTiempo.HeaderText = "Tiempo"
+    $colTiempo.FillWeight = 10
+    $dataGridView.Columns.Add($colTiempo) | Out-Null
+    
+    $colRuta = New-Object System.Windows.Forms.DataGridViewTextBoxColumn
+    $colRuta.Name = "Ruta"
+    $colRuta.HeaderText = "Ruta"
+    $colRuta.FillWeight = 15
+    $dataGridView.Columns.Add($colRuta) | Out-Null
+    
+    # Panel de estado
+    $panelEstado = New-Object System.Windows.Forms.Panel
+    $panelEstado.Dock = [System.Windows.Forms.DockStyle]::Bottom
+    $panelEstado.Height = 100
+    $panelEstado.BorderStyle = [System.Windows.Forms.BorderStyle]::FixedSingle
+    $panelEstado.BackColor = [System.Drawing.Color]::WhiteSmoke
+    
+    # Label de estado
+    $lblEstado = New-Object System.Windows.Forms.Label
+    $lblEstado.Location = New-Object System.Drawing.Point(10, 10)
+    $lblEstado.Size = New-Object System.Drawing.Size(600, 20)
+    $lblEstado.Text = "🚀 Modo Rápido activado. Listo para analizar archivos..."
+    $lblEstado.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    
+    # Barra de progreso
+    $progressBar = New-Object System.Windows.Forms.ProgressBar
+    $progressBar.Location = New-Object System.Drawing.Point(10, 35)
+    $progressBar.Size = New-Object System.Drawing.Size(600, 20)
+    $progressBar.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+    
+    # Label de estadísticas
+    $lblEstadisticas = New-Object System.Windows.Forms.Label
+    $lblEstadisticas.Location = New-Object System.Drawing.Point(10, 60)
+    $lblEstadisticas.Size = New-Object System.Drawing.Size(500, 20)
+    $lblEstadisticas.Text = "Archivos: 0 | Confidencial: 0 | Interno: 0 | Público: 0"
+    $lblEstadisticas.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left
+    
+    # Label de rendimiento
+    $lblRendimiento = New-Object System.Windows.Forms.Label
+    $lblRendimiento.Location = New-Object System.Drawing.Point(420, 60)
+    $lblRendimiento.Size = New-Object System.Drawing.Size(300, 20)
+    $lblRendimiento.Text = "Velocidad: 0 arch/seg | Cache: 0% | Tiempo promedio: 0ms"
+    $lblRendimiento.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Right
+    
+    # Label de leyenda
+    $lblLeyenda = New-Object System.Windows.Forms.Label
+    $lblLeyenda.Location = New-Object System.Drawing.Point(10, 80)
+    $lblLeyenda.Size = New-Object System.Drawing.Size(600, 15)
+    $lblLeyenda.Text = "Leyenda: ⚡ = Clasificación automática | 📋 = Resultado desde cache"
+    $lblLeyenda.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+    $lblLeyenda.ForeColor = [System.Drawing.Color]::Gray
+    
+    $panelEstado.Controls.AddRange(@($lblEstado, $progressBar, $lblEstadisticas, $lblRendimiento, $lblLeyenda))
+    
+    # Agregar paneles al formulario
+    $form.Controls.AddRange(@($panelEstado, $dataGridView, $panelSuperior))
+    
+    # Botón para Abrir Ubicación (Restaurado)
+    $btnAbrirUbicacion = New-Object System.Windows.Forms.Button
+    $btnAbrirUbicacion.Size = New-Object System.Drawing.Size(120, 30) # Tamaño original
+    $btnAbrirUbicacion.Text = "Abrir archivo" # Texto original
+    $btnAbrirUbicacion.BackColor = [System.Drawing.Color]::LightYellow # Color original
+    $btnAbrirUbicacion.Anchor = ([System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Right) # Anclaje original
+    $form.Controls.Add($btnAbrirUbicacion)
+    $btnAbrirUbicacion.BringToFront() # Traer al frente
+    
+    # Variables para estadísticas
+    $script:totalArchivos = 0
+    $script:archivosProcesados = 0
+    $script:confidenciales = 0
+    $script:internos = 0
+    $script:publicos = 0
+    $script:tiempoInicio = $null
+    $script:archivosCache = 0
+    $script:tiemposAnalisis = @()
+    
+    # Función para actualizar estadísticas
+    function Actualizar-Estadisticas {
+        $lblEstadisticas.Text = "Archivos: $script:archivosProcesados/$script:totalArchivos | Confidencial: $script:confidenciales | Interno: $script:internos | Público: $script:publicos"
+        
+        if ($script:archivosProcesados -gt 0 -and $script:tiempoInicio) {
+            $tiempoTranscurrido = ((Get-Date) - $script:tiempoInicio).TotalSeconds
+            $velocidad = if ($tiempoTranscurrido -gt 0) { [math]::Round($script:archivosProcesados / $tiempoTranscurrido, 1) } else { 0 }
+            $porcentajeCache = if ($script:archivosProcesados -gt 0) { [math]::Round(($script:archivosCache / $script:archivosProcesados) * 100) } else { 0 }
+            $tiempoPromedio = if ($script:tiemposAnalisis.Count -gt 0) { [math]::Round(($script:tiemposAnalisis | Measure-Object -Average).Average, 1) } else { 0 }
+            
+            $lblRendimiento.Text = "Velocidad: $velocidad arch/seg | Cache: $porcentajeCache% | Tiempo promedio: ${tiempoPromedio}ms"
+        }
+        
+        $lblEstadisticas.Update()
+        $lblRendimiento.Update()
+    }
+    
+    # Función para agregar resultados al DataGridView
+function Add-ResultToGrid {
+    param(
+        [System.Windows.Forms.DataGridView]$dataGrid,
+        [PSCustomObject]$resultado
+    )
+    
+    # Obtener nombre del archivo desde la ruta
+    $nombreArchivo = [System.IO.Path]::GetFileName($resultado.Archivo)
+    
+    # Crear una nueva fila
+    $rowIndex = $dataGrid.Rows.Add()
+    $row = $dataGrid.Rows[$rowIndex]
+    
+    Write-Host "Agregando resultado al DataGridView: $nombreArchivo" -ForegroundColor Cyan
+    
+    # Calcular tamaño del archivo
+    $tamanoStr = ""
+    try {
+        if (Test-Path $resultado.Archivo -PathType Leaf) {
+            $tamanoBytes = (Get-Item $resultado.Archivo).Length
+            if ($tamanoBytes -ge 1MB) {
+                $tamanoStr = "{0:N2} MB" -f ($tamanoBytes / 1MB)
+            } elseif ($tamanoBytes -ge 1KB) {
+                $tamanoStr = "{0:N2} KB" -f ($tamanoBytes / 1KB)
+            } else {
+                $tamanoStr = "{0} bytes" -f $tamanoBytes
+            }
+        }
+    } catch {
+        $tamanoStr = "Desconocido"
+    }
+    
+    # Formatear tiempo
+    $tiempoStr = if ($resultado.TiempoAnalisis) { 
+        "{0:N2} ms" -f $resultado.TiempoAnalisis 
+    } else { 
+        "N/A" 
+    }
+    
+    # ASIGNACIÓN CORRECTA POR NOMBRE DE COLUMNA (no por índice)
+    $row.Cells["Nombre"].Value = $nombreArchivo
+    $row.Cells["Clasificacion"].Value = $resultado.Clasificacion
+    $row.Cells["Tamaño"].Value = $tamanoStr        # CORRECTO: Tamaño va en columna Tamaño
+    $row.Cells["Patrones"].Value = $resultado.Patrones
+    $row.Cells["Tiempo"].Value = $tiempoStr        # CORRECTO: Tiempo va en columna Tiempo
+    $row.Cells["Ruta"].Value = $resultado.Archivo
+    
+    # Debug: Verificar asignación
+    Write-Host "  Valores asignados:" -ForegroundColor Gray
+    Write-Host "    Nombre: $nombreArchivo" -ForegroundColor Gray
+    Write-Host "    Clasificacion: $($resultado.Clasificacion)" -ForegroundColor Gray
+    Write-Host "    Tamaño: $tamanoStr" -ForegroundColor Gray
+    Write-Host "    Patrones: $($resultado.Patrones)" -ForegroundColor Gray
+    Write-Host "    Tiempo: $tiempoStr" -ForegroundColor Gray
+    Write-Host "    Ruta: $($resultado.Archivo)" -ForegroundColor Gray
+    
+    # Colorear según clasificación
+    switch ($resultado.Clasificacion) {
+        "Público" { $row.DefaultCellStyle.BackColor = [System.Drawing.Color]::LightGreen }
+        "Interno" { $row.DefaultCellStyle.BackColor = [System.Drawing.Color]::LightYellow }
+        "Confidencial" { $row.DefaultCellStyle.BackColor = [System.Drawing.Color]::LightCoral }
+        default { $row.DefaultCellStyle.BackColor = [System.Drawing.Color]::White }
+    }
+    
+    # Guardar datos completos en Tag
+    $row.Tag = $resultado
+    
+    # Hacer scroll hacia la nueva fila
+    if ($dataGrid.Rows.Count > 0) {
+        $dataGrid.FirstDisplayedScrollingRowIndex = [Math]::Max(0, $dataGrid.Rows.Count - 10)
+    }
+    
+    # Actualizar la interfaz
+    $dataGrid.Update()
+    [System.Windows.Forms.Application]::DoEvents()
+    
+    return $rowIndex
+}
+    
+    # Eventos de los botones
+    $btnBuscarArchivo.Add_Click({
+        $openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+        $openFileDialog.Filter = "Todos los archivos (*.*)|*.*"
+        $openFileDialog.Title = "Seleccionar archivo a analizar"
+        
+        if ($openFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $txtRuta.Text = $openFileDialog.FileName
+        }
+    })
+    
+    $btnBuscarCarpeta.Add_Click({
+        $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+        $folderBrowser.Description = "Seleccionar carpeta a analizar"
+        
+        if ($folderBrowser.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+            $txtRuta.Text = $folderBrowser.SelectedPath
+        }
+    })
+    
+    $btnLimpiar.Add_Click({
+        $dataGridView.Rows.Clear()
+        $lblEstado.Text = "🚀 Resultados limpiados. Listo para nuevo análisis..."
+        $progressBar.Value = 0
+        $script:totalArchivos = 0
+        $script:archivosProcesados = 0
+        $script:confidenciales = 0
+        $script:internos = 0
+        $script:publicos = 0
+        $script:archivosCache = 0
+        $script:tiemposAnalisis = @()
+        Actualizar-Estadisticas
+    })
+    
+    $btnCancelar.Add_Click({
+        $script:cancelarProceso = $true
+        $lblEstado.Text = "❌ Cancelando proceso..."
+        $lblEstado.ForeColor = [System.Drawing.Color]::Red
+        $btnCancelar.Enabled = $false
+    })
+    
+    $btnConfiguracion.Add_Click({
+        $configForm = New-Object System.Windows.Forms.Form
+        $configForm.Text = "Configuración del Clasificador"
+        $configForm.Size = New-Object System.Drawing.Size(600, 500)
+        $configForm.StartPosition = "CenterParent"
+        $configForm.FormBorderStyle = "FixedDialog"
+        $configForm.MaximizeBox = $false
+        $configForm.MinimizeBox = $false
+        $configForm.ShowIcon = $false
+        $configForm.ShowInTaskbar = $false
+        
+        # Crear TabControl para organizar mejor la configuración
+        $tabControl = New-Object System.Windows.Forms.TabControl
+        $tabControl.Location = New-Object System.Drawing.Point(10, 10)
+        $tabControl.Size = New-Object System.Drawing.Size(575, 400)
+        
+        # Tab 1: Configuración General
+        $tabGeneral = New-Object System.Windows.Forms.TabPage
+        $tabGeneral.Text = "General"
+        
+        $lblTitulo = New-Object System.Windows.Forms.Label
+        $lblTitulo.Text = "Configuración General"
+        $lblTitulo.Font = New-Object System.Drawing.Font("Arial", 12, [System.Drawing.FontStyle]::Bold)
+        $lblTitulo.Location = New-Object System.Drawing.Point(10, 10)
+        $lblTitulo.Size = New-Object System.Drawing.Size(480, 25)
+        $lblTitulo.TextAlign = "MiddleCenter"
+        
+        # Checkbox para activar/desactivar el modo rápido
+        $chkModoRapido = New-Object System.Windows.Forms.CheckBox
+        $chkModoRapido.Text = "Usar modo rápido"
+        $chkModoRapido.Location = New-Object System.Drawing.Point(20, 50)
+        $chkModoRapido.Size = New-Object System.Drawing.Size(250, 20)
+        $chkModoRapido.Checked = $script:config.General.ModoRapido
+        
+        # Checkbox para usar cache
+        $chkUsarCache = New-Object System.Windows.Forms.CheckBox
+        $chkUsarCache.Text = "Usar cache para evitar reprocesar archivos"
+        $chkUsarCache.Location = New-Object System.Drawing.Point(20, 80)
+        $chkUsarCache.Size = New-Object System.Drawing.Size(300, 20)
+        $chkUsarCache.Checked = $script:config.General.UsarCache
+        
+        # Tiempo de caducidad del cache
+        $lblTiempoCache = New-Object System.Windows.Forms.Label
+        $lblTiempoCache.Text = "Tiempo de validez del cache (horas):"
+        $lblTiempoCache.Location = New-Object System.Drawing.Point(20, 110)
+        $lblTiempoCache.Size = New-Object System.Drawing.Size(200, 20)
+        
+        $numTiempoCache = New-Object System.Windows.Forms.NumericUpDown
+        $numTiempoCache.Location = New-Object System.Drawing.Point(250, 110)
+        $numTiempoCache.Size = New-Object System.Drawing.Size(80, 20)
+        $numTiempoCache.Minimum = 1
+        $numTiempoCache.Maximum = 720  # 30 días
+        $numTiempoCache.Value = $script:config.General.TiempoCacheHoras
+        $numTiempoCache.DecimalPlaces = 0
+        
+        # Nivel de log
+        $lblLogLevel = New-Object System.Windows.Forms.Label
+        $lblLogLevel.Text = "Nivel de log:"
+        $lblLogLevel.Location = New-Object System.Drawing.Point(20, 140)
+        $lblLogLevel.Size = New-Object System.Drawing.Size(200, 20)
+        
+        $cmbLogLevel = New-Object System.Windows.Forms.ComboBox
+        $cmbLogLevel.Location = New-Object System.Drawing.Point(250, 140)
+        $cmbLogLevel.Size = New-Object System.Drawing.Size(120, 20)
+        $cmbLogLevel.DropDownStyle = "DropDownList"
+        [void]$cmbLogLevel.Items.AddRange(@("DEBUG", "INFO", "WARN", "ERROR"))
+        $cmbLogLevel.SelectedItem = $script:config.General.LogLevel
+        
+        # Console Output
+        $chkConsoleOutput = New-Object System.Windows.Forms.CheckBox
+        $chkConsoleOutput.Text = "Mostrar logs en consola"
+        $chkConsoleOutput.Location = New-Object System.Drawing.Point(20, 170)
+        $chkConsoleOutput.Size = New-Object System.Drawing.Size(250, 20)
+        $chkConsoleOutput.Checked = $script:config.General.ConsoleOutput
+        
+        # Añadir controles a la pestaña General
+        $tabGeneral.Controls.AddRange(@($lblTitulo, $chkModoRapido, $chkUsarCache, $lblTiempoCache, $numTiempoCache, $lblLogLevel, $cmbLogLevel, $chkConsoleOutput))
+        
+        # Tab 2: Rendimiento
+        $tabRendimiento = New-Object System.Windows.Forms.TabPage
+        $tabRendimiento.Text = "Rendimiento"
+        
+        $lblTituloRendimiento = New-Object System.Windows.Forms.Label
+        $lblTituloRendimiento.Text = "Configuración de Rendimiento"
+        $lblTituloRendimiento.Font = New-Object System.Drawing.Font("Arial", 12, [System.Drawing.FontStyle]::Bold)
+        $lblTituloRendimiento.Location = New-Object System.Drawing.Point(10, 10)
+        $lblTituloRendimiento.Size = New-Object System.Drawing.Size(480, 25)
+        $lblTituloRendimiento.TextAlign = "MiddleCenter"
+        
+        # Tamaño máximo para archivos sin muestreo
+        $lblTamanoMax = New-Object System.Windows.Forms.Label
+        $lblTamanoMax.Text = "Tamaño máximo sin muestreo (MB):"
+        $lblTamanoMax.Location = New-Object System.Drawing.Point(20, 50)
+        $lblTamanoMax.Size = New-Object System.Drawing.Size(220, 20)
+        
+        $numTamanoMax = New-Object System.Windows.Forms.NumericUpDown
+        $numTamanoMax.Location = New-Object System.Drawing.Point(250, 50)
+        $numTamanoMax.Size = New-Object System.Drawing.Size(80, 20)
+        $numTamanoMax.Minimum = 1
+        $numTamanoMax.Maximum = 1000
+        $numTamanoMax.Value = $script:config.Rendimiento.TamanoMaximoArchivo / 1MB
+        $numTamanoMax.DecimalPlaces = 0
+        
+        # Tamaño de muestra
+        $lblTamanoMuestra = New-Object System.Windows.Forms.Label
+        $lblTamanoMuestra.Text = "Tamaño de cada muestra (KB):"
+        $lblTamanoMuestra.Location = New-Object System.Drawing.Point(20, 80)
+        $lblTamanoMuestra.Size = New-Object System.Drawing.Size(220, 20)
+        
+        $numTamanoMuestra = New-Object System.Windows.Forms.NumericUpDown
+        $numTamanoMuestra.Location = New-Object System.Drawing.Point(250, 80)
+        $numTamanoMuestra.Size = New-Object System.Drawing.Size(80, 20)
+        $numTamanoMuestra.Minimum = 1
+        $numTamanoMuestra.Maximum = 1024
+        $numTamanoMuestra.Value = $script:config.Rendimiento.TamanoMuestra / 1KB
+        $numTamanoMuestra.DecimalPlaces = 0
+        
+        # Número de muestras
+        $lblNumeroMuestras = New-Object System.Windows.Forms.Label
+        $lblNumeroMuestras.Text = "Número de muestras:"
+        $lblNumeroMuestras.Location = New-Object System.Drawing.Point(20, 110)
+        $lblNumeroMuestras.Size = New-Object System.Drawing.Size(220, 20)
+        
+        $numNumeroMuestras = New-Object System.Windows.Forms.NumericUpDown
+        $numNumeroMuestras.Location = New-Object System.Drawing.Point(250, 110)
+        $numNumeroMuestras.Size = New-Object System.Drawing.Size(80, 20)
+        $numNumeroMuestras.Minimum = 1
+        $numNumeroMuestras.Maximum = 20
+        $numNumeroMuestras.Value = $script:config.Rendimiento.NumeroMuestras
+        $numNumeroMuestras.DecimalPlaces = 0
+        
+        # Máximo de hilos paralelos
+        $lblMaxHilos = New-Object System.Windows.Forms.Label
+        $lblMaxHilos.Text = "Máximo de hilos paralelos:"
+        $lblMaxHilos.Location = New-Object System.Drawing.Point(20, 140)
+        $lblMaxHilos.Size = New-Object System.Drawing.Size(220, 20)
+        
+        $numMaxHilos = New-Object System.Windows.Forms.NumericUpDown
+        $numMaxHilos.Location = New-Object System.Drawing.Point(250, 140)
+        $numMaxHilos.Size = New-Object System.Drawing.Size(80, 20)
+        $numMaxHilos.Minimum = 1
+        $numMaxHilos.Maximum = [Environment]::ProcessorCount * 2
+        $numMaxHilos.Value = $script:config.Rendimiento.MaximoHilosParalelos
+        $numMaxHilos.DecimalPlaces = 0
+        
+        # Tamaño de lote
+        $lblTamanoLote = New-Object System.Windows.Forms.Label
+        $lblTamanoLote.Text = "Tamaño de lote de archivos:"
+        $lblTamanoLote.Location = New-Object System.Drawing.Point(20, 170)
+        $lblTamanoLote.Size = New-Object System.Drawing.Size(220, 20)
+        
+        $numTamanoLote = New-Object System.Windows.Forms.NumericUpDown
+        $numTamanoLote.Location = New-Object System.Drawing.Point(250, 170)
+        $numTamanoLote.Size = New-Object System.Drawing.Size(80, 20)
+        $numTamanoLote.Minimum = 10
+        $numTamanoLote.Maximum = 1000
+        $numTamanoLote.Value = $script:config.Rendimiento.TamanoLoteArchivos
+        $numTamanoLote.DecimalPlaces = 0
+        
+        # Checkbox para saltar binarios
+        $chkSaltarBinarios = New-Object System.Windows.Forms.CheckBox
+        $chkSaltarBinarios.Text = "Saltar archivos binarios"
+        $chkSaltarBinarios.Location = New-Object System.Drawing.Point(20, 200)
+        $chkSaltarBinarios.Size = New-Object System.Drawing.Size(250, 20)
+        $chkSaltarBinarios.Checked = $script:config.Rendimiento.SaltarBinarios
+        
+        # Añadir controles a la pestaña Rendimiento
+        $tabRendimiento.Controls.AddRange(@($lblTituloRendimiento, $lblTamanoMax, $numTamanoMax, 
+                                        $lblTamanoMuestra, $numTamanoMuestra, $lblNumeroMuestras, $numNumeroMuestras,
+                                        $lblMaxHilos, $numMaxHilos, $lblTamanoLote, $numTamanoLote, $chkSaltarBinarios))
+        
+        # Agregar pestañas al control principal
+        $tabControl.Controls.AddRange(@($tabGeneral, $tabRendimiento))
+        
+        # Botones Aceptar/Cancelar
+        $btnAceptar = New-Object System.Windows.Forms.Button
+        $btnAceptar.Text = "Aceptar"
+        $btnAceptar.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $btnAceptar.Location = New-Object System.Drawing.Point(390, 425)
+        $btnAceptar.Size = New-Object System.Drawing.Size(90, 30)
+        $btnAceptar.BackColor = [System.Drawing.Color]::LightGreen
+        
+        $btnCancelar = New-Object System.Windows.Forms.Button
+        $btnCancelar.Text = "Cancelar"
+        $btnCancelar.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+        $btnCancelar.Location = New-Object System.Drawing.Point(490, 425)
+        $btnCancelar.Size = New-Object System.Drawing.Size(90, 30)
+        
+        # Agregar controles al formulario
+        $configForm.Controls.AddRange(@($tabControl, $btnAceptar, $btnCancelar))
+        $configForm.AcceptButton = $btnAceptar
+        $configForm.CancelButton = $btnCancelar
+        
+        $result = $configForm.ShowDialog()
+        
+        if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+            # Aplicar cambios a la configuración
+            # General
+            $script:config.General.ModoRapido = $chkModoRapido.Checked
+            $script:config.General.UsarCache = $chkUsarCache.Checked
+            $script:config.General.TiempoCacheHoras = $numTiempoCache.Value
+            $script:config.General.LogLevel = $cmbLogLevel.SelectedItem
+            $script:config.General.ConsoleOutput = $chkConsoleOutput.Checked
+            
+            # Rendimiento
+            $script:config.Rendimiento.TamanoMaximoArchivo = $numTamanoMax.Value * 1MB
+            $script:config.Rendimiento.TamanoMuestra = $numTamanoMuestra.Value * 1KB
+            $script:config.Rendimiento.NumeroMuestras = $numNumeroMuestras.Value
+            $script:config.Rendimiento.MaximoHilosParalelos = $numMaxHilos.Value
+            $script:config.Rendimiento.TamanoLoteArchivos = $numTamanoLote.Value
+            $script:config.Rendimiento.SaltarBinarios = $chkSaltarBinarios.Checked
+            
+            # Guardar configuración
+            Guardar-Configuracion -config $script:config
+            
+            # Actualizar sistema de logging si cambió la configuración
+            if ($script:logger -and ($script:logger.LogLevel -ne $script:config.General.LogLevel -or 
+                                    $script:logger.ConsoleOutput -ne $script:config.General.ConsoleOutput)) {
+                Write-LogInfo "Actualizando configuración de logging: Nivel=$($script:config.General.LogLevel), ConsoleOutput=$($script:config.General.ConsoleOutput)"
+                $script:logger.Close()
+                Inicializar-Logger -logLevel $script:config.General.LogLevel -consoleOutput $script:config.General.ConsoleOutput
+            }
+            
+            # Informar al usuario
+            [System.Windows.Forms.MessageBox]::Show("Configuración actualizada y guardada.", "Información", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+            Write-LogInfo "Configuración actualizada por el usuario"
+        }
+    })
+    
+    $btnAbrirUbicacion.Add_Click({
+        if ($dataGridView.SelectedRows.Count -gt 0) {
+            $selectedRow = $dataGridView.SelectedRows[0]
+            
+            $itemPath = $selectedRow.Cells["Ruta"].Value
+
+            if ([string]::IsNullOrWhiteSpace($itemPath)) {
+                [System.Windows.Forms.MessageBox]::Show("La ruta del elemento seleccionado está vacía.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                return
+            }
+
+            if (Test-Path $itemPath) {
+                try {
+                    if (Test-Path $itemPath -PathType Leaf) { # Es un archivo
+                        Invoke-Item -Path $itemPath
+                    } elseif (Test-Path $itemPath -PathType Container) { # Es un directorio
+                        Start-Process explorer.exe -ArgumentList """$itemPath"""
+                    } else {
+                            [System.Windows.Forms.MessageBox]::Show("La ruta especificada no es ni un archivo ni un directorio válido: $itemPath", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                    }
+                } catch {
+                    [System.Windows.Forms.MessageBox]::Show("No se pudo abrir la ubicación del elemento: $($_.Exception.Message)", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                }
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("El elemento seleccionado no existe: $itemPath", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            }
+        } else {
+            [System.Windows.Forms.MessageBox]::Show("Por favor, seleccione un elemento de la lista.", "Información", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        }
+    })
+    
+    # Evento principal de análisis
+    $btnAnalizar.Add_Click({
+        $rutaAnalisis = $txtRuta.Text.Trim()
+        
+        if ([string]::IsNullOrEmpty($rutaAnalisis) -or -not (Test-Path $rutaAnalisis)) {
+            [System.Windows.Forms.MessageBox]::Show("Por favor selecciona una ruta válida.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+            return
+        }
+        
+        # Configurar modo
+        $script:modoRapido = $chkModoRapido.Checked
+        $script:configRapido.UsarCache = $chkUsarCache.Checked
+        
+        # Inicializar variables de control
+        $script:cancelarProceso = $false
+        $script:procesoEnEjecucion = $true
+        $script:tiempoInicio = Get-Date
+        
+        # Configurar interfaz para procesamiento
+        $btnAnalizar.Enabled = $false
+        $btnCancelar.Enabled = $true
+        $lblEstado.ForeColor = [System.Drawing.Color]::Black
+        $lblEstado.Text = "🚀 Iniciando análisis en modo rápido..."
+        
+        # Limpiar resultados anteriores
+        $dataGridView.Rows.Clear()
+        $script:totalArchivos = 0
+        $script:archivosProcesados = 0
+        $script:confidenciales = 0
+        $script:internos = 0
+        $script:publicos = 0
+        $script:archivosCache = 0
+        $script:tiemposAnalisis = @()
+        
+        try {
+            # Determinar si es archivo o directorio
+            $esArchivo = Test-Path -Path $rutaAnalisis -PathType Leaf
+            
+            if ($esArchivo) {
+                # Procesar archivo individual
+                $script:totalArchivos = 1
+                $progressBar.Maximum = 1
+                $lblEstado.Text = "🔍 Analizando archivo: $(Split-Path $rutaAnalisis -Leaf)"
+                
+                $resultado = Clasificar-ArchivoRapido -rutaArchivo $rutaAnalisis
+                
+                if ($resultado -and -not $script:cancelarProceso) {
+                    Add-ResultToGrid -dataGrid $dataGridView -resultado $resultado
+                    $script:archivosProcesados = 1
+                    
+                    switch ($resultado.Clasificacion) {
+                        "Confidencial" { $script:confidenciales++ }
+                        "Interno" { $script:internos++ }
+                        "Público" { $script:publicos++ }
+                    }
+                    
+                    if ($resultado.EsCache) { $script:archivosCache++ }
+                    if ($resultado.TiempoAnalisis) { $script:tiemposAnalisis += $resultado.TiempoAnalisis }
+                    
+                    $progressBar.Value = 1
+                    Actualizar-Estadisticas
+                }
+            } else {
+                # Procesar directorio
+                $recursivo = $chkRecursivo.Checked
+                
+                $parametrosGCI = @{
+                    Path = $rutaAnalisis
+                    File = $true
+                }
+                
+                if ($recursivo) {
+                    $parametrosGCI.Add("Recurse", $true)
+                }
+                
+                $lblEstado.Text = "📁 Buscando archivos..."
+                [System.Windows.Forms.Application]::DoEvents()
+                
+                $archivos = Get-ChildItem @parametrosGCI
+                $script:totalArchivos = $archivos.Count
+                
+                if ($script:totalArchivos -eq 0) {
+                    $lblEstado.Text = "❌ No se encontraron archivos en la ruta especificada."
+                    return
+                }
+                
+                $progressBar.Maximum = $script:totalArchivos
+                $progressBar.Value = 0
+                
+                $lblEstado.Text = "🚀 Procesando $script:totalArchivos archivos en modo rápido..."
+                
+                foreach ($archivo in $archivos) {
+                    if ($script:cancelarProceso) {
+                        break
+                    }
+                    
+                    $script:archivosProcesados++
+                    $porcentaje = [math]::Round(($script:archivosProcesados / $script:totalArchivos) * 100)
+                    $lblEstado.Text = "🔍 Analizando ($script:archivosProcesados/$script:totalArchivos - $porcentaje%): $($archivo.Name)"
+                    $progressBar.Value = $script:archivosProcesados
+                    
+                    try {
+                        $resultado = Clasificar-ArchivoRapido -rutaArchivo $archivo.FullName
+                        
+                        if ($resultado) {
+                            Add-ResultToGrid -dataGrid $dataGridView -resultado $resultado
+                            
+                            switch ($resultado.Clasificacion) {
+                                "Confidencial" { $script:confidenciales++ }
+                                "Interno" { $script:internos++ }
+                                "Público" { $script:publicos++ }
+                            }
+                            
+                            if ($resultado.EsCache) { $script:archivosCache++ }
+                            if ($resultado.TiempoAnalisis) { $script:tiemposAnalisis += $resultado.TiempoAnalisis }
+                            
+                            # Actualizar estadísticas cada 10 archivos para mejor rendimiento
+                            if ($script:archivosProcesados % 10 -eq 0) {
+                                Actualizar-Estadisticas
+                            }
+                        }
+                    } catch {
+                        Write-Host "Error procesando $($archivo.FullName): $_" -ForegroundColor Red
+                    }
+                    
+                    # Permitir que la interfaz se actualice cada 5 archivos
+                    if ($script:archivosProcesados % 5 -eq 0) {
+                        [System.Windows.Forms.Application]::DoEvents()
+                    }
+                }
+                
+                # Actualización final de estadísticas
+                Actualizar-Estadisticas
+            }
+            
+            # Guardar en CSV si se solicita
+            if ($chkGuardarCSV.Checked -and $dataGridView.Rows.Count -gt 0 -and -not $script:cancelarProceso) {
+                $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+                $saveFileDialog.Filter = "Archivos CSV (*.csv)|*.csv"
+                $saveFileDialog.Title = "Guardar resultados en CSV"
+                $saveFileDialog.FileName = "clasificacion_rapida_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+                
+                if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+                    $datosCSV = @()
+                    
+                    # Determinar los índices de las columnas para asegurar que accedemos correctamente a ellas
+                    $columnas = @{}
+                    for ($i = 0; $i -lt $dataGridView.Columns.Count; $i++) {
+                        $columnas[$dataGridView.Columns[$i].Name] = $i
+                    }
+                    
+                    # Imprimir información de depuración sobre las columnas encontradas
+                    Write-Host "Columnas encontradas en el DataGridView:" -ForegroundColor Cyan
+                    foreach ($col in $columnas.GetEnumerator()) {
+                        Write-Host "  - $($col.Key): Índice $($col.Value)" -ForegroundColor Gray
+                    }
+                    
+                    foreach ($fila in $dataGridView.Rows) {
+                        # Verificar que la fila tiene datos
+                        $tieneValor = $false
+                        foreach ($celda in $fila.Cells) {
+                            if ($celda.Value) {
+                                $tieneValor = $true
+                                break
+                            }
+                        }
+                        
+                        if ($tieneValor) {
+                            # Acceder directamente a las celdas por índice para más confiabilidad
+                            # Verificar los valores actuales para depuración
+                            Write-Host "Exportando fila $($fila.Index) al CSV:" -ForegroundColor Cyan
+                            
+                            # Obtener los valores directamente del Tag (datos originales completos)
+                            $datosFila = $fila.Tag
+                            
+                            if ($datosFila) {
+                                Write-Host "  - Usando datos del Tag" -ForegroundColor Green
+                                
+                                # Formatear el tamaño como aparece en el grid
+                                $tamanoStr = $fila.Cells[3].Value
+                                
+                                # Crear objeto con todos los campos necesarios
+                                $filaObj = [PSCustomObject]@{
+                                    Archivo = [System.IO.Path]::GetFileName($datosFila.Archivo)
+                                    Clasificacion = $datosFila.Clasificacion
+                                    Tamano = $tamanoStr
+                                    Patrones = $datosFila.Patrones
+                                    Tiempo = if ($datosFila.TiempoAnalisis) { "{0:N2} ms" -f $datosFila.TiempoAnalisis } else { "" }
+                                    Ruta = $datosFila.Archivo
+                                }
+                            } else {
+                                # Plan B: extraer directamente de las celdas si el Tag no tiene los datos
+                                Write-Host "  - Usando datos de las celdas" -ForegroundColor Yellow
+                                
+                                for ($i = 0; $i -lt $fila.Cells.Count; $i++) {
+                                    $nombreColumna = $dataGridView.Columns[$i].Name
+                                    $valorCelda = $fila.Cells[$i].Value
+                                    Write-Host "    [$i] $nombreColumna = $valorCelda" -ForegroundColor Gray
+                                }
+                                
+                                # Crear objeto con valores por índice
+                                $filaObj = [PSCustomObject]@{
+                                    Archivo = $fila.Cells[1].Value  # Índice 1 tiene el nombre del archivo
+                                    Clasificacion = $fila.Cells[2].Value  # Índice 2 tiene la clasificación
+                                    Tamano = $fila.Cells[3].Value  # Índice 3 tiene el tamaño
+                                    Patrones = $fila.Cells[4].Value  # Índice 4 tiene los patrones
+                                    Tiempo = $fila.Cells[5].Value  # Índice 5 tiene el tiempo
+                                    Ruta = $fila.Cells[0].Value   # Índice 0 tiene la ruta completa
+                                }
+                            }
+                            
+                            # Agregar la fila al array de datos
+                            $datosCSV += $filaObj
+                        }
+                    }
+                    
+                    try {
+                        $datosCSV | Export-Csv -Path $saveFileDialog.FileName -NoTypeInformation -Encoding UTF8
+                        [System.Windows.Forms.MessageBox]::Show("Resultados guardados exitosamente en:`n$($saveFileDialog.FileName)", "Guardado Exitoso", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+                    } catch {
+                        [System.Windows.Forms.MessageBox]::Show("Error al guardar el archivo CSV:`n$_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+                    }
+                }
+            }
+        } catch {
+            # Capturar cualquier error no esperado
+            Write-Host "Error inesperado: $_" -ForegroundColor Red
+            [System.Windows.Forms.MessageBox]::Show("Error inesperado: $_", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        } finally {
+            # Restaurar interfaz
+            $script:procesoEnEjecucion = $false
+            $btnAnalizar.Enabled = $true
+            $btnCancelar.Enabled = $false
+            
+            if ($script:cancelarProceso) {
+                $lblEstado.Text = "❌ Proceso cancelado por el usuario."
+                $lblEstado.ForeColor = [System.Drawing.Color]::Red
+            } else {
+                $tiempoTotal = ((Get-Date) - $script:tiempoInicio).TotalSeconds
+                $lblEstado.Text = "✅ Análisis completado en $([math]::Round($tiempoTotal, 1)) segundos. Archivos procesados: $script:archivosProcesados"
+                $lblEstado.ForeColor = [System.Drawing.Color]::Green
+            }
+        }
+    })
+    
+    # Evento para mostrar detalles al seleccionar una fila (Restaurado)
+    $dataGridView.Add_SelectionChanged({
+        # Habilitar/deshabilitar botón Verificar Selección
+        $btnVerificarSeleccion.Enabled = ($dataGridView.SelectedRows.Count -gt 0)
+
+        if ($dataGridView.SelectedRows.Count -gt 0) {
+            $filaSeleccionada = $dataGridView.SelectedRows[0]
+            $resultado = $filaSeleccionada.Tag # Asumiendo que el objeto resultado se guarda en Tag
+            
+            if ($resultado) {
+                # Intentar obtener los nombres de las columnas de forma más robusta
+                $nombreColumna = if ($dataGridView.Columns.Contains("Nombre")) { "Nombre" } else { $dataGridView.Columns[1].Name } # Ajustar índice si es necesario
+                $clasificacionColumna = if ($dataGridView.Columns.Contains("Clasificacion")) { "Clasificacion" } else { $dataGridView.Columns[2].Name }
+                $rutaColumna = if ($dataGridView.Columns.Contains("Ruta")) { "Ruta" } else { $dataGridView.Columns[0].Name }
+                $tiempoColumna = if ($dataGridView.Columns.Contains("Tiempo (ms)")) { "Tiempo (ms)" } else { $dataGridView.Columns[4].Name }
+
+                $detalles = "=== DETALLES DEL ARCHIVO ===`n" +
+                            "Archivo: $($filaSeleccionada.Cells[$nombreColumna].Value)`n" +
+                            "Clasificación: $($filaSeleccionada.Cells[$clasificacionColumna].Value)`n" +
+                            "Ruta: $($filaSeleccionada.Cells[$rutaColumna].Value)`n" +
+                            "Tiempo de análisis: $($filaSeleccionada.Cells[$tiempoColumna].Value)`n`n" +
+                            "Información adicional:`n" +
+                            "- Modo rápido: $(if ($script:modoRapido) { "Activado" } else { "Desactivado" })`n" +
+                            "- Desde cache: $(if ($resultado.EsCache) { "Sí" } else { "No" })`n" +
+                            "- Clasificación automática: $(if ($resultado.EsAutomatico) { "Sí" } else { "No" })`n`n" +
+                            "Patrones encontrados: $($resultado.Patrones)"
+                
+                # Mostrar detalles en tooltip para cada celda de la fila
+                foreach ($cell in $filaSeleccionada.Cells) {
+                    $cell.ToolTipText = $detalles
+                }
+            }
+        }
+    })
+
+    # Eventos RowsAdded y RowsRemoved para habilitar/deshabilitar botón Guardar Resultados
+    $dataGridView.add_RowsAdded({
+        $btnGuardarResultados.Enabled = ($dataGridView.Rows.Count -gt 0)
+    })
+    $dataGridView.add_RowsRemoved({
+        $btnGuardarResultados.Enabled = ($dataGridView.Rows.Count -gt 0)
+    })
+
+    # Evento Shown para enfocar el campo de ruta y posicionar botones dinámicamente (Restaurado)
+    $form.Add_Shown({
+        $txtRuta.Focus()
+        if ($btnAbrirUbicacion -and $panelEstado) {
+            $btnAbrirUbicacion.Location = New-Object System.Drawing.Point(
+                ([int]$form.ClientSize.Width - [int]$btnAbrirUbicacion.Width - 20), # 20px de margen derecho
+                ([int]$form.ClientSize.Height - [int]$panelEstado.Height - [int]$btnAbrirUbicacion.Height - 10) # 10px de margen sobre el panelEstado
+            )
+            $btnAbrirUbicacion.BringToFront() # Asegurar que esté al frente
+        }
+    })
+
+    # Cargar configuración inicial y mostrar el formulario
+    Write-Host "Inicializando Clasificador de Logs Modo Rápido..." -ForegroundColor Cyan
+    Inicializar-Regex
+    
+    if ($script:configRapido.UsarCache) {
+        try {
+            # Intentar cargar SQLite
+            Add-Type -Path "System.Data.SQLite.dll" -ErrorAction SilentlyContinue
+            Inicializar-Cache
+        } catch {
+            Write-Host "SQLite no disponible, cache deshabilitado." -ForegroundColor Yellow
+            $script:configRapido.UsarCache = $false
+            $chkUsarCache.Checked = $false
+        }
+    }
+    
+    Write-Host "✅ Clasificador de Logs Modo Rápido listo!" -ForegroundColor Green
+    
+    # Mostrar el formulario
+    $form.Add_FormClosing({
+        if ($script:cacheDB) {
+            $script:cacheDB.Close()
+            $script:cacheDB.Dispose()
+        }
+    })
+    
+    $form.ShowDialog() | Out-Null
+}
+
+# Ejecutar la interfaz gráfica
+if ($MyInvocation.InvocationName -ne '.') {
+    Mostrar-InterfazGrafica
+}
+        </code></pre>
       </div>
     </section>
   </main>
