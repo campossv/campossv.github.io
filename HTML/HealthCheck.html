@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HealthCheck Script - Ejemplo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -63,104 +60,392 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     h1 {
+      margin-top: 0;
+    }
+    h2 {
       color: #4267b2;
     }
     .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
       margin-bottom: 20px;
-      background: #e9f0fb;
-      padding: 15px;
-      border-radius: 6px;
     }
-    pre {
-      background: #222;
-      color: #eee;
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
       padding: 15px;
-      border-radius: 6px;
+      margin-bottom: 20px;
       overflow-x: auto;
-      font-size: 1em;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
       position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
     }
     .copy-button {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #4267b2;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
       color: white;
       border: none;
       padding: 5px 10px;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-    .copy-button:hover {
-      background: #365899;
     }
     .copy-confirmation {
       display: none;
       position: absolute;
-      top: 40px;
-      right: 10px;
-      background: #4caf50;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
       color: white;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.85em;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    /* Estilo global para la barra de desplazamiento */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+    /* Webkit browsers like Chrome and Safari */
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+    /* Contenedor de ejemplo */
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+    .linkedin-logo {
+      width: 25%;
     }
   </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Automatización con PowerShell" />
+  <meta
+    name="keywords"
+    content="PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
+  />
+  <title>Scripts de Vladi</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 <body>
   <header>
     <section id="overview">
-      <h1>Health Check para servidores</h1>
+      <h1>HealthCheck para servidores Windows</h1>
     </section>
   </header>
   <nav>
     <ul>
-      <li><a href="Calc01.html">Calculadora</a></li>
-      <li><a href="HealthCheck.html">HealthCheck</a></li>
-      <!-- Agrega aquí más enlaces si tienes más páginas -->
+      <li><a href="#overview">Descripción General</a></li>
+      <li><a href="#funciones">Funciones</a></li>
+      <li><a href="#Uso">Uso</a></li>
+      <li><a href="#script-completo">Script Completo</a></li>
     </ul>
   </nav>
   <main>
-    <section class="instructions">
-      <h2>Descripción General</h2>
-      <p><b>HealthCheck.ps1</b> es una herramienta avanzada de diagnóstico y monitoreo para sistemas Windows, diseñada para administradores de sistemas y equipos de soporte técnico. Recopila información detallada sobre:</p>
+    <section id="overview">
+      <h2>📌 Descripción General</h2>
+      <p>
+        Este script PowerShell (<b>HealthCheck.ps1</b>) es una herramienta avanzada de diagnóstico y monitoreo para sistemas Windows, diseñada para administradores de sistemas y equipos de soporte técnico. Recopila información detallada sobre:
+      </p>
       <ul>
         <li><b>Rendimiento del sistema</b> (CPU, memoria, disco, red).</li>
         <li><b>Eventos de seguridad y aplicaciones</b> (logs de Windows).</li>
         <li><b>Configuraciones críticas</b> (políticas de grupo, servicios, parches).</li>
         <li><b>Seguridad y cumplimiento</b> (CIS Benchmarks, permisos de archivos, análisis de software instalado).</li>
       </ul>
-      <p>Genera informes en <b>HTML, JSON, CSV o Excel</b> para facilitar el análisis y la documentación.</p>
-    </section>
-    <section class="instructions">
-      <h2>Uso</h2>
-      <ol>
-        <li>Coloca aquí los pasos para ejecutar el script o los requisitos previos.</li>
-        <li>Puedes detallar parámetros, dependencias, o advertencias.</li>
-      </ol>
+      <p>
+        Genera informes en <b>HTML, JSON, CSV o Excel</b> para facilitar el análisis y la documentación.
+      </p>
     </section>
     <section>
-      <h2>Script Completo</h2>
-      <div style="position:relative;">
-        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
-        <pre id="healthCheckScript" class="code-block"><code># Aquí irá el script de HealthCheck
-# Puedes ir enviando el contenido poco a poco y lo iré integrando aquí.</code></pre>
-        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+      <h2>¿Qué es un HealthCheck?</h2>
+      <p>Un <b>HealthCheck</b> es un script o herramienta que permite verificar el estado de salud de un sistema, servidor o servicio. Es útil para administradores y operadores que desean asegurarse de que todo funciona correctamente y detectar problemas antes de que afecten a los usuarios.</p>
+    </section>
+    <section id="funciones">
+      <h2>Funciones principales</h2>
+      <ol>
+        <li>
+          <b>Get-InformacionSistema</b><br>
+          <span>📌 <b>Propósito:</b> Obtiene información básica del hardware y sistema operativo.</span>
+          <ul>
+            <li>Nombre del servidor, dirección IP, dominio.</li>
+            <li>Modelo de CPU, memoria RAM, fabricante del equipo.</li>
+            <li>Versión de Windows, tiempo de actividad (uptime).</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$systemInfo = Get-InformacionSistema
+Write-Output "Servidor: $($systemInfo.NombreServidor), Uptime: $($systemInfo.TiempoActividad.Days) días"</code></pre>
+        </li>
+        <li>
+          <b>Get-MetricasRendimiento</b><br>
+          <span>📌 <b>Propósito:</b> Analiza los 4 subsistemas críticos (CPU, Memoria, Disco, Red).</span>
+          <ul>
+            <li>Uso de CPU (% y cola de procesos).</li>
+            <li>Consumo de memoria (RAM y virtual).</li>
+            <li>Rendimiento de discos (latencia, espacio libre).</li>
+            <li>Tráfico de red (bytes enviados/recibidos).</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$metrics = Get-MetricasRendimiento
+if ($metrics.CPU.UsoCPU -gt 90) { 
+    Write-Warning "¡CPU en estado crítico!" 
+}</code></pre>
+        </li>
+        <li>
+          <b>Get-LogsEventos</b><br>
+          <span>📌 <b>Propósito:</b> Recupera eventos de los logs de Sistema, Aplicación y Seguridad.</span>
+          <ul>
+            <li>Errores y advertencias de los últimos $DiasLogs días.</li>
+            <li>Intentos de inicio de sesión fallidos (útil para detectar ataques).</li>
+            <li>Eventos críticos de servicios y aplicaciones.</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$logs = Get-LogsEventos -Dias 7
+$logs.LogsSeguridad | Where-Object { $_.EventType -eq "Login Fallido" } | Format-Table</code></pre>
+        </li>
+        <li>
+          <b>Get-AnalisisConfiabilidad</b><br>
+          <span>📌 <b>Propósito:</b> Evalúa la estabilidad del sistema (eventos de fallos, reinicios).</span>
+          <ul>
+            <li>Historial de fallos de aplicaciones.</li>
+            <li>Eventos de apagado inesperado.</li>
+            <li>Tendencias de estabilidad (semanal).</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$confiabilidad = Get-AnalisisConfiabilidad
+if ($confiabilidad.EstadisticasEstabilidad.IndiceEstabilidad -eq "Baja") {
+    Send-Alert -Message "El servidor es inestable"
+}</code></pre>
+        </li>
+        <li>
+          <b>Get-VerificacionCumplimiento</b><br>
+          <span>📌 <b>Propósito:</b> Verifica el cumplimiento con CIS Benchmarks (estándar de seguridad).</span>
+          <ul>
+            <li>Políticas de contraseña (longitud, complejidad).</li>
+            <li>Configuración de firewall y UAC.</li>
+            <li>Estado de Windows Defender.</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$cumplimiento = Get-VerificacionCumplimiento
+if ($cumplimiento.Verificaciones | Where-Object { $_.Cumple -eq "No" }) {
+    Write-Output "¡Ajustes de seguridad no cumplen CIS Benchmarks!"
+}</code></pre>
+        </li>
+        <li>
+          <b>Get-AnalisisPermisos</b><br>
+          <span>📌 <b>Propósito:</b> Audita permisos en carpetas sensibles (C:\Windows, C:\Program Files).</span>
+          <ul>
+            <li>Permisos excesivos para grupos como Everyone.</li>
+            <li>Archivos del sistema con permisos de escritura públicos.</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$permisos = Get-AnalisisPermisos
+$permisos.AnalisisPermisos | Where-Object { $_.Estado -eq "Crítico" } | Export-Csv -Path "permisos_peligrosos.csv"</code></pre>
+        </li>
+        <li>
+          <b>Get-AuditoriaSoftware</b><br>
+          <span>📌 <b>Propósito:</b> Detecta software vulnerable o desactualizado.</span>
+          <ul>
+            <li>Lista de programas instalados (versión, fecha de instalación).</li>
+            <li>Software sin soporte (Java antiguo, Adobe Flash).</li>
+            <li>Navegadores con plugins inseguros.</li>
+          </ul>
+          <span>🛠️ <b>Uso para administradores:</b></span>
+          <pre><code class="language-powershell">$software = Get-AuditoriaSoftware
+$software.SoftwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Alta" } | Format-Table</code></pre>
+        </li>
+      </ol>
+    </section>
+    <section id="Uso">
+      <h2>📂 Generación de Informes</h2>
+      <p>El script permite exportar datos en múltiples formatos:</p>
+      <div class="code-block" style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr style="background:#e9ebee;">
+              <th style="padding:8px; border:1px solid #ccc;">Formato</th>
+              <th style="padding:8px; border:1px solid #ccc;">Comando de Ejemplo</th>
+              <th style="padding:8px; border:1px solid #ccc;">Uso Recomendado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding:8px; border:1px solid #ccc;">HTML</td>
+              <td style="padding:8px; border:1px solid #ccc;">.\HealthCheck.ps1 -FormatoExportar HTML</td>
+              <td style="padding:8px; border:1px solid #ccc;">Informes visuales para presentaciones.</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ccc;">JSON</td>
+              <td style="padding:8px; border:1px solid #ccc;">.\HealthCheck.ps1 -FormatoExportar JSON</td>
+              <td style="padding:8px; border:1px solid #ccc;">Integración con SIEM (Splunk, Elastic).</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ccc;">CSV</td>
+              <td style="padding:8px; border:1px solid #ccc;">.\HealthCheck.ps1 -FormatoExportar CSV</td>
+              <td style="padding:8px; border:1px solid #ccc;">Análisis en Excel/Power BI.</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #ccc;">EXCEL</td>
+              <td style="padding:8px; border:1px solid #ccc;">.\HealthCheck.ps1 -FormatoExportar EXCEL</td>
+              <td style="padding:8px; border:1px solid #ccc;">Reportes automatizados para auditorías.</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+    </section>
+    <section class="instructions">
+      <h2>🔍 Casos de Uso Típicos</h2>
+      <ol>
+        <li>
+          <b>Monitoreo Proactivo de Servidores</b><br>
+          <b>Problema:</b> Un servidor está lento.<br>
+          <b>Solución:</b> Ejecutar el script y revisar <code>Get-MetricasRendimiento</code> para identificar cuellos de botella (CPU, disco, memoria).
+        </li>
+        <li>
+          <b>Investigación de Incidentes de Seguridad</b><br>
+          <b>Problema:</b> Sospecha de un ataque de fuerza bruta.<br>
+          <b>Solución:</b> Usar <code>Get-LogsEventos</code> para filtrar intentos de login fallidos y <code>Get-AnalisisPermisos</code> para detectar cambios en permisos.
+        </li>
+        <li>
+          <b>Cumplimiento de Normativas (CIS, NIST)</b><br>
+          <b>Problema:</b> Auditoría requiere verificación de hardening.<br>
+          <b>Solución:</b> Ejecutar <code>Get-VerificacionCumplimiento</code> y exportar a Excel para evidencias.
+        </li>
+        <li>
+          <b>Detección de Software Vulnerable</b><br>
+          <b>Problema:</b> Necesidad de parchear sistemas críticos.<br>
+          <b>Solución:</b> Usar <code>Get-AuditoriaSoftware</code> para listar programas desactualizados.
+        </li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Script de HealthCheck en PowerShell</h2>
+      <div class="code-block" id="codeBlock1">
+<pre><code>function Invoke-HealthCheck {
+    $result = @{}
+    # Verifica espacio en disco
+    $disks = Get-PSDrive -PSProvider FileSystem | Select-Object Name,Free,Used, @{N='Total';E={$_.Free+$_.Used}}
+    $result['Disks'] = $disks
+    # Verifica servicios críticos
+    $criticalServices = 'Spooler','wuauserv','WinRM'
+    $services = Get-Service -Name $criticalServices | Select-Object Name,Status
+    $result['Services'] = $services
+    # Verifica uso de CPU
+    $cpu = Get-WmiObject win32_processor | Measure-Object -Property LoadPercentage -Average | Select-Object Average
+    $result['CPU'] = $cpu.Average
+    # Verifica uso de memoria
+    $mem = Get-WmiObject win32_operatingsystem
+    $result['Memory'] = [math]::Round((1 - $mem.FreePhysicalMemory/$mem.TotalVisibleMemorySize)*100,2)
+    return $result
+}
+
+# Ejecutar HealthCheck
+Invoke-HealthCheck | Format-List</code></pre>
+      <button class="copy-button" onclick="copyCode(this, 'codeBlock1')" aria-label="Copiar código">Copiar</button>
+      <div id="copyConfirmation1" class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+      </div>
+    </section>
+    <section class="instructions">
+      <h3>Instrucciones de uso</h3>
+      <ol>
+        <li>Abre PowerShell como administrador.</li>
+        <li>Copia el script de arriba y pégalo en la consola.</li>
+        <li>Ejecuta <code>Invoke-HealthCheck</code> para ver el estado del sistema.</li>
+        <li>Revisa los resultados y toma acciones si detectas algún problema.</li>
+      </ol>
+      <ul>
+        <li><b>Discos:</b> Muestra el espacio libre y total de cada disco.</li>
+        <li><b>Servicios:</b> Verifica que servicios críticos estén en ejecución.</li>
+        <li><b>CPU:</b> Promedio de uso del procesador.</li>
+        <li><b>Memoria:</b> Porcentaje de uso de memoria RAM.</li>
+      </ul>
     </section>
   </main>
   <script>
-    function copyCode(button) {
-      var pre = button.nextElementSibling;
-      var code = pre.innerText;
-      navigator.clipboard.writeText(code);
-      var confirmation = button.parentElement.querySelector('.copy-confirmation');
-      confirmation.style.display = 'block';
-      setTimeout(function() {
-        confirmation.style.display = 'none';
-      }, 1500);
+    function copyCode(btn, blockId) {
+      const codeBlock = document.getElementById(blockId).querySelector('code');
+      const text = codeBlock.innerText;
+      navigator.clipboard.writeText(text).then(function() {
+        btn.nextElementSibling.style.display = 'inline';
+        setTimeout(function() {
+          btn.nextElementSibling.style.display = 'none';
+        }, 1500);
+      });
     }
   </script>
 </body>
