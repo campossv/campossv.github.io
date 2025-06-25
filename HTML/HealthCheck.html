@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthCheck Script - Ejemplo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #4267b2;
+    }
+    .instructions {
+      margin-bottom: 20px;
+      background: #e9f0fb;
+      padding: 15px;
+      border-radius: 6px;
+    }
+    pre {
+      background: #222;
+      color: #eee;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 1em;
+      position: relative;
+    }
+    .copy-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+    .copy-button:hover {
+      background: #365899;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 10px;
+      background: #4caf50;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <section id="overview">
+      <h1>Health Check para servidores</h1>
+    </section>
+  </header>
+  <nav>
+    <ul>
+      <li><a href="Calc01.html">Calculadora</a></li>
+      <li><a href="HealthCheck.html">HealthCheck</a></li>
+      <!-- Agrega aquí más enlaces si tienes más páginas -->
+    </ul>
+  </nav>
+  <main>
+    <section class="instructions">
+      <h2>Descripción General</h2>
+      <p><b>HealthCheck.ps1</b> es una herramienta avanzada de diagnóstico y monitoreo para sistemas Windows, diseñada para administradores de sistemas y equipos de soporte técnico. Recopila información detallada sobre:</p>
+      <ul>
+        <li><b>Rendimiento del sistema</b> (CPU, memoria, disco, red).</li>
+        <li><b>Eventos de seguridad y aplicaciones</b> (logs de Windows).</li>
+        <li><b>Configuraciones críticas</b> (políticas de grupo, servicios, parches).</li>
+        <li><b>Seguridad y cumplimiento</b> (CIS Benchmarks, permisos de archivos, análisis de software instalado).</li>
+      </ul>
+      <p>Genera informes en <b>HTML, JSON, CSV o Excel</b> para facilitar el análisis y la documentación.</p>
+    </section>
+    <section class="instructions">
+      <h2>Uso</h2>
+      <ol>
+        <li>Coloca aquí los pasos para ejecutar el script o los requisitos previos.</li>
+        <li>Puedes detallar parámetros, dependencias, o advertencias.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Script Completo</h2>
+      <div style="position:relative;">
+        <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+        <pre id="healthCheckScript" class="code-block"><code># Aquí irá el script de HealthCheck
+# Puedes ir enviando el contenido poco a poco y lo iré integrando aquí.</code></pre>
+        <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+      </div>
+    </section>
+  </main>
+  <script>
+    function copyCode(button) {
+      var pre = button.nextElementSibling;
+      var code = pre.innerText;
+      navigator.clipboard.writeText(code);
+      var confirmation = button.parentElement.querySelector('.copy-confirmation');
+      confirmation.style.display = 'block';
+      setTimeout(function() {
+        confirmation.style.display = 'none';
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
