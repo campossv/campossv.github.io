@@ -1,28 +1,22 @@
-<#
+﻿<#
 .SYNOPSIS
     Script de monitoreo completo de salud del sistema
- .DESCRIPTION
-    Recopila métricas de rendimiento, logs de eventos, información de seguridad
-    y genera informes detallados en múltiples formatos.   
+    
+.DESCRIPTION
+    Recopila mÃ©tricas de rendimiento, logs de eventos, informaciÃ³n de seguridad
+    y genera informes detallados en mÃºltiples formatos.
+    
 .PARAMETER SalidaArchivo
-    Ruta donde se guardarán los informes generados
+    Ruta donde se guardarÃ¡n los informes generados
+    
 .PARAMETER DiasLogs
-    Número de días hacia atrás para analizar logs
-.PARAMETER FormatoExportar
-    Formato de exportación (HTML, JSON, CSV, EXCEL)
-.PARAMETER ParchesFaltantes
-    Revisa parches faltantes
-.PARAMETER RevisarServicioTerceros
-    Revisa servicios de terceros
-.PARAMETER AnalisisSeguridad
-    Realiza análisis de seguridad
-.PARAMETER VerificarCumplimiento
-    Verifica cumplimiento
+    NÃºmero de dÃ­as hacia atrÃ¡s para analizar logs
+    
 .EXAMPLE
-    .\Health-Checkps1 -SalidaArchivo "C:\Informes" -DiasLogs 7 -FormatoExportar HTML -ParchesFaltantes -RevisarServicioTerceros -AnalisisSeguridad -VerificarCumplimiento
- .AUTHOR
-    Vladimir Campos
+    .\monitor_system.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7
+    
 .NOTES
+    VersiÃ³n: 3.0
     Requiere permisos de administrador
 #>
 
@@ -63,19 +57,19 @@ $ArchivoSalida = "$SalidaArchivo\InformeSalud_$($NombreServidor)_$FechaInforme"
 
 function Get-InformacionSistema {
     try {
-        Write-Progress -Activity "Recopilando información del sistema" -PercentComplete 5
-
+        Write-Progress -Activity "Recopilando informaciÃ³n del sistema" -PercentComplete 5
+        
         $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
         $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop
         $system = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
         $bios = Get-CimInstance -ClassName Win32_BIOS -ErrorAction Stop
-
+        
         $domainInfo = if ($system.PartOfDomain) {
             "Dominio: $($system.Domain)"
         } else {
             "Grupo de trabajo: $($system.Workgroup)"
         }
-
+        
         return @{
             NombreServidor = $NombreServidor
             DireccionIP = $DireccionIP
@@ -98,15 +92,15 @@ function Get-InformacionSistema {
             Arquitectura = $os.OSArchitecture
         }
     } catch {
-        Write-Warning "Error al obtener información del sistema: $_"
+        Write-Warning "Error al obtener informaciÃ³n del sistema: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
 function Get-MetricasRendimiento {
     try {
-        Write-Progress -Activity "Recopilando métricas de los 4 subsistemas" -PercentComplete 15
-
+        Write-Progress -Activity "Recopilando mÃ©tricas de los 4 subsistemas" -PercentComplete 15
+        
         Write-Host "   Analizando subsistema CPU..." -ForegroundColor Yellow
         $cpuSamples = @()
         for ($i = 0; $i -lt 3; $i++) {
@@ -114,37 +108,37 @@ function Get-MetricasRendimiento {
             Start-Sleep -Milliseconds 500
         }
         $usoCPU = [math]::Round(($cpuSamples | Measure-Object -Average).Average, 2)
-
+        
         $colaProcesor = (Get-Counter '\System\Processor Queue Length' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
         $interrupciones = (Get-Counter '\Processor(_Total)\Interrupts/sec' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
+        
         Write-Host "   Analizando subsistema Memoria..." -ForegroundColor Yellow
         $os = Get-CimInstance -ClassName Win32_OperatingSystem
         $memTotal = [math]::Round($os.TotalVisibleMemorySize / 1KB, 2)
         $memLibre = [math]::Round($os.FreePhysicalMemory / 1KB, 2)
         $memUsada = $memTotal - $memLibre
         $porcentajeMemoria = [math]::Round(($memUsada / $memTotal) * 100, 2)
-
+        
         $memVirtualTotal = [math]::Round($os.TotalVirtualMemorySize / 1KB, 2)
         $memVirtualLibre = [math]::Round($os.FreeVirtualMemory / 1KB, 2)
         $paginasPorSeg = (Get-Counter '\Memory\Pages/sec' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
         $cacheBytes = (Get-Counter '\Memory\Cache Bytes' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
+        
         Write-Host "   Analizando subsistema Disco..." -ForegroundColor Yellow
         $discos = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }
         $metricasDisco = @()
-
+        
         foreach ($disco in $discos) {
             $espacioLibre = [math]::Round($disco.FreeSpace / 1GB, 2)
             $espacioTotal = [math]::Round($disco.Size / 1GB, 2)
             $espacioUsado = $espacioTotal - $espacioLibre
             $usoDisco = if ($espacioTotal -gt 0) { [math]::Round(($espacioUsado / $espacioTotal) * 100, 2) } else { 0 }
-
+            
             $discoFisico = $disco.DeviceID.Replace(":", "")
             $tiempoLectura = (Get-Counter "\LogicalDisk($discoFisico)\Avg. Disk sec/Read" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
             $tiempoEscritura = (Get-Counter "\LogicalDisk($discoFisico)\Avg. Disk sec/Write" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
             $colaDisco = (Get-Counter "\LogicalDisk($discoFisico)\Current Disk Queue Length" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
+            
             $metricasDisco += @{
                 Unidad = $disco.DeviceID
                 TotalGB = $espacioTotal
@@ -157,22 +151,22 @@ function Get-MetricasRendimiento {
                 TiempoEscritura = [math]::Round($tiempoEscritura * 1000, 2)
                 ColaDisco = [math]::Round($colaDisco, 2)
                 Estado = switch ($usoDisco) {
-                    { $_ -gt 90 } { "Crítico" }
+                    { $_ -gt 90 } { "CrÃ­tico" }
                     { $_ -gt 80 } { "Advertencia" }
                     default { "Normal" }
                 }
             }
         }
-
+        
         Write-Host "   Analizando subsistema Red..." -ForegroundColor Yellow
-        $interfacesRed = Get-CimInstance -ClassName Win32_PerfRawData_Tcpip_NetworkInterface |
+        $interfacesRed = Get-CimInstance -ClassName Win32_PerfRawData_Tcpip_NetworkInterface | 
                         Where-Object { $_.Name -notlike "*Loopback*" -and $_.Name -notlike "*Teredo*" -and $_.Name -ne "_Total" }
-
+        
         $metricasRed = @()
         foreach ($interfaz in $interfacesRed) {
             $bytesEnviados = [math]::Round($interfaz.BytesSentPerSec / 1KB, 2)
             $bytesRecibidos = [math]::Round($interfaz.BytesReceivedPerSec / 1KB, 2)
-
+            
             $metricasRed += @{
                 Interfaz = $interfaz.Name
                 BytesEnviados = $bytesEnviados
@@ -181,10 +175,10 @@ function Get-MetricasRendimiento {
                 PaquetesRecibidos = $interfaz.PacketsReceivedPerSec
                 ErroresEnvio = $interfaz.PacketsOutboundErrors
                 ErroresRecepcion = $interfaz.PacketsReceivedErrors
-                Ancho = "N/A"
+                Ancho = "N/A"  
             }
         }
-
+        
         return @{
             CPU = @{
                 UsoCPU = $usoCPU
@@ -207,30 +201,30 @@ function Get-MetricasRendimiento {
             Red = $metricasRed
         }
     } catch {
-        Write-Warning "Error al obtener métricas de rendimiento: $_"
+        Write-Warning "Error al obtener mÃ©tricas de rendimiento: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
 function Get-LogsEventos {
     param([int]$Dias)
-
+    
     try {
         Write-Progress -Activity "Recopilando logs de los 3 tipos principales" -PercentComplete 25
-
+        
         $fechaInicio = (Get-Date).AddDays(-$Dias)
-        Write-Host "   Período de logs: desde $($fechaInicio) hasta $(Get-Date)" -ForegroundColor Yellow
-
+        Write-Host "   PerÃ­odo de logs: desde $($fechaInicio) hasta $(Get-Date)" -ForegroundColor Yellow
+        
         Write-Host "   Recopilando logs del Sistema..." -ForegroundColor Yellow
         $logsSistema = Get-WinEvent -FilterHashtable @{
             LogName = 'System'
             Level = 1,2,3
             StartTime = $fechaInicio
-        } -MaxEvents 200 -ErrorAction SilentlyContinue |
-        Select-Object TimeCreated, LevelDisplayName, ProviderName, Id,
+        } -MaxEvents 200 -ErrorAction SilentlyContinue | 
+        Select-Object TimeCreated, LevelDisplayName, ProviderName, Id, 
                      @{Name="Message";Expression={$_.Message.Substring(0,[Math]::Min(300,$_.Message.Length))}}
-
-        Write-Host "   Recopilando logs de Aplicación..." -ForegroundColor Yellow
+        
+        Write-Host "   Recopilando logs de AplicaciÃ³n..." -ForegroundColor Yellow
         $logsAplicacion = Get-WinEvent -FilterHashtable @{
             LogName = 'Application'
             Level = 1,2,3
@@ -238,7 +232,7 @@ function Get-LogsEventos {
         } -MaxEvents 200 -ErrorAction SilentlyContinue |
         Select-Object TimeCreated, LevelDisplayName, ProviderName, Id,
                      @{Name="Message";Expression={$_.Message.Substring(0,[Math]::Min(300,$_.Message.Length))}}
-
+        
         Write-Host "   Recopilando logs de Seguridad..." -ForegroundColor Yellow
         try {
             $eventosSeguridad = Get-WinEvent -FilterHashtable @{
@@ -246,33 +240,33 @@ function Get-LogsEventos {
                 ID = 4624, 4625, 4634, 4647, 4648, 4740, 4767, 4771, 4776, 4616, 4720, 4722, 4724, 4738
                 StartTime = $fechaInicio
             } -MaxEvents 150 -ErrorAction Stop
-
+            
             Write-Host "   Se encontraron $($eventosSeguridad.Count) eventos de seguridad" -ForegroundColor Yellow
-
-
+            
+            
             $logsSeguridad = $eventosSeguridad | ForEach-Object {
                 $evento = $_
                 $cuenta = "N/A"
                 $ip = "N/A"
-
-                try { $cuenta = if ($evento.Properties.Count -gt 5) { $evento.Properties[5].Value } elseif ($evento.Properties.Count -gt 1) { $evento.Properties[1].Value }
-                    if ([string]::IsNullOrEmpty($cuenta)) {
-                        for ($i = 0; $i -lt [Math]::Min(10, $evento.Properties.Count); $i++) {
-                            if (![string]::IsNullOrEmpty($evento.Properties[$i].Value)) { $cuenta = $evento.Properties[$i].Value; break }
-                        }
-                    }
+                
+                try { $cuenta = if ($evento.Properties.Count -gt 5) { $evento.Properties[5].Value } elseif ($evento.Properties.Count -gt 1) { $evento.Properties[1].Value } 
+                    if ([string]::IsNullOrEmpty($cuenta)) { 
+                        for ($i = 0; $i -lt [Math]::Min(10, $evento.Properties.Count); $i++) { 
+                            if (![string]::IsNullOrEmpty($evento.Properties[$i].Value)) { $cuenta = $evento.Properties[$i].Value; break } 
+                        } 
+                    } 
                 } catch { $cuenta = "No disponible" }
-
+                
                 $ip = if ($evento.Properties.Count -gt 19) { $evento.Properties[19].Value } elseif ($evento.Properties.Count -gt 9) { $evento.Properties[9].Value }
-
-                try { $rawMessage = $evento.Message; if ($rawMessage.Length -gt 150) { $rawMessage = $rawMessage.Substring(0, 150) + "..." }
+                
+                try { $rawMessage = $evento.Message; if ($rawMessage.Length -gt 150) { $rawMessage = $rawMessage.Substring(0, 150) + "..." } 
                 } catch { $rawMessage = "[No disponible]" }
-
+                
                 $tipoEvento = switch ($evento.Id) {
                     4625 { "Login Fallido" }
-                    4648 { "Login Explícito" }
+                    4648 { "Login ExplÃ­cito" }
                     4771 { "Kerberos Fallido" }
-                    4776 { "Validación" }
+                    4776 { "ValidaciÃ³n" }
                     4740 { "Cuenta Bloqueada" }
                     4767 { "Desbloqueada" }
                     4624 { "Login" }
@@ -285,16 +279,16 @@ function Get-LogsEventos {
                     4738 { "Cambio cuenta" }
                     default { "ID:$($evento.Id)" }
                 }
-
+                
 [PSCustomObject]@{TimeCreated=$evento.TimeCreated;Id=$evento.Id;Account=$cuenta;SourceIP=$ip;EventType=$tipoEvento;RawMessage=$rawMessage}
             }
         } catch {
             Write-Host "   Error al obtener logs de seguridad: $_" -ForegroundColor Red
             $logsSeguridad = @()
         }
-
-        Write-Host "   Total eventos encontrados - Sistema: $($logsSistema.Count), Aplicación: $($logsAplicacion.Count), Seguridad: $($logsSeguridad.Count)" -ForegroundColor Yellow
-
+        
+        Write-Host "   Total eventos encontrados - Sistema: $($logsSistema.Count), AplicaciÃ³n: $($logsAplicacion.Count), Seguridad: $($logsSeguridad.Count)" -ForegroundColor Yellow
+        
         return @{
             LogsSistema = $logsSistema
             LogsAplicacion = $logsAplicacion
@@ -310,31 +304,31 @@ function Get-AnalisisConfiabilidad {
     try {
         Write-Progress -Activity "Analizando confiabilidad del sistema" -PercentComplete 35
         Write-Host "   Analizando registros de confiabilidad..." -ForegroundColor Yellow
-
+        
         $datos = @{}
-
+        
         try {
-            $reliabilityRecords = Get-CimInstance -ClassName Win32_ReliabilityRecords -ErrorAction SilentlyContinue |
+            $reliabilityRecords = Get-CimInstance -ClassName Win32_ReliabilityRecords -ErrorAction SilentlyContinue | 
                                  Where-Object { $_.TimeGenerated -gt (Get-Date).AddDays(-30) } |
                                  Sort-Object TimeGenerated -Descending |
                                  Select-Object -First 100
-
+            
             if ($reliabilityRecords) {
                 Write-Host "   Se encontraron $($reliabilityRecords.Count) registros de confiabilidad" -ForegroundColor Yellow
-
+                
                 $eventosConfiabilidad = $reliabilityRecords | ForEach-Object {
                     $tipoEvento = switch ($_.EventIdentifier) {
-                        1001 { "Inicio de aplicación" }
-                        1002 { "Fallo de aplicación" }
-                        1003 { "Cuelgue de aplicación" }
-                        1004 { "Instalación exitosa" }
-                        1005 { "Fallo de instalación" }
+                        1001 { "Inicio de aplicaciÃ³n" }
+                        1002 { "Fallo de aplicaciÃ³n" }
+                        1003 { "Cuelgue de aplicaciÃ³n" }
+                        1004 { "InstalaciÃ³n exitosa" }
+                        1005 { "Fallo de instalaciÃ³n" }
                         1006 { "Inicio del sistema" }
                         1007 { "Apagado del sistema" }
                         1008 { "Fallo del sistema" }
                         default { "Evento ID: $($_.EventIdentifier)" }
                     }
-
+                    
                     [PSCustomObject]@{
                         Fecha = $_.TimeGenerated
                         TipoEvento = $tipoEvento
@@ -348,27 +342,27 @@ function Get-AnalisisConfiabilidad {
                         }
                     }
                 }
-
+                
                 $datos.EventosConfiabilidad = $eventosConfiabilidad
-
+                
                 $fallosAplicacion = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1002, 1003) }).Count
                 $fallosSistema = ($eventosConfiabilidad | Where-Object { $_.EventID -eq 1008 }).Count
                 $reinicios = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1006, 1007) }).Count
-
+                
                 $datos.EstadisticasEstabilidad = @{
                     FallosAplicacion = $fallosAplicacion
                     FallosSistema = $fallosSistema
                     ReiniciosDetectados = $reinicios
                     TotalEventos = $eventosConfiabilidad.Count
-                    PeriodoAnalisis = "Últimos 30 días"
+                    PeriodoAnalisis = "Ãšltimos 30 dÃ­as"
                     IndiceEstabilidad = switch ($true) {
                         { $fallosSistema -gt 5 -or $fallosAplicacion -gt 20 } { "Baja" }
                         { $fallosSistema -gt 2 -or $fallosAplicacion -gt 10 } { "Media" }
                         default { "Alta" }
                     }
                 }
-
-                $tendenciasSemana = $eventosConfiabilidad |
+                
+                $tendenciasSemana = $eventosConfiabilidad | 
                     Group-Object { (Get-Date $_.Fecha).ToString("yyyy-MM-dd") } |
                     Sort-Object Name -Descending |
                     Select-Object -First 7 |
@@ -381,24 +375,24 @@ function Get-AnalisisConfiabilidad {
                             Estabilidad = if ($fallosDia -eq 0) { "Estable" } elseif ($fallosDia -lt 3) { "Moderada" } else { "Inestable" }
                         }
                     }
-
+                
                 $datos.TendenciasSemanales = $tendenciasSemana
-
+                
             } else {
-                Write-Host "   No se encontraron registros de confiabilidad o no están disponibles" -ForegroundColor Yellow
+                Write-Host "   No se encontraron registros de confiabilidad o no estÃ¡n disponibles" -ForegroundColor Yellow
                 $datos.EventosConfiabilidad = @()
                 $datos.EstadisticasEstabilidad = @{ Error = "No hay datos de confiabilidad disponibles" }
                 $datos.TendenciasSemanales = @()
             }
-
+            
         } catch {
             Write-Host "   Error al acceder a registros de confiabilidad: $_" -ForegroundColor Red
-
+            
             try {
-                Write-Host "   Intentando método alternativo con Event Log..." -ForegroundColor Yellow
+                Write-Host "   Intentando mÃ©todo alternativo con Event Log..." -ForegroundColor Yellow
                 $eventosAlternativos = Get-WinEvent -FilterHashtable @{
                     LogName = 'System'
-                    Level = 1,2
+                    Level = 1,2  # Critical, Error
                     StartTime = (Get-Date).AddDays(-7)
                 } -MaxEvents 50 -ErrorAction SilentlyContinue |
                 Where-Object { $_.Id -in @(1001, 1074, 6005, 6006, 6008, 6009, 6013) } |
@@ -410,7 +404,7 @@ function Get-AnalisisConfiabilidad {
                             6005 { "Inicio del servicio Event Log" }
                             6006 { "Parada del servicio Event Log" }
                             6008 { "Apagado inesperado" }
-                            6009 { "Información de versión del procesador" }
+                            6009 { "InformaciÃ³n de versiÃ³n del procesador" }
                             6013 { "Tiempo de actividad del sistema" }
                             default { "Evento del sistema" }
                         }
@@ -419,49 +413,49 @@ function Get-AnalisisConfiabilidad {
                         Criticidad = if ($_.Id -eq 6008) { "Alto" } else { "Normal" }
                     }
                 }
-
+                
                 $datos.EventosConfiabilidad = $eventosAlternativos
                 $datos.EstadisticasEstabilidad = @{
                     Metodo = "Event Log alternativo"
                     ApagadosInesperados = ($eventosAlternativos | Where-Object { $_.EventID -eq 6008 }).Count
                     TotalEventos = $eventosAlternativos.Count
-                    PeriodoAnalisis = "Últimos 7 días"
+                    PeriodoAnalisis = "Ãšltimos 7 dÃ­as"
                 }
-
+                
             } catch {
                 $datos.EventosConfiabilidad = @()
-                $datos.EstadisticasEstabilidad = @{ Error = "No se pudo obtener información de confiabilidad: $_" }
+                $datos.EstadisticasEstabilidad = @{ Error = "No se pudo obtener informaciÃ³n de confiabilidad: $_" }
             }
         }
-
+        
         return $datos
-
+        
     } catch {
-        Write-Warning "Error en análisis de confiabilidad: $_"
+        Write-Warning "Error en anÃ¡lisis de confiabilidad: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
 function Get-DiagnosticoHardwareAvanzado {
     try {
-        Write-Progress -Activity "Realizando diagnóstico avanzado de hardware" -PercentComplete 45
+        Write-Progress -Activity "Realizando diagnÃ³stico avanzado de hardware" -PercentComplete 45
         Write-Host "   Analizando hardware avanzado..." -ForegroundColor Yellow
-
+        
         $datos = @{}
-
+        
         Write-Host "   Verificando estado SMART de discos..." -ForegroundColor Yellow
         try {
             $discosSMART = Get-CimInstance -ClassName Win32_DiskDrive -ErrorAction SilentlyContinue | ForEach-Object {
                 $disco = $_
                 $smartData = $null
-
+                
                 try {
-
+                    # Intentar obtener datos SMART
                     $smartData = Get-CimInstance -ClassName MSStorageDriver_FailurePredictStatus -Namespace "root\wmi" -ErrorAction SilentlyContinue |
                                 Where-Object { $_.InstanceName -like "*$($disco.PNPDeviceID)*" }
-
+                    
                     if (-not $smartData) {
-
+                        # MÃ©todo alternativo
                         $smartData = Get-CimInstance -ClassName Win32_DiskDrive -ErrorAction SilentlyContinue |
                                     Where-Object { $_.DeviceID -eq $disco.DeviceID } |
                                     ForEach-Object {
@@ -477,81 +471,81 @@ function Get-DiagnosticoHardwareAvanzado {
                         Reason = "Error al acceder a SMART: $_"
                     }
                 }
-
+                
                 [PSCustomObject]@{
                     Modelo = $disco.Model
                     NumeroSerie = $disco.SerialNumber
                     TamanoGB = [math]::Round($disco.Size / 1GB, 2)
                     Interfaz = $disco.InterfaceType
-                    EstadoSMART = if ($smartData.PredictFailure -eq $true) { "FALLO PREDICHO" }
-                                 elseif ($smartData.PredictFailure -eq $false) { "Saludable" }
+                    EstadoSMART = if ($smartData.PredictFailure -eq $true) { "FALLO PREDICHO" } 
+                                 elseif ($smartData.PredictFailure -eq $false) { "Saludable" } 
                                  else { "No disponible" }
                     DetallesSMART = $smartData.Reason
-                    Particiones = (Get-CimInstance -ClassName Win32_DiskPartition -ErrorAction SilentlyContinue |
+                    Particiones = (Get-CimInstance -ClassName Win32_DiskPartition -ErrorAction SilentlyContinue | 
                                   Where-Object { $_.DiskIndex -eq $disco.Index }).Count
                     Estado = switch ($smartData.PredictFailure) {
-                        $true { "Crítico" }
+                        $true { "CrÃ­tico" }
                         $false { "Normal" }
                         default { "Desconocido" }
                     }
                 }
             }
-
+            
             $datos.DiscosSMART = $discosSMART
-
+            
         } catch {
             Write-Host "   Error al obtener datos SMART: $_" -ForegroundColor Red
-            $datos.DiscosSMART = @{ Error = "No se pudo obtener información SMART: $_" }
+            $datos.DiscosSMART = @{ Error = "No se pudo obtener informaciÃ³n SMART: $_" }
         }
-
+        
         Write-Host "   Verificando temperaturas de componentes..." -ForegroundColor Yellow
         try {
             $temperaturas = @()
-
+            
             $tempCPU = Get-CimInstance -ClassName Win32_PerfRawData_Counters_ThermalZoneInformation -ErrorAction SilentlyContinue |
                       Where-Object { $_.Name -like "*CPU*" -or $_.Name -like "*Processor*" } |
                       ForEach-Object {
                           $tempKelvin = $_.Temperature
-                          $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) {
-                              [math]::Round(($tempKelvin / 10) - 273.15, 1)
+                          $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) { 
+                              [math]::Round(($tempKelvin / 10) - 273.15, 1) 
                           } else { $null }
-
+                          
                           [PSCustomObject]@{
                               Componente = "CPU - $($_.Name)"
                               TemperaturaC = $tempCelsius
-                              Estado = if ($tempCelsius -gt 80) { "Crítico" }
-                                      elseif ($tempCelsius -gt 70) { "Alto" }
-                                      elseif ($tempCelsius -gt 0) { "Normal" }
+                              Estado = if ($tempCelsius -gt 80) { "CrÃ­tico" } 
+                                      elseif ($tempCelsius -gt 70) { "Alto" } 
+                                      elseif ($tempCelsius -gt 0) { "Normal" } 
                                       else { "No disponible" }
                           }
                       }
-
+            
             if ($tempCPU) { $temperaturas += $tempCPU }
-
+            
             try {
                 $wmiTemp = Get-CimInstance -ClassName MSAcpi_ThermalZoneTemperature -Namespace "root\wmi" -ErrorAction SilentlyContinue |
                           ForEach-Object {
                               $tempKelvin = $_.CurrentTemperature
-                              $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) {
-                                  [math]::Round(($tempKelvin / 10) - 273.15, 1)
+                              $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) { 
+                                  [math]::Round(($tempKelvin / 10) - 273.15, 1) 
                               } else { $null }
-
+                              
                               [PSCustomObject]@{
-                                  Componente = "Zona Térmica - $($_.InstanceName)"
+                                  Componente = "Zona TÃ©rmica - $($_.InstanceName)"
                                   TemperaturaC = $tempCelsius
-                                  Estado = if ($tempCelsius -gt 80) { "Crítico" }
-                                          elseif ($tempCelsius -gt 70) { "Alto" }
-                                          elseif ($tempCelsius -gt 0) { "Normal" }
+                                  Estado = if ($tempCelsius -gt 80) { "CrÃ­tico" } 
+                                          elseif ($tempCelsius -gt 70) { "Alto" } 
+                                          elseif ($tempCelsius -gt 0) { "Normal" } 
                                           else { "No disponible" }
                               }
                           }
-
+                
                 if ($wmiTemp) { $temperaturas += $wmiTemp }
-
+                
             } catch {
-                Write-Host "   Método WMI para temperaturas no disponible" -ForegroundColor Yellow
+                Write-Host "   MÃ©todo WMI para temperaturas no disponible" -ForegroundColor Yellow
             }
-
+            
             if ($temperaturas.Count -eq 0) {
                 $temperaturas = @([PSCustomObject]@{
                     Componente = "Sistema"
@@ -559,77 +553,77 @@ function Get-DiagnosticoHardwareAvanzado {
                     Estado = "Sensores de temperatura no disponibles"
                 })
             }
-
+            
             $datos.Temperaturas = $temperaturas
-
+            
         } catch {
             Write-Host "   Error al obtener temperaturas: $_" -ForegroundColor Red
-            $datos.Temperaturas = @{ Error = "No se pudo obtener información de temperatura: $_" }
+            $datos.Temperaturas = @{ Error = "No se pudo obtener informaciÃ³n de temperatura: $_" }
         }
-
-        Write-Host "   Verificando estado de la batería..." -ForegroundColor Yellow
+        
+        Write-Host "   Verificando estado de la baterÃ­a..." -ForegroundColor Yellow
         try {
             $baterias = Get-CimInstance -ClassName Win32_Battery -ErrorAction SilentlyContinue
-
+            
             if ($baterias) {
                 $estadoBaterias = $baterias | ForEach-Object {
                     $bateria = $_
-
+                    
                     $batteryStatus = Get-CimInstance -ClassName BatteryStatus -Namespace "root\wmi" -ErrorAction SilentlyContinue |
                                     Where-Object { $_.InstanceName -like "*$($bateria.DeviceID)*" }
-
+                    
                     $estadoCarga = switch ($bateria.BatteryStatus) {
                         1 { "Desconocido" }
                         2 { "Cargando" }
                         3 { "Descargando" }
-                        4 { "Crítico" }
+                        4 { "CrÃ­tico" }
                         5 { "Bajo" }
                         6 { "Cargando y Alto" }
                         7 { "Cargando y Bajo" }
-                        8 { "Cargando y Crítico" }
+                        8 { "Cargando y CrÃ­tico" }
                         9 { "Indefinido" }
                         10 { "Parcialmente Cargado" }
                         11 { "Completamente Cargado" }
                         default { "Estado $($bateria.BatteryStatus)" }
                     }
-
+                    
                     [PSCustomObject]@{
                         Nombre = $bateria.Name
                         Fabricante = $bateria.Manufacturer
                         EstadoCarga = $estadoCarga
                         PorcentajeCarga = $bateria.EstimatedChargeRemaining
-                        TiempoRestante = if ($bateria.EstimatedRunTime -and $bateria.EstimatedRunTime -ne 71582788) {
-                            "$([math]::Round($bateria.EstimatedRunTime / 60, 1)) horas"
+                        TiempoRestante = if ($bateria.EstimatedRunTime -and $bateria.EstimatedRunTime -ne 71582788) { 
+                            "$([math]::Round($bateria.EstimatedRunTime / 60, 1)) horas" 
                         } else { "Calculando..." }
-                        CapacidadDiseño = if ($bateria.DesignCapacity) { "$($bateria.DesignCapacity) mWh" } else { "N/A" }
+                        CapacidadDiseÃ±o = if ($bateria.DesignCapacity) { "$($bateria.DesignCapacity) mWh" } else { "N/A" }
                         CapacidadCompleta = if ($bateria.FullChargeCapacity) { "$($bateria.FullChargeCapacity) mWh" } else { "N/A" }
                         SaludBateria = if ($bateria.DesignCapacity -and $bateria.FullChargeCapacity) {
                             $salud = [math]::Round(($bateria.FullChargeCapacity / $bateria.DesignCapacity) * 100, 1)
                             "$salud%"
                         } else { "No disponible" }
                         Estado = switch ($true) {
-                            { $bateria.BatteryStatus -in @(4, 8) } { "Crítico" }
+                            { $bateria.BatteryStatus -in @(4, 8) } { "CrÃ­tico" }
                             { $bateria.BatteryStatus -in @(5, 7) } { "Bajo" }
                             { $bateria.EstimatedChargeRemaining -lt 20 } { "Advertencia" }
                             default { "Normal" }
                         }
                     }
                 }
-
+                
                 $datos.Baterias = $estadoBaterias
-
+                
             } else {
                 $datos.Baterias = @([PSCustomObject]@{
-                    Estado = "No se detectaron baterías (sistema de escritorio)"
+                    Estado = "No se detectaron baterÃ­as (sistema de escritorio)"
                 })
             }
-
+            
         } catch {
-            Write-Host "   Error al obtener estado de batería: $_" -ForegroundColor Red
-            $datos.Baterias = @{ Error = "No se pudo obtener información de batería: $_" }
+            Write-Host "   Error al obtener estado de baterÃ­a: $_" -ForegroundColor Red
+            $datos.Baterias = @{ Error = "No se pudo obtener informaciÃ³n de baterÃ­a: $_" }
         }
-
-        Write-Host "   Recopilando información adicional de hardware..." -ForegroundColor Yellow
+        
+        Write-Host "   Recopilando informaciÃ³n adicional de hardware..." -ForegroundColor Yellow
         try {
             $memoriaFisica = Get-CimInstance -ClassName Win32_PhysicalMemory -ErrorAction SilentlyContinue | ForEach-Object {
                 [PSCustomObject]@{
@@ -648,9 +642,9 @@ function Get-DiagnosticoHardwareAvanzado {
                     }
                 }
             }
-
+            
             $datos.MemoriaFisica = $memoriaFisica
-
+            
             $ventiladores = Get-CimInstance -ClassName Win32_Fan -ErrorAction SilentlyContinue | ForEach-Object {
                 [PSCustomObject]@{
                     Nombre = $_.Name
@@ -664,61 +658,61 @@ function Get-DiagnosticoHardwareAvanzado {
                     Activo = $_.ActiveCooling
                 }
             }
-
+            
             if ($ventiladores.Count -eq 0) {
                 $ventiladores = @([PSCustomObject]@{
-                    Estado = "No se detectaron ventiladores o información no disponible"
+                    Estado = "No se detectaron ventiladores o informaciÃ³n no disponible"
                 })
             }
-
+            
             $datos.Ventiladores = $ventiladores
-
+            
         } catch {
-            Write-Host "   Error al obtener información adicional de hardware: $_" -ForegroundColor Red
+            Write-Host "   Error al obtener informaciÃ³n adicional de hardware: $_" -ForegroundColor Red
             $datos.MemoriaFisica = @{ Error = "No disponible" }
             $datos.Ventiladores = @{ Error = "No disponible" }
         }
-
+        
         return $datos
-
+        
     } catch {
-        Write-Warning "Error en diagnóstico de hardware avanzado: $_"
+        Write-Warning "Error en diagnÃ³stico de hardware avanzado: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
 function Get-AnalisisRolesServidor {
     try {
-        Write-Progress -Activity "Analizando roles y características del servidor" -PercentComplete 55
+        Write-Progress -Activity "Analizando roles y caracterÃ­sticas del servidor" -PercentComplete 55
         Write-Host "   Analizando roles de Windows Server..." -ForegroundColor Yellow
-
+        
         $datos = @{}
-
+        
         $os = Get-CimInstance -ClassName Win32_OperatingSystem
         $esServidor = $os.ProductType -eq 2 -or $os.ProductType -eq 3 -or $os.Caption -like "*Server*"
-
+        
         if (-not $esServidor) {
             Write-Host "   Sistema detectado como cliente Windows, no servidor" -ForegroundColor Yellow
             return @{
                 TipoSistema = "Cliente Windows"
                 EsServidor = $false
-                Mensaje = "Este sistema no es Windows Server. Análisis de roles no aplicable."
+                Mensaje = "Este sistema no es Windows Server. AnÃ¡lisis de roles no aplicable."
             }
         }
-
+        
         Write-Host "   Sistema Windows Server detectado, analizando roles..." -ForegroundColor Yellow
         $datos.EsServidor = $true
         $datos.TipoSistema = "Windows Server"
-
-
+        
+        # 1. ROLES Y CARACTERÃSTICAS USANDO DISM (mÃ¡s compatible)
         try {
-            Write-Host "   Obteniendo características mediante DISM..." -ForegroundColor Yellow
+            Write-Host "   Obteniendo caracterÃ­sticas mediante DISM..." -ForegroundColor Yellow
             $dismFeatures = dism /online /get-features /format:table | Out-String
-
-
+            
+            # Parsear salida de DISM para caracterÃ­sticas habilitadas
             $caracteristicasHabilitadas = @()
             $lineas = $dismFeatures -split "`n" | Where-Object { $_ -match "Enabled" }
-
+            
             foreach ($linea in $lineas) {
                 if ($linea -match "^([^\|]+)\|.*Enabled") {
                     $nombreCaracteristica = $matches[1].Trim()
@@ -727,19 +721,19 @@ function Get-AnalisisRolesServidor {
                     }
                 }
             }
-
+            
             $datos.CaracteristicasDISM = $caracteristicasHabilitadas
-
+            
         } catch {
             Write-Host "   Error al usar DISM: $_" -ForegroundColor Red
-            $datos.CaracteristicasDISM = @("Error al obtener características via DISM")
+            $datos.CaracteristicasDISM = @("Error al obtener caracterÃ­sticas via DISM")
         }
-
-
-        Write-Host "   Analizando servicios de roles específicos..." -ForegroundColor Yellow
+        
+        # 2. SERVICIOS DE ROLES ESPECÃFICOS
+        Write-Host "   Analizando servicios de roles especÃ­ficos..." -ForegroundColor Yellow
         $rolesDetectados = @()
-
-
+        
+        # Active Directory Domain Services
         $addsService = Get-Service -Name "NTDS" -ErrorAction SilentlyContinue
         if ($addsService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -751,8 +745,8 @@ function Get-AnalisisRolesServidor {
                 Critico = $true
             }
         }
-
-
+        
+        # DNS Server
         $dnsService = Get-Service -Name "DNS" -ErrorAction SilentlyContinue
         if ($dnsService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -764,8 +758,8 @@ function Get-AnalisisRolesServidor {
                 Critico = $true
             }
         }
-
-
+        
+        # DHCP Server
         $dhcpService = Get-Service -Name "DHCPServer" -ErrorAction SilentlyContinue
         if ($dhcpService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -777,8 +771,8 @@ function Get-AnalisisRolesServidor {
                 Critico = $false
             }
         }
-
-
+        
+        # IIS (Internet Information Services)
         $iisService = Get-Service -Name "W3SVC" -ErrorAction SilentlyContinue
         if ($iisService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -789,13 +783,13 @@ function Get-AnalisisRolesServidor {
                 Descripcion = "Servidor web IIS"
                 Critico = $false
             }
-
-
+            
+            # InformaciÃ³n adicional de IIS
             try {
                 $iisInfo = Get-CimInstance -ClassName Win32_Service -Filter "Name='W3SVC'" -ErrorAction SilentlyContinue
                 $sitiosIIS = @()
-
-
+                
+                # Intentar obtener sitios web si IIS estÃ¡ instalado
                 if (Get-Command "Get-IISSite" -ErrorAction SilentlyContinue) {
                     $sitiosIIS = Get-IISSite | ForEach-Object {
                         [PSCustomObject]@{
@@ -806,7 +800,7 @@ function Get-AnalisisRolesServidor {
                         }
                     }
                 } else {
-
+                    # MÃ©todo alternativo usando appcmd si estÃ¡ disponible
                     try {
                         $appcmdPath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
                         if (Test-Path $appcmdPath) {
@@ -823,18 +817,18 @@ function Get-AnalisisRolesServidor {
                             }
                         }
                     } catch {
-                        $sitiosIIS = @([PSCustomObject]@{ Info = "No se pudo obtener información de sitios IIS" })
+                        $sitiosIIS = @([PSCustomObject]@{ Info = "No se pudo obtener informaciÃ³n de sitios IIS" })
                     }
                 }
-
+                
                 $datos.SitiosIIS = $sitiosIIS
-
+                
             } catch {
-                $datos.SitiosIIS = @{ Error = "Error al obtener información de IIS: $_" }
+                $datos.SitiosIIS = @{ Error = "Error al obtener informaciÃ³n de IIS: $_" }
             }
         }
-
-
+        
+        # File and Storage Services
         $lanmanService = Get-Service -Name "LanmanServer" -ErrorAction SilentlyContinue
         if ($lanmanService -and $lanmanService.Status -eq "Running") {
             $rolesDetectados += [PSCustomObject]@{
@@ -846,27 +840,27 @@ function Get-AnalisisRolesServidor {
                 Critico = $false
             }
         }
-
-
+        
+        # Print and Document Services
         $spoolerService = Get-Service -Name "Spooler" -ErrorAction SilentlyContinue
         if ($spoolerService -and $spoolerService.Status -eq "Running") {
-
-            $impresorasCompartidas = Get-CimInstance -ClassName Win32_Printer -ErrorAction SilentlyContinue |
+            # Verificar si hay impresoras compartidas
+            $impresorasCompartidas = Get-CimInstance -ClassName Win32_Printer -ErrorAction SilentlyContinue | 
                                     Where-Object { $_.Shared -eq $true }
-
+            
             if ($impresorasCompartidas) {
                 $rolesDetectados += [PSCustomObject]@{
                     Rol = "Print and Document Services"
                     Servicio = "Spooler"
                     Estado = $spoolerService.Status
                     TipoInicio = $spoolerService.StartType
-                    Descripcion = "Servicios de impresión y documentos"
+                    Descripcion = "Servicios de impresiÃ³n y documentos"
                     Critico = $false
                 }
             }
         }
-
-
+        
+        # Remote Desktop Services
         $termService = Get-Service -Name "TermService" -ErrorAction SilentlyContinue
         if ($termService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -878,8 +872,8 @@ function Get-AnalisisRolesServidor {
                 Critico = $false
             }
         }
-
-
+        
+        # Windows Server Update Services (WSUS)
         $wsusService = Get-Service -Name "WsusService" -ErrorAction SilentlyContinue
         if ($wsusService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -891,8 +885,8 @@ function Get-AnalisisRolesServidor {
                 Critico = $false
             }
         }
-
-
+        
+        # Hyper-V
         $hypervService = Get-Service -Name "vmms" -ErrorAction SilentlyContinue
         if ($hypervService) {
             $rolesDetectados += [PSCustomObject]@{
@@ -900,11 +894,11 @@ function Get-AnalisisRolesServidor {
                 Servicio = "vmms"
                 Estado = $hypervService.Status
                 TipoInicio = $hypervService.StartType
-                Descripcion = "Plataforma de virtualización Hyper-V"
+                Descripcion = "Plataforma de virtualizaciÃ³n Hyper-V"
                 Critico = $false
             }
-
-
+            
+            # InformaciÃ³n adicional de Hyper-V
             try {
                 if (Get-Command "Get-VM" -ErrorAction SilentlyContinue) {
                     $vms = Get-VM -ErrorAction SilentlyContinue | ForEach-Object {
@@ -924,13 +918,13 @@ function Get-AnalisisRolesServidor {
                 $datos.MaquinasVirtuales = @{ Error = "Error al obtener VMs: $_" }
             }
         }
-
+        
         $datos.RolesDetectados = $rolesDetectados
-
-
-        Write-Host "   Recopilando información adicional del servidor..." -ForegroundColor Yellow
-
-
+        
+        # 3. INFORMACIÃ“N ADICIONAL DEL SERVIDOR
+        Write-Host "   Recopilando informaciÃ³n adicional del servidor..." -ForegroundColor Yellow
+        
+        # InformaciÃ³n de dominio
         try {
             $dominioInfo = Get-CimInstance -ClassName Win32_ComputerSystem
             $datos.InformacionDominio = @{
@@ -948,79 +942,79 @@ function Get-AnalisisRolesServidor {
                 }
             }
         } catch {
-            $datos.InformacionDominio = @{ Error = "No se pudo obtener información de dominio" }
+            $datos.InformacionDominio = @{ Error = "No se pudo obtener informaciÃ³n de dominio" }
         }
-
-
+        
+        # CaracterÃ­sticas de Windows instaladas
         try {
-            $caracteristicasWindows = Get-WindowsFeature -ErrorAction SilentlyContinue |
+            $caracteristicasWindows = Get-WindowsFeature -ErrorAction SilentlyContinue | 
                                      Where-Object { $_.InstallState -eq "Installed" } |
                                      Select-Object Name, DisplayName, InstallState |
                                      Sort-Object DisplayName
-
+            
             if ($caracteristicasWindows) {
                 $datos.CaracteristicasWindows = $caracteristicasWindows
             } else {
-
-                $datos.CaracteristicasWindows = @{ Info = "Get-WindowsFeature no disponible en esta versión" }
+                # MÃ©todo alternativo si Get-WindowsFeature no estÃ¡ disponible
+                $datos.CaracteristicasWindows = @{ Info = "Get-WindowsFeature no disponible en esta versiÃ³n" }
             }
         } catch {
-            $datos.CaracteristicasWindows = @{ Error = "Error al obtener características de Windows: $_" }
+            $datos.CaracteristicasWindows = @{ Error = "Error al obtener caracterÃ­sticas de Windows: $_" }
         }
-
-
+        
+        # Resumen de estado de roles
         $rolesCriticos = $rolesDetectados | Where-Object { $_.Critico -eq $true }
         $rolesDetenidos = $rolesDetectados | Where-Object { $_.Estado -ne "Running" }
-
+        
         $datos.ResumenRoles = @{
             TotalRoles = $rolesDetectados.Count
             RolesCriticos = $rolesCriticos.Count
             RolesDetenidos = $rolesDetenidos.Count
-            EstadoGeneral = if ($rolesDetenidos.Count -eq 0) { "Todos los roles funcionando" }
-                           elseif ($rolesDetenidos.Count -eq 1) { "1 rol detenido" }
+            EstadoGeneral = if ($rolesDetenidos.Count -eq 0) { "Todos los roles funcionando" } 
+                           elseif ($rolesDetenidos.Count -eq 1) { "1 rol detenido" } 
                            else { "$($rolesDetenidos.Count) roles detenidos" }
         }
-
+        
         return $datos
-
+        
     } catch {
-        Write-Warning "Error en análisis de roles del servidor: $_"
+        Write-Warning "Error en anÃ¡lisis de roles del servidor: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
-
+# NUEVA FUNCIÃ“N: AnÃ¡lisis de PolÃ­ticas de Grupo (GPO)
 function Get-AnalisisPoliticasGrupo {
     try {
-        Write-Progress -Activity "Analizando políticas de grupo aplicadas" -PercentComplete 60
-        Write-Host "   Analizando políticas de grupo (GPO)..." -ForegroundColor Yellow
-
+        Write-Progress -Activity "Analizando polÃ­ticas de grupo aplicadas" -PercentComplete 60
+        Write-Host "   Analizando polÃ­ticas de grupo (GPO)..." -ForegroundColor Yellow
+        
         $datos = @{}
-
-
+        
+        # 1. OBTENER INFORMACIÃ“N BÃSICA DE GPO
         try {
-
+            # Verificar si el sistema estÃ¡ en un dominio
             $computerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
             if (-not $computerSystem.PartOfDomain) {
-                Write-Host "   Sistema no está en dominio, análisis GPO limitado" -ForegroundColor Yellow
+                Write-Host "   Sistema no estÃ¡ en dominio, anÃ¡lisis GPO limitado" -ForegroundColor Yellow
                 return @{
                     EnDominio = $false
-                    Mensaje = "El sistema no está unido a un dominio. Análisis de GPO no aplicable."
+                    Mensaje = "El sistema no estÃ¡ unido a un dominio. AnÃ¡lisis de GPO no aplicable."
                     PoliticasLocales = Get-AnalisisPoliticasLocales
                 }
             }
-
+            
             Write-Host "   Sistema en dominio detectado, analizando GPOs..." -ForegroundColor Yellow
             $datos.EnDominio = $true
-
-
+            
+            # Ejecutar gpresult para obtener informaciÃ³n de GPO
             $gpresultOutput = gpresult /r /scope:computer 2>$null
             $gpresultUser = gpresult /r /scope:user 2>$null
-
-
+            
+            # Parsear informaciÃ³n de GPO del equipo
             $gpoComputer = @()
             $gpoUser = @()
-
+            
             if ($gpresultOutput) {
                 $inGPOSection = $false
                 foreach ($line in $gpresultOutput) {
@@ -1043,8 +1037,8 @@ function Get-AnalisisPoliticasGrupo {
                     }
                 }
             }
-
-
+            
+            # Parsear informaciÃ³n de GPO del usuario
             if ($gpresultUser) {
                 $inGPOSection = $false
                 foreach ($line in $gpresultUser) {
@@ -1067,24 +1061,24 @@ function Get-AnalisisPoliticasGrupo {
                     }
                 }
             }
-
+            
             $datos.GPOsEquipo = $gpoComputer
             $datos.GPOsUsuario = $gpoUser
-
-
+            
+            # Obtener informaciÃ³n detallada con gpresult /v
             try {
-                Write-Host "   Obteniendo detalles de configuración GPO..." -ForegroundColor Yellow
+                Write-Host "   Obteniendo detalles de configuraciÃ³n GPO..." -ForegroundColor Yellow
                 $gpresultDetailed = gpresult /v /scope:computer 2>$null
-
-
+                
+                # Parsear configuraciones especÃ­ficas
                 $configuracionesSeguridad = @()
                 $configuracionesRed = @()
                 $configuracionesAuditoria = @()
-
+                
                 if ($gpresultDetailed) {
                     $currentSection = ""
                     foreach ($line in $gpresultDetailed) {
-
+                        # Identificar secciones importantes
                         if ($line -match "Security Settings") {
                             $currentSection = "Security"
                         } elseif ($line -match "Network") {
@@ -1092,18 +1086,18 @@ function Get-AnalisisPoliticasGrupo {
                         } elseif ($line -match "Audit") {
                             $currentSection = "Audit"
                         }
-
-
+                        
+                        # Extraer configuraciones relevantes
                         if ($line -match "^\s+(.+):\s+(.+)$") {
                             $setting = $matches[1].Trim()
                             $value = $matches[2].Trim()
-
+                            
                             $configObj = [PSCustomObject]@{
                                 Configuracion = $setting
                                 Valor = $value
                                 Seccion = $currentSection
                             }
-
+                            
                             switch ($currentSection) {
                                 "Security" { $configuracionesSeguridad += $configObj }
                                 "Network" { $configuracionesRed += $configObj }
@@ -1112,19 +1106,19 @@ function Get-AnalisisPoliticasGrupo {
                         }
                     }
                 }
-
+                
                 $datos.ConfiguracionesSeguridad = $configuracionesSeguridad
                 $datos.ConfiguracionesRed = $configuracionesRed
                 $datos.ConfiguracionesAuditoria = $configuracionesAuditoria
-
+                
             } catch {
                 Write-Host "   Error al obtener detalles de GPO: $_" -ForegroundColor Red
                 $datos.ConfiguracionesSeguridad = @()
                 $datos.ConfiguracionesRed = @()
                 $datos.ConfiguracionesAuditoria = @()
             }
-
-
+            
+            # InformaciÃ³n de Ãºltima actualizaciÃ³n de GPO
             try {
                 $gpoUpdateInfo = gpresult /r | Select-String "Last time Group Policy was applied"
                 if ($gpoUpdateInfo) {
@@ -1135,73 +1129,73 @@ function Get-AnalisisPoliticasGrupo {
             } catch {
                 $datos.UltimaActualizacionGPO = "Error al obtener fecha"
             }
-
+            
         } catch {
             Write-Host "   Error al analizar GPOs: $_" -ForegroundColor Red
-            $datos.Error = "Error al obtener información de GPO: $_"
+            $datos.Error = "Error al obtener informaciÃ³n de GPO: $_"
         }
-
-
+        
+        # 2. ANÃLISIS DE POLÃTICAS LOCALES (siempre disponible)
         $datos.PoliticasLocales = Get-AnalisisPoliticasLocales
-
+        
         return $datos
-
+        
     } catch {
-        Write-Warning "Error en análisis de políticas de grupo: $_"
+        Write-Warning "Error en anÃ¡lisis de polÃ­ticas de grupo: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
 function Get-AnalisisPoliticasLocales {
     try {
-        Write-Host "   Analizando políticas de seguridad locales..." -ForegroundColor Yellow
-
+        Write-Host "   Analizando polÃ­ticas de seguridad locales..." -ForegroundColor Yellow
+        
         $politicasLocales = @()
-
-
+        
+        # PolÃ­ticas de contraseÃ±as
         try {
             $secpol = secedit /export /cfg "$env:TEMP\secpol.cfg" 2>$null
             if (Test-Path "$env:TEMP\secpol.cfg") {
                 $secpolContent = Get-Content "$env:TEMP\secpol.cfg"
-
+                
                 foreach ($line in $secpolContent) {
                     if ($line -match "^(.+)\s*=\s*(.+)$") {
                         $setting = $matches[1].Trim()
                         $value = $matches[2].Trim()
-
-
+                        
+                        # Mapear configuraciones importantes
                         $descripcion = switch ($setting) {
-                            "MinimumPasswordAge" { "Edad mínima de contraseña (días)" }
-                            "MaximumPasswordAge" { "Edad máxima de contraseña (días)" }
-                            "MinimumPasswordLength" { "Longitud mínima de contraseña" }
-                            "PasswordComplexity" { "Complejidad de contraseña requerida" }
-                            "PasswordHistorySize" { "Historial de contraseñas" }
+                            "MinimumPasswordAge" { "Edad mÃ­nima de contraseÃ±a (dÃ­as)" }
+                            "MaximumPasswordAge" { "Edad mÃ¡xima de contraseÃ±a (dÃ­as)" }
+                            "MinimumPasswordLength" { "Longitud mÃ­nima de contraseÃ±a" }
+                            "PasswordComplexity" { "Complejidad de contraseÃ±a requerida" }
+                            "PasswordHistorySize" { "Historial de contraseÃ±as" }
                             "LockoutBadCount" { "Umbral de bloqueo de cuenta" }
-                            "LockoutDuration" { "Duración de bloqueo (minutos)" }
-                            "ResetLockoutCount" { "Restablecer contador después de (minutos)" }
-                            "RequireLogonToChangePassword" { "Requerir logon para cambiar contraseña" }
-                            "ClearTextPassword" { "Almacenar contraseñas con cifrado reversible" }
+                            "LockoutDuration" { "DuraciÃ³n de bloqueo (minutos)" }
+                            "ResetLockoutCount" { "Restablecer contador despuÃ©s de (minutos)" }
+                            "RequireLogonToChangePassword" { "Requerir logon para cambiar contraseÃ±a" }
+                            "ClearTextPassword" { "Almacenar contraseÃ±as con cifrado reversible" }
                             default { $setting }
                         }
-
+                        
                         if ($descripcion -ne $setting) {
                             $politicasLocales += [PSCustomObject]@{
                                 Politica = $descripcion
                                 Valor = $value
                                 Configuracion = $setting
-                                Categoria = "Políticas de Contraseña"
+                                Categoria = "PolÃ­ticas de ContraseÃ±a"
                             }
                         }
                     }
                 }
-
+                
                 Remove-Item "$env:TEMP\secpol.cfg" -Force -ErrorAction SilentlyContinue
             }
         } catch {
-            Write-Host "   Error al obtener políticas de seguridad locales: $_" -ForegroundColor Red
+            Write-Host "   Error al obtener polÃ­ticas de seguridad locales: $_" -ForegroundColor Red
         }
-
-
+        
+        # PolÃ­ticas de auditorÃ­a
         try {
             $auditPolicies = auditpol /get /category:* 2>$null
             if ($auditPolicies) {
@@ -1212,46 +1206,46 @@ function Get-AnalisisPoliticasLocales {
                     } elseif ($line -match "^\s+(.+?)\s+(Success and Failure|Success|Failure|No Auditing)$") {
                         $auditType = $matches[1].Trim()
                         $auditSetting = $matches[2].Trim()
-
+                        
                         $politicasLocales += [PSCustomObject]@{
                             Politica = $auditType
                             Valor = $auditSetting
                             Configuracion = $auditType
-                            Categoria = "Auditoría - $currentCategory"
+                            Categoria = "AuditorÃ­a - $currentCategory"
                         }
                     }
                 }
             }
         } catch {
-            Write-Host "   Error al obtener políticas de auditoría: $_" -ForegroundColor Red
+            Write-Host "   Error al obtener polÃ­ticas de auditorÃ­a: $_" -ForegroundColor Red
         }
-
+        
         return $politicasLocales
-
+        
     } catch {
-        Write-Warning "Error al obtener políticas locales: $_"
+        Write-Warning "Error al obtener polÃ­ticas locales: $_"
         return @()
     }
 }
 
-
+# NUEVA FUNCIÃ“N: VerificaciÃ³n de Cumplimiento (CIS Benchmarks bÃ¡sicos)
 function Get-VerificacionCumplimiento {
     try {
-        Write-Progress -Activity "Verificando cumplimiento con estándares de seguridad" -PercentComplete 65
+        Write-Progress -Activity "Verificando cumplimiento con estÃ¡ndares de seguridad" -PercentComplete 65
         Write-Host "   Verificando cumplimiento con CIS Benchmarks..." -ForegroundColor Yellow
-
+        
         $verificaciones = @()
-
-
-        Write-Host "   Verificando políticas de contraseña..." -ForegroundColor Yellow
-
-
+        
+        # 1. VERIFICACIONES DE POLÃTICAS DE CONTRASEÃ‘A
+        Write-Host "   Verificando polÃ­ticas de contraseÃ±a..." -ForegroundColor Yellow
+        
+        # Obtener polÃ­ticas de contraseÃ±a actuales
         $passwordPolicy = net accounts 2>$null
         $minPasswordLength = 0
         $maxPasswordAge = 0
         $minPasswordAge = 0
         $passwordComplexity = $false
-
+        
         if ($passwordPolicy) {
             foreach ($line in $passwordPolicy) {
                 if ($line -match "Minimum password length:\s*(\d+)") {
@@ -1263,8 +1257,8 @@ function Get-VerificacionCumplimiento {
                 }
             }
         }
-
-
+        
+        # Verificar complejidad de contraseÃ±a
         try {
             $secpol = secedit /export /cfg "$env:TEMP\secpol_check.cfg" 2>$null
             if (Test-Path "$env:TEMP\secpol_check.cfg") {
@@ -1276,68 +1270,68 @@ function Get-VerificacionCumplimiento {
                 Remove-Item "$env:TEMP\secpol_check.cfg" -Force -ErrorAction SilentlyContinue
             }
         } catch {}
-
-
+        
+        # CIS 1.1.1 - Enforce password history
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.1.1"
             Descripcion = "Enforce password history: 24 or more passwords remembered"
-            Categoria = "Políticas de Contraseña"
+            Categoria = "PolÃ­ticas de ContraseÃ±a"
             EstadoActual = "Verificar manualmente"
-            Recomendacion = "24 o más contraseñas"
+            Recomendacion = "24 o mÃ¡s contraseÃ±as"
             Cumple = "Pendiente"
             Criticidad = "Media"
         }
-
-
+        
+        # CIS 1.1.2 - Maximum password age
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.1.2"
             Descripcion = "Maximum password age: 365 or fewer days"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "$maxPasswordAge días"
-            Recomendacion = "365 días o menos"
-            Cumple = if ($maxPasswordAge -le 365 -and $maxPasswordAge -gt 0) { "Sí" } else { "No" }
+            Categoria = "PolÃ­ticas de ContraseÃ±a"
+            EstadoActual = "$maxPasswordAge dÃ­as"
+            Recomendacion = "365 dÃ­as o menos"
+            Cumple = if ($maxPasswordAge -le 365 -and $maxPasswordAge -gt 0) { "SÃ­" } else { "No" }
             Criticidad = "Media"
         }
-
-
+        
+        # CIS 1.1.3 - Minimum password age
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.1.3"
             Descripcion = "Minimum password age: 1 or more days"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "$minPasswordAge días"
-            Recomendacion = "1 día o más"
-            Cumple = if ($minPasswordAge -ge 1) { "Sí" } else { "No" }
+            Categoria = "PolÃ­ticas de ContraseÃ±a"
+            EstadoActual = "$minPasswordAge dÃ­as"
+            Recomendacion = "1 dÃ­a o mÃ¡s"
+            Cumple = if ($minPasswordAge -ge 1) { "SÃ­" } else { "No" }
             Criticidad = "Baja"
         }
-
-
+        
+        # CIS 1.1.4 - Minimum password length
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.1.4"
             Descripcion = "Minimum password length: 14 or more characters"
-            Categoria = "Políticas de Contraseña"
+            Categoria = "PolÃ­ticas de ContraseÃ±a"
             EstadoActual = "$minPasswordLength caracteres"
-            Recomendacion = "14 caracteres o más"
-            Cumple = if ($minPasswordLength -ge 14) { "Sí" } else { "No" }
+            Recomendacion = "14 caracteres o mÃ¡s"
+            Cumple = if ($minPasswordLength -ge 14) { "SÃ­" } else { "No" }
             Criticidad = "Alta"
         }
-
-
+        
+        # CIS 1.1.5 - Password complexity
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.1.5"
             Descripcion = "Password must meet complexity requirements"
-            Categoria = "Políticas de Contraseña"
+            Categoria = "PolÃ­ticas de ContraseÃ±a"
             EstadoActual = if ($passwordComplexity) { "Habilitado" } else { "Deshabilitado" }
             Recomendacion = "Habilitado"
-            Cumple = if ($passwordComplexity) { "Sí" } else { "No" }
+            Cumple = if ($passwordComplexity) { "SÃ­" } else { "No" }
             Criticidad = "Alta"
         }
-
-
-        Write-Host "   Verificando políticas de bloqueo de cuenta..." -ForegroundColor Yellow
-
+        
+        # 2. VERIFICACIONES DE POLÃTICAS DE BLOQUEO DE CUENTA
+        Write-Host "   Verificando polÃ­ticas de bloqueo de cuenta..." -ForegroundColor Yellow
+        
         $lockoutThreshold = 0
         $lockoutDuration = 0
-
+        
         if ($passwordPolicy) {
             foreach ($line in $passwordPolicy) {
                 if ($line -match "Lockout threshold:\s*(\d+)") {
@@ -1347,33 +1341,33 @@ function Get-VerificacionCumplimiento {
                 }
             }
         }
-
-
+        
+        # CIS 1.2.1 - Account lockout threshold
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.2.1"
             Descripcion = "Account lockout threshold: 5 or fewer invalid attempts"
-            Categoria = "Políticas de Bloqueo"
+            Categoria = "PolÃ­ticas de Bloqueo"
             EstadoActual = if ($lockoutThreshold -eq 0) { "Sin bloqueo" } else { "$lockoutThreshold intentos" }
             Recomendacion = "5 intentos o menos"
-            Cumple = if ($lockoutThreshold -gt 0 -and $lockoutThreshold -le 5) { "Sí" } else { "No" }
+            Cumple = if ($lockoutThreshold -gt 0 -and $lockoutThreshold -le 5) { "SÃ­" } else { "No" }
             Criticidad = "Media"
         }
-
-
+        
+        # CIS 1.2.2 - Account lockout duration
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-1.2.2"
             Descripcion = "Account lockout duration: 15 or more minutes"
-            Categoria = "Políticas de Bloqueo"
+            Categoria = "PolÃ­ticas de Bloqueo"
             EstadoActual = "$lockoutDuration minutos"
-            Recomendacion = "15 minutos o más"
-            Cumple = if ($lockoutDuration -ge 15) { "Sí" } else { "No" }
+            Recomendacion = "15 minutos o mÃ¡s"
+            Cumple = if ($lockoutDuration -ge 15) { "SÃ­" } else { "No" }
             Criticidad = "Media"
         }
-
-
-        Write-Host "   Verificando servicios y características de seguridad..." -ForegroundColor Yellow
-
-
+        
+        # 3. VERIFICACIONES DE SERVICIOS Y CARACTERÃSTICAS
+        Write-Host "   Verificando servicios y caracterÃ­sticas de seguridad..." -ForegroundColor Yellow
+        
+        # Windows Defender
         $defenderStatus = Get-MpComputerStatus -ErrorAction SilentlyContinue
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-18.9.39.1"
@@ -1381,11 +1375,11 @@ function Get-VerificacionCumplimiento {
             Categoria = "Antivirus"
             EstadoActual = if ($defenderStatus -and $defenderStatus.RealTimeProtectionEnabled) { "Habilitado" } else { "Deshabilitado" }
             Recomendacion = "Habilitado"
-            Cumple = if ($defenderStatus -and $defenderStatus.RealTimeProtectionEnabled) { "Sí" } else { "No" }
+            Cumple = if ($defenderStatus -and $defenderStatus.RealTimeProtectionEnabled) { "SÃ­" } else { "No" }
             Criticidad = "Alta"
         }
-
-
+        
+        # Windows Firewall
         $firewallProfiles = Get-NetFirewallProfile -ErrorAction SilentlyContinue
         foreach ($profile in $firewallProfiles) {
             $verificaciones += [PSCustomObject]@{
@@ -1394,35 +1388,35 @@ function Get-VerificacionCumplimiento {
                 Categoria = "Firewall"
                 EstadoActual = if ($profile.Enabled) { "Habilitado" } else { "Deshabilitado" }
                 Recomendacion = "Habilitado"
-                Cumple = if ($profile.Enabled) { "Sí" } else { "No" }
+                Cumple = if ($profile.Enabled) { "SÃ­" } else { "No" }
                 Criticidad = "Alta"
             }
         }
-
-
+        
+        # UAC
         $uacSettings = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -ErrorAction SilentlyContinue
         $uacEnabled = $uacSettings.EnableLUA -eq 1
-
+        
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-2.3.17.1"
             Descripcion = "User Account Control: Admin Approval Mode for Built-in Administrator"
             Categoria = "Control de Acceso"
             EstadoActual = if ($uacEnabled) { "Habilitado" } else { "Deshabilitado" }
             Recomendacion = "Habilitado"
-            Cumple = if ($uacEnabled) { "Sí" } else { "No" }
+            Cumple = if ($uacEnabled) { "SÃ­" } else { "No" }
             Criticidad = "Alta"
         }
-
-
-        Write-Host "   Verificando configuración de auditoría..." -ForegroundColor Yellow
-
+        
+        # 4. VERIFICACIONES DE AUDITORÃA
+        Write-Host "   Verificando configuraciÃ³n de auditorÃ­a..." -ForegroundColor Yellow
+        
         $auditCategories = @(
             @{ Name = "Logon/Logoff"; ID = "CIS-17.1" },
             @{ Name = "Account Management"; ID = "CIS-17.2" },
             @{ Name = "Privilege Use"; ID = "CIS-17.3" },
             @{ Name = "System"; ID = "CIS-17.4" }
         )
-
+        
         try {
             $auditPol = auditpol /get /category:* 2>$null
             foreach ($category in $auditCategories) {
@@ -1433,72 +1427,72 @@ function Get-VerificacionCumplimiento {
                         $auditEnabled = $true
                     }
                 }
-
+                
                 $verificaciones += [PSCustomObject]@{
                     ID = $category.ID
                     Descripcion = "Audit $($category.Name) events"
-                    Categoria = "Auditoría"
+                    Categoria = "AuditorÃ­a"
                     EstadoActual = if ($auditEnabled) { "Configurado" } else { "No configurado" }
                     Recomendacion = "Success and Failure"
-                    Cumple = if ($auditEnabled) { "Sí" } else { "No" }
+                    Cumple = if ($auditEnabled) { "SÃ­" } else { "No" }
                     Criticidad = "Media"
                 }
             }
         } catch {
-            Write-Host "   Error al verificar auditoría: $_" -ForegroundColor Red
+            Write-Host "   Error al verificar auditorÃ­a: $_" -ForegroundColor Red
         }
-
-
+        
+        # 5. VERIFICACIONES DE REGISTRO
         Write-Host "   Verificando configuraciones del registro..." -ForegroundColor Yellow
-
-
+        
+        # SMB v1
         $smbv1Enabled = $false
         try {
             $smbv1Feature = Get-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -ErrorAction SilentlyContinue
             $smbv1Enabled = $smbv1Feature -and $smbv1Feature.State -eq "Enabled"
         } catch {
-
+            # MÃ©todo alternativo para versiones mÃ¡s antiguas
             $smbv1Reg = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\mrxsmb10" -Name "Start" -ErrorAction SilentlyContinue
             $smbv1Enabled = $smbv1Reg -and $smbv1Reg.Start -ne 4
         }
-
+        
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-18.3.1"
             Descripcion = "SMB v1 protocol disabled"
             Categoria = "Protocolos de Red"
             EstadoActual = if ($smbv1Enabled) { "Habilitado" } else { "Deshabilitado" }
             Recomendacion = "Deshabilitado"
-            Cumple = if (-not $smbv1Enabled) { "Sí" } else { "No" }
+            Cumple = if (-not $smbv1Enabled) { "SÃ­" } else { "No" }
             Criticidad = "Alta"
         }
-
-
+        
+        # Remote Desktop
         $rdpEnabled = $false
         try {
             $rdpSetting = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -ErrorAction SilentlyContinue
             $rdpEnabled = $rdpSetting -and $rdpSetting.fDenyTSConnections -eq 0
         } catch {}
-
+        
         $verificaciones += [PSCustomObject]@{
             ID = "CIS-18.9.48.3.1"
             Descripcion = "Remote Desktop connections security"
             Categoria = "Acceso Remoto"
             EstadoActual = if ($rdpEnabled) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Configurado según necesidad"
+            Recomendacion = "Configurado segÃºn necesidad"
             Cumple = "Revisar"
             Criticidad = "Media"
         }
-
-
+        
+        # 6. RESUMEN DE CUMPLIMIENTO
         $totalVerificaciones = $verificaciones.Count
-        $cumpleCompleto = ($verificaciones | Where-Object { $_.Cumple -eq "Sí" }).Count
+        $cumpleCompleto = ($verificaciones | Where-Object { $_.Cumple -eq "SÃ­" }).Count
         $noCumple = ($verificaciones | Where-Object { $_.Cumple -eq "No" }).Count
         $pendienteRevision = ($verificaciones | Where-Object { $_.Cumple -in @("Pendiente", "Revisar") }).Count
-
+        
         $porcentajeCumplimiento = if ($totalVerificaciones -gt 0) {
             [math]::Round(($cumpleCompleto / $totalVerificaciones) * 100, 1)
         } else { 0 }
-
+        
         $resumenCumplimiento = @{
             TotalVerificaciones = $totalVerificaciones
             Cumple = $cumpleCompleto
@@ -1513,27 +1507,27 @@ function Get-VerificacionCumplimiento {
                 default { "Deficiente" }
             }
         }
-
+        
         return @{
             Verificaciones = $verificaciones
             ResumenCumplimiento = $resumenCumplimiento
         }
-
+        
     } catch {
-        Write-Warning "Error en verificación de cumplimiento: $_"
+        Write-Warning "Error en verificaciÃ³n de cumplimiento: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
-
+# NUEVA FUNCIÃ“N: AnÃ¡lisis de Permisos de Carpetas Sensibles
 function Get-AnalisisPermisos {
     try {
         Write-Progress -Activity "Analizando permisos de carpetas sensibles" -PercentComplete 70
         Write-Host "   Analizando permisos de carpetas sensibles..." -ForegroundColor Yellow
-
+        
         $analisisPermisos = @()
-
-
+        
+        # Definir carpetas sensibles del sistema
         $carpetasSensibles = @(
             @{ Ruta = "C:\Windows\System32"; Descripcion = "Archivos del sistema Windows" },
             @{ Ruta = "C:\Windows\SysWOW64"; Descripcion = "Archivos del sistema Windows (32-bit)" },
@@ -1541,11 +1535,11 @@ function Get-AnalisisPermisos {
             @{ Ruta = "C:\Program Files (x86)"; Descripcion = "Programas instalados (32-bit)" },
             @{ Ruta = "C:\Windows\Temp"; Descripcion = "Archivos temporales del sistema" },
             @{ Ruta = "C:\ProgramData"; Descripcion = "Datos de aplicaciones" },
-            @{ Ruta = "C:\Users\Public"; Descripcion = "Carpeta pública de usuarios" },
+            @{ Ruta = "C:\Users\Public"; Descripcion = "Carpeta pÃºblica de usuarios" },
             @{ Ruta = "C:\inetpub"; Descripcion = "Sitios web IIS" }
         )
-
-
+        
+        # Agregar carpetas compartidas
         try {
             $carpetasCompartidas = Get-SmbShare -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne "IPC$" -and $_.Name -ne "ADMIN$" -and $_.Name -notlike "*$" }
             foreach ($share in $carpetasCompartidas) {
@@ -1554,51 +1548,51 @@ function Get-AnalisisPermisos {
         } catch {
             Write-Host "   No se pudieron obtener carpetas compartidas" -ForegroundColor Yellow
         }
-
+        
         foreach ($carpeta in $carpetasSensibles) {
             try {
                 if (Test-Path $carpeta.Ruta) {
                     Write-Host "   Analizando: $($carpeta.Ruta)" -ForegroundColor Yellow
-
-
+                    
+                    # Obtener ACL de la carpeta
                     $acl = Get-Acl $carpeta.Ruta -ErrorAction SilentlyContinue
-
+                    
                     if ($acl) {
                         $permisosProblematicos = @()
                         $permisosNormales = @()
-
+                        
                         foreach ($access in $acl.Access) {
                             $usuario = $access.IdentityReference.Value
                             $permisos = $access.FileSystemRights.ToString()
                             $tipo = $access.AccessControlType.ToString()
                             $herencia = $access.IsInherited
-
-
+                            
+                            # Identificar permisos problemÃ¡ticos
                             $esProblematico = $false
                             $razon = ""
-
-
+                            
+                            # Verificar si Everyone o Users tienen permisos excesivos
                             if ($usuario -match "(Everyone|Users|Authenticated Users)" -and $tipo -eq "Allow") {
                                 if ($permisos -match "(FullControl|Modify|Write)" -and $carpeta.Ruta -match "(System32|Program Files|Windows)") {
                                     $esProblematico = $true
                                     $razon = "Permisos excesivos para grupo amplio en carpeta del sistema"
                                 }
                             }
-
-
+                            
+                            # Verificar permisos de escritura en carpetas del sistema
                             if ($permisos -match "(Write|Modify|FullControl)" -and $tipo -eq "Allow" -and $carpeta.Ruta -match "(System32|SysWOW64)") {
                                 if ($usuario -notmatch "(SYSTEM|Administrators|TrustedInstaller)") {
                                     $esProblematico = $true
-                                    $razon = "Permisos de escritura en carpeta crítica del sistema"
+                                    $razon = "Permisos de escritura en carpeta crÃ­tica del sistema"
                                 }
                             }
-
-
+                            
+                            # Verificar permisos en carpetas temporales
                             if ($carpeta.Ruta -match "Temp" -and $permisos -match "FullControl" -and $usuario -match "Everyone") {
                                 $esProblematico = $true
                                 $razon = "Control total para Everyone en carpeta temporal"
                             }
-
+                            
                             $permisoObj = [PSCustomObject]@{
                                 Usuario = $usuario
                                 Permisos = $permisos
@@ -1607,14 +1601,14 @@ function Get-AnalisisPermisos {
                                 Problematico = $esProblematico
                                 Razon = $razon
                             }
-
+                            
                             if ($esProblematico) {
                                 $permisosProblematicos += $permisoObj
                             } else {
                                 $permisosNormales += $permisoObj
                             }
                         }
-
+                        
                         $analisisPermisos += [PSCustomObject]@{
                             Ruta = $carpeta.Ruta
                             Descripcion = $carpeta.Descripcion
@@ -1623,9 +1617,9 @@ function Get-AnalisisPermisos {
                             PermisosNormales = $permisosNormales
                             TotalPermisos = $acl.Access.Count
                             PermisosProblematicosCount = $permisosProblematicos.Count
-                            Estado = if ($permisosProblematicos.Count -eq 0) { "Normal" }
-                                    elseif ($permisosProblematicos.Count -le 2) { "Advertencia" }
-                                    else { "Crítico" }
+                            Estado = if ($permisosProblematicos.Count -eq 0) { "Normal" } 
+                                    elseif ($permisosProblematicos.Count -le 2) { "Advertencia" } 
+                                    else { "CrÃ­tico" }
                         }
                     }
                 } else {
@@ -1641,19 +1635,19 @@ function Get-AnalisisPermisos {
                 }
             }
         }
-
-
+        
+        # Resumen del anÃ¡lisis de permisos
         $totalCarpetas = $analisisPermisos.Count
-        $carpetasConProblemas = ($analisisPermisos | Where-Object { $_.Estado -in @("Advertencia", "Crítico") }).Count
-        $carpetasCriticas = ($analisisPermisos | Where-Object { $_.Estado -eq "Crítico" }).Count
-
+        $carpetasConProblemas = ($analisisPermisos | Where-Object { $_.Estado -in @("Advertencia", "CrÃ­tico") }).Count
+        $carpetasCriticas = ($analisisPermisos | Where-Object { $_.Estado -eq "CrÃ­tico" }).Count
+        
         $resumenPermisos = @{
             TotalCarpetasAnalizadas = $totalCarpetas
             CarpetasConProblemas = $carpetasConProblemas
             CarpetasCriticas = $carpetasCriticas
             CarpetasNormales = $totalCarpetas - $carpetasConProblemas
-            PorcentajeSeguras = if ($totalCarpetas -gt 0) {
-                [math]::Round((($totalCarpetas - $carpetasConProblemas) / $totalCarpetas) * 100, 1)
+            PorcentajeSeguras = if ($totalCarpetas -gt 0) { 
+                [math]::Round((($totalCarpetas - $carpetasConProblemas) / $totalCarpetas) * 100, 1) 
             } else { 0 }
             NivelSeguridad = switch ($carpetasCriticas) {
                 0 { if ($carpetasConProblemas -eq 0) { "Excelente" } else { "Bueno" } }
@@ -1661,64 +1655,64 @@ function Get-AnalisisPermisos {
                 default { "Deficiente" }
             }
         }
-
+        
         return @{
             AnalisisPermisos = $analisisPermisos
             ResumenPermisos = $resumenPermisos
         }
-
+        
     } catch {
-        Write-Warning "Error en análisis de permisos: $_"
+        Write-Warning "Error en anÃ¡lisis de permisos: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
 
-
+# NUEVA FUNCIÃ“N: AuditorÃ­a de Software Instalado
 function Get-AuditoriaSoftware {
     try {
-        Write-Progress -Activity "Realizando auditoría de software instalado" -PercentComplete 75
+        Write-Progress -Activity "Realizando auditorÃ­a de software instalado" -PercentComplete 75
         Write-Host "   Auditando software instalado..." -ForegroundColor Yellow
-
+        
         $softwareInstalado = @()
         $softwareProblematico = @()
-
-
+        
+        # 1. OBTENER SOFTWARE INSTALADO DESDE EL REGISTRO
         Write-Host "   Obteniendo lista de software instalado..." -ForegroundColor Yellow
-
+        
         $registryPaths = @(
             "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
             "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
         )
-
+        
         foreach ($path in $registryPaths) {
             try {
-                $installedSoftware = Get-ItemProperty $path -ErrorAction SilentlyContinue |
+                $installedSoftware = Get-ItemProperty $path -ErrorAction SilentlyContinue | 
                                    Where-Object { $_.DisplayName -and $_.DisplayName -notmatch "^(KB|Update for)" }
-
+                
                 foreach ($software in $installedSoftware) {
                     $nombre = $software.DisplayName
                     $version = $software.DisplayVersion
                     $fabricante = $software.Publisher
                     $fechaInstalacion = $software.InstallDate
-                    $tamaño = $software.EstimatedSize
-
-
+                    $tamaÃ±o = $software.EstimatedSize
+                    
+                    # Convertir fecha de instalaciÃ³n
                     $fechaInstalacionFormateada = "No disponible"
                     if ($fechaInstalacion -and $fechaInstalacion -match "^\d{8}$") {
                         try {
                             $fechaInstalacionFormateada = [DateTime]::ParseExact($fechaInstalacion, "yyyyMMdd", $null).ToString("dd/MM/yyyy")
                         } catch {}
                     }
-
-
-                    $tamañoMB = if ($tamaño) { [math]::Round($tamaño / 1024, 2) } else { 0 }
-
+                    
+                    # Convertir tamaÃ±o
+                    $tamaÃ±oMB = if ($tamaÃ±o) { [math]::Round($tamaÃ±o / 1024, 2) } else { 0 }
+                    
                     $softwareInstalado += [PSCustomObject]@{
                         Nombre = $nombre
                         Version = $version
                         Fabricante = $fabricante
                         FechaInstalacion = $fechaInstalacionFormateada
-                        TamañoMB = $tamañoMB
+                        TamaÃ±oMB = $tamaÃ±oMB
                         RegistryPath = $software.PSPath
                     }
                 }
@@ -1726,16 +1720,16 @@ function Get-AuditoriaSoftware {
                 Write-Host "   Error al leer registro: $_" -ForegroundColor Red
             }
         }
-
-
+        
+        # Eliminar duplicados
         $softwareInstalado = $softwareInstalado | Sort-Object Nombre, Version | Get-Unique -AsString
-
+        
         Write-Host "   Se encontraron $($softwareInstalado.Count) programas instalados" -ForegroundColor Yellow
-
-
-        Write-Host "   Identificando software problemático..." -ForegroundColor Yellow
-
-
+        
+        # 2. IDENTIFICAR SOFTWARE PROBLEMÃTICO
+        Write-Host "   Identificando software problemÃ¡tico..." -ForegroundColor Yellow
+        
+        # Lista de software conocido como problemÃ¡tico o desactualizado
         $softwareProblemas = @(
             @{ Nombre = "Adobe Flash Player"; Razon = "Software descontinuado y vulnerable"; Criticidad = "Alta" },
             @{ Nombre = "Java"; VersionMinima = "8.0.300"; Razon = "Versiones antiguas de Java son vulnerables"; Criticidad = "Alta" },
@@ -1743,51 +1737,51 @@ function Get-AuditoriaSoftware {
             @{ Nombre = "VLC media player"; VersionMinima = "3.0.16"; Razon = "Versiones antiguas pueden tener vulnerabilidades"; Criticidad = "Baja" },
             @{ Nombre = "WinRAR"; VersionMinima = "6.0"; Razon = "Versiones antiguas tienen vulnerabilidades conocidas"; Criticidad = "Media" },
             @{ Nombre = "7-Zip"; VersionMinima = "21.0"; Razon = "Versiones antiguas pueden ser vulnerables"; Criticidad = "Baja" },
-            @{ Nombre = "Google Chrome"; Razon = "Verificar que esté actualizado"; Criticidad = "Media" },
-            @{ Nombre = "Mozilla Firefox"; Razon = "Verificar que esté actualizado"; Criticidad = "Media" },
+            @{ Nombre = "Google Chrome"; Razon = "Verificar que estÃ© actualizado"; Criticidad = "Media" },
+            @{ Nombre = "Mozilla Firefox"; Razon = "Verificar que estÃ© actualizado"; Criticidad = "Media" },
             @{ Nombre = "Internet Explorer"; Razon = "Navegador descontinuado"; Criticidad = "Alta" }
         )
-
-
+        
+        # Software sin soporte conocido
         $softwareSinSoporte = @(
-            "Windows XP", "Windows Vista", "Windows 7", "Office 2010", "Office 2013",
+            "Windows XP", "Windows Vista", "Windows 7", "Office 2010", "Office 2013", 
             "Adobe Flash", "Internet Explorer", "Silverlight"
         )
-
+        
         foreach ($software in $softwareInstalado) {
             $problemas = @()
-
-
+            
+            # Verificar si estÃ¡ en la lista de software problemÃ¡tico
             foreach ($problema in $softwareProblemas) {
                 if ($software.Nombre -like "*$($problema.Nombre)*") {
                     if ($problema.VersionMinima) {
-
+                        # Comparar versiones (simplificado)
                         $versionActual = $software.Version
                         if ($versionActual) {
                             try {
                                 $versionActualNum = [Version]$versionActual.Split(' ')[0]
                                 $versionMinimaNum = [Version]$problema.VersionMinima
-
+                                
                                 if ($versionActualNum -lt $versionMinimaNum) {
                                     $problemas += @{
-                                        Tipo = "Versión desactualizada"
+                                        Tipo = "VersiÃ³n desactualizada"
                                         Descripcion = $problema.Razon
                                         Criticidad = $problema.Criticidad
-                                        Recomendacion = "Actualizar a versión $($problema.VersionMinima) o superior"
+                                        Recomendacion = "Actualizar a versiÃ³n $($problema.VersionMinima) o superior"
                                     }
                                 }
                             } catch {
                                 $problemas += @{
-                                    Tipo = "Verificación de versión"
-                                    Descripcion = "No se pudo verificar la versión automáticamente"
+                                    Tipo = "VerificaciÃ³n de versiÃ³n"
+                                    Descripcion = "No se pudo verificar la versiÃ³n automÃ¡ticamente"
                                     Criticidad = "Baja"
-                                    Recomendacion = "Verificar manualmente la versión"
+                                    Recomendacion = "Verificar manualmente la versiÃ³n"
                                 }
                             }
                         }
                     } else {
                         $problemas += @{
-                            Tipo = "Software problemático"
+                            Tipo = "Software problemÃ¡tico"
                             Descripcion = $problema.Razon
                             Criticidad = $problema.Criticidad
                             Recomendacion = "Considerar desinstalar o reemplazar"
@@ -1795,46 +1789,46 @@ function Get-AuditoriaSoftware {
                     }
                 }
             }
-
-
+            
+            # Verificar software sin soporte
             foreach ($sinSoporte in $softwareSinSoporte) {
                 if ($software.Nombre -like "*$sinSoporte*") {
                     $problemas += @{
                         Tipo = "Sin soporte"
                         Descripcion = "Software sin soporte del fabricante"
                         Criticidad = "Alta"
-                        Recomendacion = "Migrar a versión soportada"
+                        Recomendacion = "Migrar a versiÃ³n soportada"
                     }
                 }
             }
-
-
+            
+            # Verificar software muy antiguo (mÃ¡s de 5 aÃ±os)
             if ($software.FechaInstalacion -ne "No disponible") {
                 try {
                     $fechaInstalacion = [DateTime]::ParseExact($software.FechaInstalacion, "dd/MM/yyyy", $null)
-                    $añosAntiguedad = ((Get-Date) - $fechaInstalacion).Days / 365
-
-                    if ($añosAntiguedad -gt 5) {
+                    $aÃ±osAntiguedad = ((Get-Date) - $fechaInstalacion).Days / 365
+                    
+                    if ($aÃ±osAntiguedad -gt 5) {
                         $problemas += @{
                             Tipo = "Software muy antiguo"
-                            Descripcion = "Instalado hace más de 5 años"
+                            Descripcion = "Instalado hace mÃ¡s de 5 aÃ±os"
                             Criticidad = "Baja"
                             Recomendacion = "Verificar si hay actualizaciones disponibles"
                         }
                     }
                 } catch {}
             }
-
-
+            
+            # Verificar software sin fabricante conocido
             if (-not $software.Fabricante -or $software.Fabricante -eq "") {
                 $problemas += @{
                     Tipo = "Fabricante desconocido"
-                    Descripcion = "Software sin información del fabricante"
+                    Descripcion = "Software sin informaciÃ³n del fabricante"
                     Criticidad = "Media"
                     Recomendacion = "Verificar la legitimidad del software"
                 }
             }
-
+            
             if ($problemas.Count -gt 0) {
                 $softwareProblematico += [PSCustomObject]@{
                     Nombre = $software.Nombre
@@ -1842,27 +1836,27 @@ function Get-AuditoriaSoftware {
                     Fabricante = $software.Fabricante
                     FechaInstalacion = $software.FechaInstalacion
                     Problemas = $problemas
-                    CriticidadMaxima = ($problemas | ForEach-Object { $_.Criticidad } | Sort-Object {
-                        switch ($_) { "Alta" { 3 } "Media" { 2 } "Baja" { 1 } default { 0 } }
+                    CriticidadMaxima = ($problemas | ForEach-Object { $_.Criticidad } | Sort-Object { 
+                        switch ($_) { "Alta" { 3 } "Media" { 2 } "Baja" { 1 } default { 0 } } 
                     } -Descending)[0]
                 }
             }
         }
-
-
+        
+        # 3. ANÃLISIS DE NAVEGADORES Y PLUGINS
         Write-Host "   Analizando navegadores y plugins..." -ForegroundColor Yellow
-
-        $navegadores = $softwareInstalado | Where-Object {
-            $_.Nombre -match "(Chrome|Firefox|Edge|Internet Explorer|Opera|Safari)"
+        
+        $navegadores = $softwareInstalado | Where-Object { 
+            $_.Nombre -match "(Chrome|Firefox|Edge|Internet Explorer|Opera|Safari)" 
         }
-
-
+        
+        # 4. RESUMEN DE AUDITORÃA
         $totalSoftware = $softwareInstalado.Count
         $softwareConProblemas = $softwareProblematico.Count
         $softwareCritico = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Alta" }).Count
         $softwareMedia = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Media" }).Count
         $softwareBaja = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Baja" }).Count
-
+        
         $resumenAuditoria = @{
             TotalSoftwareInstalado = $totalSoftware
             SoftwareConProblemas = $softwareConProblemas
@@ -1870,8 +1864,8 @@ function Get-AuditoriaSoftware {
             SoftwareRiesgoMedio = $softwareMedia
             SoftwareRiesgoBajo = $softwareBaja
             SoftwareSeguro = $totalSoftware - $softwareConProblemas
-            PorcentajeSeguro = if ($totalSoftware -gt 0) {
-                [math]::Round((($totalSoftware - $softwareConProblemas) / $totalSoftware) * 100, 1)
+            PorcentajeSeguro = if ($totalSoftware -gt 0) { 
+                [math]::Round((($totalSoftware - $softwareConProblemas) / $totalSoftware) * 100, 1) 
             } else { 0 }
             NivelRiesgo = switch ($softwareCritico) {
                 0 { if ($softwareMedia -eq 0) { "Bajo" } else { "Medio" } }
@@ -1879,16 +1873,16 @@ function Get-AuditoriaSoftware {
                 default { "Alto" }
             }
         }
-
+        
         return @{
             SoftwareInstalado = $softwareInstalado
             SoftwareProblematico = $softwareProblematico
             Navegadores = $navegadores
             ResumenAuditoria = $resumenAuditoria
         }
-
+        
     } catch {
-        Write-Warning "Error en auditoría de software: $_"
+        Write-Warning "Error en auditorÃ­a de software: $_"
         return @{ Error = $_.Exception.Message }
     }
 }
@@ -1898,61 +1892,61 @@ function Get-DatosExtendidos {
         [bool]$ParchesFaltantes = $false,
         [bool]$RevisarServicioTerceros = $false
     )
-
+    
     try {
         Write-Progress -Activity "Recopilando datos extendidos completos" -PercentComplete 40
-
+        
         $datos = @{}
-
-
+        
+        # 1. PARCHES - Ãšltimos instalados + Faltantes (si se solicita)
         Write-Host "   Analizando parches del sistema..." -ForegroundColor Yellow
-        $datos.UltimosParches = Get-HotFix | Sort-Object InstalledOn -Descending |
+        $datos.UltimosParches = Get-HotFix | Sort-Object InstalledOn -Descending | 
                                Select-Object -First 15 HotFixID, Description, InstalledOn, InstalledBy
-
+        
         if ($ParchesFaltantes) {
             try {
                 Write-Host "   Verificando parches faltantes..." -ForegroundColor Yellow
                 $updateSession = New-Object -ComObject Microsoft.Update.Session
                 $updateSearcher = $updateSession.CreateUpdateSearcher()
                 $searchResult = $updateSearcher.Search("IsInstalled=0 and Type='Software'")
-
+                
                 $datos.ParchesFaltantes = @()
                 for ($i = 0; $i -lt $searchResult.Updates.Count; $i++) {
                     $update = $searchResult.Updates.Item($i)
                     $datos.ParchesFaltantes += @{
                         Titulo = $update.Title
                         Descripcion = $update.Description.Substring(0,[Math]::Min(200,$update.Description.Length))
-                        Tamaño = [math]::Round($update.MaxDownloadSize / 1MB, 2)
+                        TamaÃ±o = [math]::Round($update.MaxDownloadSize / 1MB, 2)
                     }
                 }
             } catch {
                 $datos.ParchesFaltantes = @{ Error = "No se pudo verificar parches faltantes: $_" }
             }
         }
-
-
+        
+        # 2. SERVICIOS - AutomÃ¡ticos detenidos + Terceros (si se solicita)
         Write-Host "   Analizando servicios..." -ForegroundColor Yellow
         $serviciosDetenidos = Get-Service | Where-Object { $_.StartType -eq "Automatic" -and $_.Status -ne "Running" }
-
+        
         if ($RevisarServicioTerceros) {
-
-            $serviciosMicrosoft = @('Spooler', 'BITS', 'Themes', 'AudioSrv', 'Dnscache', 'eventlog', 'PlugPlay',
+            # Lista de servicios Microsoft conocidos (como respaldo)
+            $serviciosMicrosoft = @('Spooler', 'BITS', 'Themes', 'AudioSrv', 'Dnscache', 'eventlog', 'PlugPlay', 
                                     'RpcSs', 'lanmanserver', 'W32Time', 'Winmgmt', 'Schedule', 'LanmanWorkstation',
                                     'DHCP', 'Netlogon', 'PolicyAgent', 'TermService', 'UmRdpService', 'SessionEnv',
                                     'RemoteRegistry')
-
-
+            
+            # Usar anÃ¡lisis de fabricante del ejecutable para clasificaciÃ³n mÃ¡s precisa
             $datos.ServiciosDetenidos = foreach ($servicio in $serviciosDetenidos) {
-
+                # Obtener detalles del servicio mediante CIM
                 $servicioCIM = Get-CimInstance Win32_Service -Filter "Name='$($servicio.Name)'" -ErrorAction SilentlyContinue
                 $compania = "Desconocido"
                 $esMicrosoft = $false
-
-
+                
+                # Intentar determinar la compaÃ±Ã­a por el ejecutable del servicio
                 if ($servicioCIM -and $servicioCIM.PathName) {
                     if ($servicioCIM.PathName -match '"([^"]+)"' -or $servicioCIM.PathName -match '([^\s]+\.exe)') {
                         $exePath = $matches[1]
-
+                        
                         if (Test-Path $exePath -ErrorAction SilentlyContinue) {
                             $fileInfo = (Get-Item $exePath -ErrorAction SilentlyContinue).VersionInfo
                             if ($fileInfo.CompanyName) {
@@ -1962,12 +1956,12 @@ function Get-DatosExtendidos {
                         }
                     }
                 }
-
-
+                
+                # Si no se pudo determinar, usar la lista de servicios conocidos
                 if ($compania -eq "Desconocido") {
                     $esMicrosoft = $serviciosMicrosoft -contains $servicio.Name
                 }
-
+                
                 [PSCustomObject]@{
                     DisplayName = $servicio.DisplayName
                     Name = $servicio.Name
@@ -1981,50 +1975,50 @@ function Get-DatosExtendidos {
         } else {
             $datos.ServiciosDetenidos = $serviciosDetenidos | Select-Object DisplayName, Name, Status, StartType
         }
-
-
+        
+        # 3. TOP 5 PROCESOS por CPU y Memoria (ORIGINAL)
         Write-Host "   Analizando procesos con alto consumo..." -ForegroundColor Yellow
-        $datos.ProcesosCPU = Get-Process | Where-Object { $_.CPU -gt 0 } |
+        $datos.ProcesosCPU = Get-Process | Where-Object { $_.CPU -gt 0 } | 
                             Sort-Object CPU -Descending | Select-Object -First 5 |
-                            Select-Object Name, @{Name="CPU";Expression={[math]::Round($_.CPU,2)}}, Id,
+                            Select-Object Name, @{Name="CPU";Expression={[math]::Round($_.CPU,2)}}, Id, 
                                         @{Name="Memoria_MB";Expression={[math]::Round($_.WS/1MB,2)}}
-
+        
         $datos.ProcesosMemoria = Get-Process | Sort-Object WS -Descending | Select-Object -First 5 |
-                                Select-Object Name, @{Name="Memoria_MB";Expression={[math]::Round($_.WS/1MB,2)}},
+                                Select-Object Name, @{Name="Memoria_MB";Expression={[math]::Round($_.WS/1MB,2)}}, 
                                             Id, @{Name="CPU";Expression={[math]::Round($_.CPU,2)}}
-
-
+        
+        # 4. PUERTOS ABIERTOS (ORIGINAL)
         Write-Host "   Analizando puertos de red..." -ForegroundColor Yellow
         $datos.PuertosAbiertos = Get-NetTCPConnection | Where-Object { $_.State -eq "Listen" } |
                                 Select-Object LocalAddress, LocalPort, State, OwningProcess |
                                 Sort-Object LocalPort
-
-
+        
+        # 5. CONEXIONES ACTIVAS (ORIGINAL)
         $datos.ConexionesActivas = Get-NetTCPConnection | Where-Object { $_.State -eq "Established" } |
                                   Group-Object RemoteAddress | Select-Object Count, Name |
                                   Sort-Object Count -Descending | Select-Object -First 10
-
-
+        
+        # 6. USUARIOS LOCALES (ORIGINAL)
         Write-Host "   Analizando usuarios locales..." -ForegroundColor Yellow
-        $datos.UsuariosLocales = Get-LocalUser | Select-Object Name, Enabled,
+        $datos.UsuariosLocales = Get-LocalUser | Select-Object Name, Enabled, 
                                 @{Name="UltimoLogon";Expression={
                                     if($_.LastLogon -eq $null){"Nunca"}else{$_.LastLogon.ToString("dd/MM/yyyy HH:mm")}
                                 }},
                                 @{Name="PasswordExpires";Expression={
                                     if($_.PasswordExpires -eq $null){"Nunca"}else{$_.PasswordExpires.ToString("dd/MM/yyyy")}
                                 }}
-
-
+        
+        # 7. LOGINS FALLIDOS RECIENTES - TOP 5 (ORIGINAL)
         Write-Host "   Analizando intentos de login fallidos..." -ForegroundColor Yellow
-        $datos.LoginsFallidos = Get-WinEvent -LogName "Security" -FilterXPath "*[System[EventID=4625]]" -MaxEvents 5 -ErrorAction SilentlyContinue |
-                               Select-Object TimeCreated,
-                                           @{Name="Cuenta";Expression={$_.Properties[5].Value}},
+        $datos.LoginsFallidos = Get-WinEvent -LogName "Security" -FilterXPath "*[System[EventID=4625]]" -MaxEvents 5 -ErrorAction SilentlyContinue | 
+                               Select-Object TimeCreated, 
+                                           @{Name="Cuenta";Expression={$_.Properties[5].Value}}, 
                                            @{Name="IPOrigen";Expression={$_.Properties[19].Value}},
                                            @{Name="TipoFallo";Expression={$_.Properties[10].Value}}
-
-
+        
+        # 8. TAREAS PROGRAMADAS (ORIGINAL)
         Write-Host "   Analizando tareas programadas..." -ForegroundColor Yellow
-        $datos.TareasProgramadas = Get-ScheduledTask | Where-Object { $_.State -eq "Ready" } |
+        $datos.TareasProgramadas = Get-ScheduledTask | Where-Object { $_.State -eq "Ready" } | 
                                   Get-ScheduledTaskInfo | Select-Object -First 20 |
                                   Select-Object TaskName, LastRunTime, LastTaskResult,
                                               @{Name="Estado";Expression={
@@ -2035,31 +2029,31 @@ function Get-DatosExtendidos {
                                                       default { "Error ($($_.LastTaskResult))" }
                                                   }
                                               }}
-
-
-        Write-Host "   Verificando configuración SNMP..." -ForegroundColor Yellow
-        $datos.ServicioSNMP = Get-Service -Name "SNMP" -ErrorAction SilentlyContinue |
+        
+        # 9. INFORMACIÃ“N SNMP COMPLETA (ORIGINAL)
+        Write-Host "   Verificando configuraciÃ³n SNMP..." -ForegroundColor Yellow
+        $datos.ServicioSNMP = Get-Service -Name "SNMP" -ErrorAction SilentlyContinue | 
                              Select-Object Name, Status, StartType
-
+        
         $datos.ConfigSNMP = try {
             $snmpConfig = Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\SNMP\Parameters\ValidCommunities" -ErrorAction SilentlyContinue
             if ($snmpConfig) {
-                $snmpConfig.PSObject.Properties | Where-Object { $_.Name -notmatch "^PS" } |
+                $snmpConfig.PSObject.Properties | Where-Object { $_.Name -notmatch "^PS" } | 
                 Select-Object Name, Value
             } else {
                 @{ Info = "No hay comunidades SNMP configuradas" }
             }
         } catch {
-            @{ Error = "No se pudo obtener configuración SNMP" }
+            @{ Error = "No se pudo obtener configuraciÃ³n SNMP" }
         }
-
-        Write-Host "   Analizando rendimiento de discos físicos..." -ForegroundColor Yellow
+        
+        Write-Host "   Analizando rendimiento de discos fÃ­sicos..." -ForegroundColor Yellow
         $datos.RendimientoDisco = Get-Counter "\PhysicalDisk(*)\Avg. Disk sec/Read", "\PhysicalDisk(*)\Avg. Disk sec/Write" -ErrorAction SilentlyContinue
         $datos.DiscosFisicos = Get-PhysicalDisk -ErrorAction SilentlyContinue | Select-Object FriendlyName, HealthStatus, OperationalStatus, @{Name="SizeGB";Expression={[math]::Round($_.Size / 1GB, 2)}}, MediaType, BusType
-
-        Write-Host "   Verificando configuración de seguridad..." -ForegroundColor Yellow
-
-
+        
+        Write-Host "   Verificando configuraciÃ³n de seguridad..." -ForegroundColor Yellow
+        
+        # InformaciÃ³n detallada Windows Defender
         try {
             $defenderStatus = Get-MpComputerStatus -ErrorAction SilentlyContinue
             if ($defenderStatus) {
@@ -2070,11 +2064,11 @@ function Get-DatosExtendidos {
                     ServicioActivo = $defenderStatus.AMServiceEnabled
                     UltimoAnalisisRapido = if ($defenderStatus.QuickScanEndTime) { $defenderStatus.QuickScanEndTime.ToString("dd/MM/yyyy HH:mm") } else { "No disponible" }
                     UltimoAnalisisCompleto = if ($defenderStatus.FullScanEndTime) { $defenderStatus.FullScanEndTime.ToString("dd/MM/yyyy HH:mm") } else { "No disponible" }
-                    EdadDefinicionesAV = "$($defenderStatus.AntivirusSignatureAge) días"
+                    EdadDefinicionesAV = "$($defenderStatus.AntivirusSignatureAge) dÃ­as"
                     VersionEngine = $defenderStatus.AMEngineVersion
                     VersionSignature = $defenderStatus.AntispywareSignatureVersion
-                    TamperProtection = if (Get-Member -InputObject $defenderStatus -Name "IsTamperProtected" -MemberType Properties) {
-                        $defenderStatus.IsTamperProtected
+                    TamperProtection = if (Get-Member -InputObject $defenderStatus -Name "IsTamperProtected" -MemberType Properties) { 
+                        $defenderStatus.IsTamperProtected 
                     } else { "No disponible" }
                     ProteccionBasadaNube = $defenderStatus.CloudBlockLevel
                     ProteccionRed = if (Get-Member -InputObject $defenderStatus -Name "NISEnabled" -MemberType Properties) {
@@ -2082,19 +2076,19 @@ function Get-DatosExtendidos {
                     } else { "No disponible" }
                 }
             } else {
-
+                # Obtener informaciÃ³n de Defender mediante WMI si los cmdlets no estÃ¡n disponibles
                 $wmiBuscador = Get-CimInstance -Namespace "root\SecurityCenter2" -ClassName AntivirusProduct -ErrorAction SilentlyContinue
                 if ($wmiBuscador) {
                     $defenderWMI = $wmiBuscador | Where-Object { $_.displayName -like "*Defender*" }
-
+                    
                     if ($defenderWMI) {
-
+                        # Convertir el cÃ³digo de estado a valores legibles
                         $habilitado = [bool]($defenderWMI.productState -band 0x1000)
                         $actualizado = [bool]($defenderWMI.productState -band 0x10)
-
+                        
                         $datos.WindowsDefender = @{
                             Habilitado = $habilitado
-                            TiempoRealActivo = $habilitado
+                            TiempoRealActivo = $habilitado  # Asumiendo que si estÃ¡ habilitado, la protecciÃ³n en tiempo real tambiÃ©n
                             DefinicionesActualizadas = $actualizado
                             FechaUltimaActualizacion = "No disponible"
                             UltimoAnalisisCompleto = "No disponible"
@@ -2109,19 +2103,19 @@ function Get-DatosExtendidos {
         } catch {
             $datos.WindowsDefender = @{ Error = "No se pudo obtener estado de Windows Defender: $_" }
         }
-
-
+        
+        # Otros antivirus instalados
         try {
             $otrosAntivirus = @()
             $antivirusList = Get-CimInstance -Namespace "root\SecurityCenter2" -ClassName AntivirusProduct -ErrorAction SilentlyContinue
-
+            
             if ($antivirusList) {
                 foreach ($av in $antivirusList) {
                     if ($av.displayName -notlike "*Defender*") {
-
+                        # Determinar estado basado en el productState
                         $habilitado = [bool]($av.productState -band 0x1000)
                         $actualizado = [bool]($av.productState -band 0x10)
-
+                        
                         $otrosAntivirus += @{
                             Nombre = $av.displayName
                             Habilitado = $habilitado
@@ -2132,17 +2126,17 @@ function Get-DatosExtendidos {
                     }
                 }
             }
-
+            
             $datos.OtrosAntivirus = $otrosAntivirus
         } catch {
-            $datos.OtrosAntivirus = @{ Error = "No se pudo obtener información de otros antivirus: $_" }
+            $datos.OtrosAntivirus = @{ Error = "No se pudo obtener informaciÃ³n de otros antivirus: $_" }
         }
-
-
+        
+        # Estado detallado del Firewall por perfil
         try {
             $firewallPerfiles = @()
             $perfilesFirewall = Get-NetFirewallProfile -ErrorAction SilentlyContinue
-
+            
             if ($perfilesFirewall) {
                 foreach ($perfil in $perfilesFirewall) {
                     $firewallPerfiles += @{
@@ -2158,35 +2152,35 @@ function Get-DatosExtendidos {
                 }
                 $datos.Firewall = $firewallPerfiles
             } else {
-
+                # Alternativa usando netsh
                 $netshOutput = netsh advfirewall show allprofiles | Out-String
-
-
+                
+                # Procesar la salida para extraer el estado
                 $perfilesNombres = @("Domain", "Private", "Public")
                 $firewallNetsh = @()
                 foreach ($nombre in $perfilesNombres) {
                     if ($netshOutput -match "$nombre Profile Settings:") {
                         $habilitadoMatch = $netshOutput -match "$nombre Profile Settings:\s*\n.*?State\s*(ON|OFF)"
                         $habilitado = if ($matches -and $matches[1] -eq "ON") { $true } else { $false }
-
+                        
                         $firewallNetsh += @{
                             Nombre = $nombre
                             Habilitado = $habilitado
-                            Detalles = "Información limitada disponible a través de netsh"
+                            Detalles = "InformaciÃ³n limitada disponible a travÃ©s de netsh"
                         }
                     }
                 }
                 $datos.Firewall = $firewallNetsh
             }
         } catch {
-            $datos.Firewall = @{ Error = "No se pudo obtener información del Firewall: $_" }
+            $datos.Firewall = @{ Error = "No se pudo obtener informaciÃ³n del Firewall: $_" }
         }
-
-
+        
+        # Control de Acceso de Usuario (UAC)
         try {
             $uacPolicies = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -ErrorAction SilentlyContinue
             $uacEnabled = $uacPolicies.EnableLUA -eq 1
-
+            
             $nivelUAC = switch ($uacPolicies.ConsentPromptBehaviorAdmin) {
                 0 { "Nunca notificar" }
                 1 { "Notificar solo aplicaciones (sin oscurecer escritorio)" }
@@ -2194,7 +2188,7 @@ function Get-DatosExtendidos {
                 5 { "Notificar siempre y oscurecer escritorio (predeterminado)" }
                 default { "Desconocido ($($uacPolicies.ConsentPromptBehaviorAdmin))" }
             }
-
+            
             $datos.UAC = @{
                 Habilitado = $uacEnabled
                 Nivel = $nivelUAC
@@ -2203,26 +2197,26 @@ function Get-DatosExtendidos {
                 AprobacionModo = $uacPolicies.ValidateAdminCodeSignatures -eq 1
             }
         } catch {
-            $datos.UAC = @{ Error = "No se pudo obtener información de UAC: $_" }
+            $datos.UAC = @{ Error = "No se pudo obtener informaciÃ³n de UAC: $_" }
         }
-
-
+        
+        # SmartScreen y otras protecciones de seguridad
         try {
             $smartScreenPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
             $smartScreenEnabled = Get-ItemProperty -Path $smartScreenPath -Name "SmartScreenEnabled" -ErrorAction SilentlyContinue
-
+            
             $datos.SmartScreen = @{
                 Habilitado = if ($smartScreenEnabled) {
                     switch ($smartScreenEnabled.SmartScreenEnabled) {
-                        "RequireAdmin" { "Activo (requiere aprobación)" }
+                        "RequireAdmin" { "Activo (requiere aprobaciÃ³n)" }
                         "Warn" { "Activo (solo advertencias)" }
                         "Off" { "Desactivado" }
                         default { $smartScreenEnabled.SmartScreenEnabled }
                     }
                 } else { "No disponible" }
             }
-
-
+            
+            # InformaciÃ³n sobre Secure Boot si estÃ¡ disponible
             if (Get-Command Get-SecureBootUEFI -ErrorAction SilentlyContinue) {
                 try {
                     $secureBootStatus = Get-SecureBootUEFI -Name SetupMode -ErrorAction SilentlyContinue
@@ -2233,8 +2227,8 @@ function Get-DatosExtendidos {
                     $datos.SecureBoot = @{ Estado = "No disponible o no compatible" }
                 }
             }
-
-
+            
+            # Verificar BitLocker
             if (Get-Command Get-BitLockerVolume -ErrorAction SilentlyContinue) {
                 try {
                     $bitlockerVolumes = Get-BitLockerVolume -ErrorAction SilentlyContinue
@@ -2248,11 +2242,11 @@ function Get-DatosExtendidos {
                         }
                     }
                 } catch {
-                    $datos.BitLocker = @{ Error = "No se pudo obtener información de BitLocker" }
+                    $datos.BitLocker = @{ Error = "No se pudo obtener informaciÃ³n de BitLocker" }
                 }
             }
-
-
+            
+            # Verificar Device Guard y Credential Guard
             try {
                 $deviceGuard = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard -ErrorAction SilentlyContinue
                 if ($deviceGuard) {
@@ -2265,11 +2259,11 @@ function Get-DatosExtendidos {
             } catch {
                 $datos.DeviceGuard = @{ Estado = "No disponible" }
             }
-
+            
         } catch {
-            $datos.SmartScreen = @{ Error = "No se pudo obtener información de SmartScreen: $_" }
+            $datos.SmartScreen = @{ Error = "No se pudo obtener informaciÃ³n de SmartScreen: $_" }
         }
-
+        
         return $datos
     } catch {
         Write-Warning "Error al obtener datos extendidos: $_"
@@ -2279,57 +2273,57 @@ function Get-DatosExtendidos {
 
 function Generate-CompleteHTML {
     param($InfoSistema, $MetricasRendimiento, $LogsEventos, $DatosExtendidos, $AnalisisConfiabilidad, $DiagnosticoHardware, $AnalisisRoles, $AnalisisPoliticas, $VerificacionCumplimiento, $AnalisisPermisos, $AuditoriaSoftware)
-
-
+    
+    # Extraer el nombre del servidor y SO directamente
     $nombreServidor = $InfoSistema.NombreServidor
     $sistemaOperativo = $InfoSistema.NombreSO
-
-
+    
+    # Convertir la imagen a Base64 para usar en el HTML
     $ms = New-Object System.IO.MemoryStream
     $imagenl.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
     $imagenBytes = $ms.ToArray()
     $ms.Close()
     $imagenBase64 = [Convert]::ToBase64String($imagenBytes)
-
-
+    
+    # Crear el CSS como string separado para evitar problemas de parsing
     $cssStyles = @'
         * { box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 20px;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; padding: 20px; 
             background: linear-gradient(135deg, rgb(102,126,234) 0%, rgb(118,75,162) 100%);
             min-height: 100vh;
         }
-        .container {
-            max-width: 1400px; margin: 0 auto;
-            background: white; padding: 30px;
-            border-radius: 15px;
+        .container { 
+            max-width: 1400px; margin: 0 auto; 
+            background: white; padding: 30px; 
+            border-radius: 15px; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: white; text-align: center; margin-bottom: 30px;
+        h1 { 
+            color: white; text-align: center; margin-bottom: 30px; 
             border-bottom: 4px solid rgb(255,255,255); padding-bottom: 20px;
             font-size: 2.5em; text-shadow: 2px 2px 6px rgba(0,0,0,0.8);
         }
-        h2 {
-            color: white; margin: 40px 0 20px 0; padding: 20px;
-            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185));
+        h2 { 
+            color: white; margin: 40px 0 20px 0; padding: 20px; 
+            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185)); 
             border-radius: 10px; font-size: 1.5em;
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
-        h3 {
-            color: rgb(44,62,80); margin: 30px 0 15px 0;
+        h3 { 
+            color: rgb(44,62,80); margin: 30px 0 15px 0; 
             border-left: 6px solid rgb(52,152,219); padding-left: 20px;
             font-size: 1.3em;
         }
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; margin: 30px 0;
+        .metrics-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; margin: 30px 0; 
         }
-        .metric-card {
-            background: linear-gradient(135deg, rgb(248,249,250), rgb(233,236,239));
-            padding: 25px; border-radius: 12px;
+        .metric-card { 
+            background: linear-gradient(135deg, rgb(248,249,250), rgb(233,236,239)); 
+            padding: 25px; border-radius: 12px; 
             border-left: 6px solid rgb(52,152,219);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
@@ -2337,117 +2331,117 @@ function Generate-CompleteHTML {
         .metric-card:hover { transform: translateY(-5px); }
         .metric-card h4 { margin-top: 0; color: rgb(44,62,80); font-size: 1.2em; }
         .metric-value { font-size: 2em; font-weight: bold; color: rgb(52,152,219); margin: 10px 0; }
-        .status-indicator {
-            display: inline-block; padding: 5px 15px;
-            border-radius: 20px; color: white; font-weight: bold;
+        .status-indicator { 
+            display: inline-block; padding: 5px 15px; 
+            border-radius: 20px; color: white; font-weight: bold; 
         }
         .status-normal { background-color: rgb(39,174,96); }
         .status-warning { background-color: rgb(243,156,18); }
         .status-critical { background-color: rgb(231,76,60); }
         .status-high { background-color: rgb(230,126,34); }
         .status-medium { background-color: rgb(241,196,15); color: rgb(44,62,80); }
-
-        table {
-            border-collapse: collapse; width: 100%; margin: 20px 0;
+        
+        table { 
+            border-collapse: collapse; width: 100%; margin: 20px 0; 
             background: white; border-radius: 10px; overflow: hidden;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        th {
-            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185));
+        th { 
+            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185)); 
             color: white; padding: 15px; text-align: left; font-weight: 600;
         }
         td { padding: 12px 15px; border-bottom: 1px solid rgb(236,240,241); }
         tr:nth-child(even) { background-color: rgb(248,249,250); }
         tr:hover { background-color: rgb(214,234,248); }
-
-        .summary-box {
-            background: linear-gradient(135deg, rgb(46,204,113), rgb(39,174,96));
-            color: white; padding: 25px; margin: 30px 0;
+        
+        .summary-box { 
+            background: linear-gradient(135deg, rgb(46,204,113), rgb(39,174,96)); 
+            color: white; padding: 25px; margin: 30px 0; 
             border-radius: 12px; text-align: center;
             box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
         }
         .summary-box h3 { color: white; border: none; padding: 0; margin-bottom: 15px; }
-
-        .warning-box {
-            background: linear-gradient(135deg, rgb(231,76,60), rgb(192,57,43));
-            color: white; padding: 25px; margin: 30px 0;
+        
+        .warning-box { 
+            background: linear-gradient(135deg, rgb(231,76,60), rgb(192,57,43)); 
+            color: white; padding: 25px; margin: 30px 0; 
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
         }
         .warning-box h3 { color: white; border: none; padding: 0; margin-bottom: 15px; }
-
-        .info-box {
-            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185));
-            color: white; padding: 25px; margin: 30px 0;
+        
+        .info-box { 
+            background: linear-gradient(135deg, rgb(52,152,219), rgb(41,128,185)); 
+            color: white; padding: 25px; margin: 30px 0; 
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
         }
         .info-box h3 { color: white; border: none; padding: 0; margin-bottom: 15px; }
-
-        .header-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px; margin: 30px 0;
+        
+        .header-info { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; margin: 30px 0; 
         }
-        .header-card {
-            background: white; padding: 20px; border-radius: 10px;
+        .header-card { 
+            background: white; padding: 20px; border-radius: 10px; 
             border-left: 5px solid rgb(52,152,219);
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .header-card strong { color: rgb(44,62,80); }
-
-        .logo {
-            text-align: center; margin-bottom: 30px;
+        
+        .logo { 
+            text-align: center; margin-bottom: 30px; 
         }
-        .logo img {
-            max-width: 200px; height: auto;
+        .logo img { 
+            max-width: 200px; height: auto; 
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
-
-        .footer {
-            text-align: center; margin-top: 50px; padding: 30px;
-            background: linear-gradient(135deg, rgb(44,62,80), rgb(52,73,94));
+        
+        .footer { 
+            text-align: center; margin-top: 50px; padding: 30px; 
+            background: linear-gradient(135deg, rgb(44,62,80), rgb(52,73,94)); 
             color: white; border-radius: 10px;
         }
-
-        .progress-bar {
-            background-color: rgb(236,240,241);
-            border-radius: 10px; height: 20px;
+        
+        .progress-bar { 
+            background-color: rgb(236,240,241); 
+            border-radius: 10px; height: 20px; 
             overflow: hidden; margin: 10px 0;
         }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, rgb(46,204,113), rgb(39,174,96));
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, rgb(46,204,113), rgb(39,174,96)); 
             transition: width 0.3s ease;
         }
-
-        .tabs {
-            display: flex;
-            background: rgb(236,240,241);
-            border-radius: 10px 10px 0 0;
+        
+        .tabs { 
+            display: flex; 
+            background: rgb(236,240,241); 
+            border-radius: 10px 10px 0 0; 
             overflow: hidden;
         }
-        .tab {
-            flex: 1; padding: 15px; text-align: center;
-            background: rgb(189,195,199); color: rgb(44,62,80);
+        .tab { 
+            flex: 1; padding: 15px; text-align: center; 
+            background: rgb(189,195,199); color: rgb(44,62,80); 
             cursor: pointer; transition: background 0.3s;
         }
-        .tab.active {
-            background: rgb(52,152,219); color: white;
+        .tab.active { 
+            background: rgb(52,152,219); color: white; 
         }
-        .tab-content {
-            background: white; padding: 30px;
+        .tab-content { 
+            background: white; padding: 30px; 
             border-radius: 0 0 10px 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
+        
         .compliance-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 20px;
             margin: 20px 0;
         }
-
+        
         .compliance-card {
             background: white;
             border-radius: 10px;
@@ -2455,18 +2449,18 @@ function Generate-CompleteHTML {
             border-left: 5px solid;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
+        
         .compliance-pass { border-left-color: rgb(39,174,96); }
         .compliance-fail { border-left-color: rgb(231,76,60); }
         .compliance-pending { border-left-color: rgb(243,156,18); }
-
+        
         .security-summary {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 30px 0;
         }
-
+        
         .security-metric {
             text-align: center;
             padding: 20px;
@@ -2474,17 +2468,17 @@ function Generate-CompleteHTML {
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-
+        
         .security-metric .number {
             font-size: 2.5em;
             font-weight: bold;
             margin: 10px 0;
         }
-
+        
         .risk-high { color: rgb(231,76,60); }
         .risk-medium { color: rgb(243,156,18); }
         .risk-low { color: rgb(39,174,96); }
-
+        
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .metrics-grid { grid-template-columns: 1fr; }
@@ -2508,61 +2502,61 @@ function Generate-CompleteHTML {
         <div class="logo">
             <img src="data:image/png;base64,$imagenBase64" alt="Logo">
         </div>
-
-        <h1>🖥️ INFORME COMPLETO DE SALUD DEL SISTEMA</h1>
-
+        
+        <h1>ðŸ–¥ï¸ INFORME COMPLETO DE SALUD DEL SISTEMA</h1>
+        
         <div class="summary-box">
-            <h3>📊 Resumen Ejecutivo</h3>
+            <h3>ðŸ“Š Resumen Ejecutivo</h3>
             <p><strong>Servidor:</strong> $nombreServidor | <strong>Sistema:</strong> $sistemaOperativo</p>
             <p><strong>Fecha del Informe:</strong> $(Get-Date -Format "dd/MM/yyyy HH:mm:ss")</p>
-            <p><strong>Tiempo de Actividad:</strong> $($InfoSistema.TiempoActividad.Days) días, $($InfoSistema.TiempoActividad.Hours) horas</p>
+            <p><strong>Tiempo de Actividad:</strong> $($InfoSistema.TiempoActividad.Days) dÃ­as, $($InfoSistema.TiempoActividad.Hours) horas</p>
         </div>
 
         <div class="header-info">
             <div class="header-card">
-                <strong>🏢 Información del Sistema</strong><br>
+                <strong>ðŸ¢ InformaciÃ³n del Sistema</strong><br>
                 Fabricante: $($InfoSistema.Fabricante)<br>
                 Modelo: $($InfoSistema.Modelo)<br>
                 Procesador: $($InfoSistema.Procesador)<br>
                 Memoria Total: $($InfoSistema.MemoriaTotal) GB
             </div>
             <div class="header-card">
-                <strong>🌐 Configuración de Red</strong><br>
+                <strong>ðŸŒ ConfiguraciÃ³n de Red</strong><br>
                 IP Principal: $($InfoSistema.DireccionIP)<br>
                 $($InfoSistema.DominioWorkgroup)<br>
                 Zona Horaria: $($InfoSistema.TimeZone)
             </div>
             <div class="header-card">
-                <strong>🔧 Detalles Técnicos</strong><br>
-                Versión SO: $($InfoSistema.VersionSO)<br>
+                <strong>ðŸ”§ Detalles TÃ©cnicos</strong><br>
+                VersiÃ³n SO: $($InfoSistema.VersionSO)<br>
                 Build: $($InfoSistema.BuildNumber)<br>
                 Arquitectura: $($InfoSistema.Arquitectura)<br>
-                Último Reinicio: $($InfoSistema.UltimoReinicio.ToString("dd/MM/yyyy HH:mm"))
+                Ãšltimo Reinicio: $($InfoSistema.UltimoReinicio.ToString("dd/MM/yyyy HH:mm"))
             </div>
         </div>
 
-        <h2>📈 MÉTRICAS DE RENDIMIENTO DE LOS 4 SUBSISTEMAS</h2>
-
+        <h2>ðŸ“ˆ MÃ‰TRICAS DE RENDIMIENTO DE LOS 4 SUBSISTEMAS</h2>
+        
         <div class="metrics-grid">
             <div class="metric-card">
-                <h4>🔥 Subsistema CPU</h4>
+                <h4>ðŸ”¥ Subsistema CPU</h4>
                 <div class="metric-value">$($MetricasRendimiento.CPU.UsoCPU)%</div>
                 <span class="status-indicator status-$($MetricasRendimiento.CPU.Estado.ToLower())">$($MetricasRendimiento.CPU.Estado)</span>
                 <p><strong>Cola del Procesador:</strong> $($MetricasRendimiento.CPU.ColaProcesor)</p>
                 <p><strong>Interrupciones/seg:</strong> $($MetricasRendimiento.CPU.Interrupciones)</p>
             </div>
-
+            
             <div class="metric-card">
-                <h4>🧠 Subsistema Memoria</h4>
+                <h4>ðŸ§  Subsistema Memoria</h4>
                 <div class="metric-value">$($MetricasRendimiento.Memoria.PorcentajeUsado)%</div>
                 <span class="status-indicator status-$($MetricasRendimiento.Memoria.Estado.ToLower())">$($MetricasRendimiento.Memoria.Estado)</span>
                 <p><strong>Usada:</strong> $($MetricasRendimiento.Memoria.UsadaMB) MB / $($MetricasRendimiento.Memoria.TotalMB) MB</p>
-                <p><strong>Páginas/seg:</strong> $($MetricasRendimiento.Memoria.PaginasPorSeg)</p>
-                <p><strong>Caché:</strong> $($MetricasRendimiento.Memoria.CacheMB) MB</p>
+                <p><strong>PÃ¡ginas/seg:</strong> $($MetricasRendimiento.Memoria.PaginasPorSeg)</p>
+                <p><strong>CachÃ©:</strong> $($MetricasRendimiento.Memoria.CacheMB) MB</p>
             </div>
         </div>
 
-        <h3>💾 Subsistema Disco</h3>
+        <h3>ðŸ’¾ Subsistema Disco</h3>
         <table>
             <tr>
                 <th>Unidad</th>
@@ -2580,10 +2574,10 @@ function Generate-CompleteHTML {
         $statusClass = switch ($disco.Estado) {
             "Normal" { "status-normal" }
             "Advertencia" { "status-warning" }
-            "Crítico" { "status-critical" }
+            "CrÃ­tico" { "status-critical" }
             default { "status-normal" }
         }
-
+        
         $htmlContent += @"
             <tr>
                 <td><strong>$($disco.Unidad)</strong></td>
@@ -2601,7 +2595,7 @@ function Generate-CompleteHTML {
     $htmlContent += @"
         </table>
 
-        <h3>🌐 Subsistema Red</h3>
+        <h3>ðŸŒ Subsistema Red</h3>
         <table>
             <tr>
                 <th>Interfaz</th>
@@ -2609,8 +2603,8 @@ function Generate-CompleteHTML {
                 <th>Bytes Recibidos (KB)</th>
                 <th>Paquetes Enviados</th>
                 <th>Paquetes Recibidos</th>
-                <th>Errores Envío</th>
-                <th>Errores Recepción</th>
+                <th>Errores EnvÃ­o</th>
+                <th>Errores RecepciÃ³n</th>
             </tr>
 "@
 
@@ -2628,33 +2622,33 @@ function Generate-CompleteHTML {
 "@
     }
 
-
+    # NUEVA SECCIÃ“N: ANÃLISIS DE CONFIABILIDAD
     if ($AnalisisConfiabilidad -and $AnalisisConfiabilidad.EstadisticasEstabilidad) {
         $htmlContent += @"
         </table>
 
-        <h2>🔍 ANÁLISIS DE CONFIABILIDAD DEL SISTEMA</h2>
-
+        <h2>ðŸ” ANÃLISIS DE CONFIABILIDAD DEL SISTEMA</h2>
+        
         <div class="metrics-grid">
             <div class="metric-card">
-                <h4>📊 Estadísticas de Estabilidad</h4>
-                <p><strong>Índice de Estabilidad:</strong> <span class="status-indicator status-$(if($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad -eq 'Alta'){'normal'}elseif($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad -eq 'Media'){'warning'}else{'critical'})">$($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad)</span></p>
-                <p><strong>Fallos de Aplicación:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.FallosAplicacion)</p>
+                <h4>ðŸ“Š EstadÃ­sticas de Estabilidad</h4>
+                <p><strong>Ãndice de Estabilidad:</strong> <span class="status-indicator status-$(if($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad -eq 'Alta'){'normal'}elseif($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad -eq 'Media'){'warning'}else{'critical'})">$($AnalisisConfiabilidad.EstadisticasEstabilidad.IndiceEstabilidad)</span></p>
+                <p><strong>Fallos de AplicaciÃ³n:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.FallosAplicacion)</p>
                 <p><strong>Fallos del Sistema:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.FallosSistema)</p>
                 <p><strong>Reinicios Detectados:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.ReiniciosDetectados)</p>
-                <p><strong>Período de Análisis:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.PeriodoAnalisis)</p>
+                <p><strong>PerÃ­odo de AnÃ¡lisis:</strong> $($AnalisisConfiabilidad.EstadisticasEstabilidad.PeriodoAnalisis)</p>
             </div>
         </div>
 "@
 
         if ($AnalisisConfiabilidad.TendenciasSemanales -and $AnalisisConfiabilidad.TendenciasSemanales.Count -gt 0) {
             $htmlContent += @"
-        <h3>📈 Tendencias de Estabilidad (Últimos 7 días)</h3>
+        <h3>ðŸ“ˆ Tendencias de Estabilidad (Ãšltimos 7 dÃ­as)</h3>
         <table>
             <tr>
                 <th>Fecha</th>
                 <th>Total Eventos</th>
-                <th>Eventos Críticos</th>
+                <th>Eventos CrÃ­ticos</th>
                 <th>Estado de Estabilidad</th>
             </tr>
 "@
@@ -2665,7 +2659,7 @@ function Generate-CompleteHTML {
                     "Inestable" { "status-critical" }
                     default { "status-normal" }
                 }
-
+                
                 $htmlContent += @"
             <tr>
                 <td>$($tendencia.Fecha)</td>
@@ -2679,21 +2673,21 @@ function Generate-CompleteHTML {
         }
     }
 
-
+    # NUEVA SECCIÃ“N: DIAGNÃ“STICO DE HARDWARE AVANZADO
     if ($DiagnosticoHardware) {
         $htmlContent += @"
-        <h2>🔧 DIAGNÓSTICO AVANZADO DE HARDWARE</h2>
+        <h2>ðŸ”§ DIAGNÃ“STICO AVANZADO DE HARDWARE</h2>
 "@
 
-
+        # Estado SMART de discos
         if ($DiagnosticoHardware.DiscosSMART -and $DiagnosticoHardware.DiscosSMART.Count -gt 0) {
             $htmlContent += @"
-        <h3>💾 Estado SMART de Discos Duros</h3>
+        <h3>ðŸ’¾ Estado SMART de Discos Duros</h3>
         <table>
             <tr>
                 <th>Modelo</th>
-                <th>Número de Serie</th>
-                <th>Tamaño (GB)</th>
+                <th>NÃºmero de Serie</th>
+                <th>TamaÃ±o (GB)</th>
                 <th>Interfaz</th>
                 <th>Estado SMART</th>
                 <th>Particiones</th>
@@ -2703,10 +2697,10 @@ function Generate-CompleteHTML {
             foreach ($disco in $DiagnosticoHardware.DiscosSMART) {
                 $estadoClass = switch ($disco.Estado) {
                     "Normal" { "status-normal" }
-                    "Crítico" { "status-critical" }
+                    "CrÃ­tico" { "status-critical" }
                     default { "status-warning" }
                 }
-
+                
                 $htmlContent += @"
             <tr>
                 <td>$($disco.Modelo)</td>
@@ -2722,14 +2716,14 @@ function Generate-CompleteHTML {
             $htmlContent += "</table>"
         }
 
-
+        # Temperaturas
         if ($DiagnosticoHardware.Temperaturas -and $DiagnosticoHardware.Temperaturas.Count -gt 0) {
             $htmlContent += @"
-        <h3>🌡️ Temperaturas de Componentes</h3>
+        <h3>ðŸŒ¡ï¸ Temperaturas de Componentes</h3>
         <table>
             <tr>
                 <th>Componente</th>
-                <th>Temperatura (°C)</th>
+                <th>Temperatura (Â°C)</th>
                 <th>Estado</th>
             </tr>
 "@
@@ -2737,12 +2731,12 @@ function Generate-CompleteHTML {
                 $tempClass = switch ($temp.Estado) {
                     "Normal" { "status-normal" }
                     "Alto" { "status-warning" }
-                    "Crítico" { "status-critical" }
+                    "CrÃ­tico" { "status-critical" }
                     default { "status-warning" }
                 }
-
-                $tempValue = if ($temp.TemperaturaC) { "$($temp.TemperaturaC)°C" } else { "No disponible" }
-
+                
+                $tempValue = if ($temp.TemperaturaC) { "$($temp.TemperaturaC)Â°C" } else { "No disponible" }
+                
                 $htmlContent += @"
             <tr>
                 <td>$($temp.Componente)</td>
@@ -2754,10 +2748,10 @@ function Generate-CompleteHTML {
             $htmlContent += "</table>"
         }
 
-
+        # Estado de baterÃ­as
         if ($DiagnosticoHardware.Baterias -and $DiagnosticoHardware.Baterias.Count -gt 0) {
             $htmlContent += @"
-        <h3>🔋 Estado de Baterías</h3>
+        <h3>ðŸ”‹ Estado de BaterÃ­as</h3>
         <table>
             <tr>
                 <th>Nombre</th>
@@ -2765,20 +2759,20 @@ function Generate-CompleteHTML {
                 <th>Estado de Carga</th>
                 <th>% Carga</th>
                 <th>Tiempo Restante</th>
-                <th>Salud de Batería</th>
+                <th>Salud de BaterÃ­a</th>
                 <th>Estado</th>
             </tr>
 "@
             foreach ($bateria in $DiagnosticoHardware.Baterias) {
-                if ($bateria.Estado -ne "No se detectaron baterías (sistema de escritorio)") {
+                if ($bateria.Estado -ne "No se detectaron baterÃ­as (sistema de escritorio)") {
                     $bateriaClass = switch ($bateria.Estado) {
                         "Normal" { "status-normal" }
                         "Advertencia" { "status-warning" }
                         "Bajo" { "status-warning" }
-                        "Crítico" { "status-critical" }
+                        "CrÃ­tico" { "status-critical" }
                         default { "status-normal" }
                     }
-
+                    
                     $htmlContent += @"
             <tr>
                 <td>$($bateria.Nombre)</td>
@@ -2802,16 +2796,16 @@ function Generate-CompleteHTML {
         }
     }
 
-
+    # NUEVA SECCIÃ“N: ANÃLISIS DE ROLES DE SERVIDOR
     if ($AnalisisRoles -and $AnalisisRoles.EsServidor) {
         $htmlContent += @"
-        <h2>🖥️ ANÁLISIS DE ROLES DE WINDOWS SERVER</h2>
-
+        <h2>ðŸ–¥ï¸ ANÃLISIS DE ROLES DE WINDOWS SERVER</h2>
+        
         <div class="info-box">
-            <h3>📊 Resumen de Roles</h3>
+            <h3>ðŸ“Š Resumen de Roles</h3>
             <p><strong>Tipo de Sistema:</strong> $($AnalisisRoles.TipoSistema)</p>
             <p><strong>Total de Roles Detectados:</strong> $($AnalisisRoles.ResumenRoles.TotalRoles)</p>
-            <p><strong>Roles Críticos:</strong> $($AnalisisRoles.ResumenRoles.RolesCriticos)</p>
+            <p><strong>Roles CrÃ­ticos:</strong> $($AnalisisRoles.ResumenRoles.RolesCriticos)</p>
             <p><strong>Roles Detenidos:</strong> $($AnalisisRoles.ResumenRoles.RolesDetenidos)</p>
             <p><strong>Estado General:</strong> $($AnalisisRoles.ResumenRoles.EstadoGeneral)</p>
         </div>
@@ -2819,21 +2813,21 @@ function Generate-CompleteHTML {
 
         if ($AnalisisRoles.RolesDetectados -and $AnalisisRoles.RolesDetectados.Count -gt 0) {
             $htmlContent += @"
-        <h3>🔧 Roles y Servicios Detectados</h3>
+        <h3>ðŸ”§ Roles y Servicios Detectados</h3>
         <table>
             <tr>
                 <th>Rol</th>
                 <th>Servicio</th>
                 <th>Estado</th>
                 <th>Tipo de Inicio</th>
-                <th>Descripción</th>
-                <th>Crítico</th>
+                <th>DescripciÃ³n</th>
+                <th>CrÃ­tico</th>
             </tr>
 "@
             foreach ($rol in $AnalisisRoles.RolesDetectados) {
                 $estadoClass = if ($rol.Estado -eq "Running") { "status-normal" } else { "status-critical" }
-                $criticoIcon = if ($rol.Critico) { "⚠️" } else { "ℹ️" }
-
+                $criticoIcon = if ($rol.Critico) { "âš ï¸" } else { "â„¹ï¸" }
+                
                 $htmlContent += @"
             <tr>
                 <td><strong>$($rol.Rol)</strong></td>
@@ -2848,12 +2842,12 @@ function Generate-CompleteHTML {
             $htmlContent += "</table>"
         }
 
-
+        # InformaciÃ³n de dominio
         if ($AnalisisRoles.InformacionDominio) {
             $htmlContent += @"
-        <h3>🌐 Información de Dominio</h3>
+        <h3>ðŸŒ InformaciÃ³n de Dominio</h3>
         <div class="metric-card">
-            <p><strong>Parte de Dominio:</strong> $(if($AnalisisRoles.InformacionDominio.ParteDominio){'Sí'}else{'No'})</p>
+            <p><strong>Parte de Dominio:</strong> $(if($AnalisisRoles.InformacionDominio.ParteDominio){'SÃ­'}else{'No'})</p>
             <p><strong>Dominio:</strong> $($AnalisisRoles.InformacionDominio.Dominio)</p>
             <p><strong>Rol del Servidor:</strong> $($AnalisisRoles.InformacionDominio.Rol)</p>
         </div>
@@ -2862,32 +2856,32 @@ function Generate-CompleteHTML {
     } elseif ($AnalisisRoles -and -not $AnalisisRoles.EsServidor) {
         $htmlContent += @"
         <div class="info-box">
-            <h3>ℹ️ Información del Sistema</h3>
+            <h3>â„¹ï¸ InformaciÃ³n del Sistema</h3>
             <p>Este sistema es un <strong>$($AnalisisRoles.TipoSistema)</strong>, no un Windows Server.</p>
-            <p>El análisis de roles de servidor no es aplicable.</p>
+            <p>El anÃ¡lisis de roles de servidor no es aplicable.</p>
         </div>
 "@
     }
 
-
+    # NUEVA SECCIÃ“N: ANÃLISIS DE POLÃTICAS DE GRUPO
     if ($AnalisisPoliticas) {
         $htmlContent += @"
-        <h2>🛡️ ANÁLISIS DE POLÍTICAS DE GRUPO Y SEGURIDAD</h2>
+        <h2>ðŸ›¡ï¸ ANÃLISIS DE POLÃTICAS DE GRUPO Y SEGURIDAD</h2>
 "@
 
         if ($AnalisisPoliticas.EnDominio) {
             $htmlContent += @"
         <div class="info-box">
-            <h3>📋 Información de GPO</h3>
-            <p><strong>Sistema en Dominio:</strong> Sí</p>
-            <p><strong>Última Actualización GPO:</strong> $($AnalisisPoliticas.UltimaActualizacionGPO)</p>
+            <h3>ðŸ“‹ InformaciÃ³n de GPO</h3>
+            <p><strong>Sistema en Dominio:</strong> SÃ­</p>
+            <p><strong>Ãšltima ActualizaciÃ³n GPO:</strong> $($AnalisisPoliticas.UltimaActualizacionGPO)</p>
         </div>
 "@
 
-
+            # GPOs aplicadas al equipo
             if ($AnalisisPoliticas.GPOsEquipo -and $AnalisisPoliticas.GPOsEquipo.Count -gt 0) {
                 $htmlContent += @"
-        <h3>🖥️ GPOs Aplicadas al Equipo</h3>
+        <h3>ðŸ–¥ï¸ GPOs Aplicadas al Equipo</h3>
         <table>
             <tr>
                 <th>Nombre de la GPO</th>
@@ -2907,10 +2901,10 @@ function Generate-CompleteHTML {
                 $htmlContent += "</table>"
             }
 
-
+            # GPOs aplicadas al usuario
             if ($AnalisisPoliticas.GPOsUsuario -and $AnalisisPoliticas.GPOsUsuario.Count -gt 0) {
                 $htmlContent += @"
-        <h3>👤 GPOs Aplicadas al Usuario</h3>
+        <h3>ðŸ‘¤ GPOs Aplicadas al Usuario</h3>
         <table>
             <tr>
                 <th>Nombre de la GPO</th>
@@ -2932,22 +2926,22 @@ function Generate-CompleteHTML {
         } else {
             $htmlContent += @"
         <div class="warning-box">
-            <h3>⚠️ Sistema No Unido a Dominio</h3>
-            <p>Este sistema no está unido a un dominio Active Directory.</p>
-            <p>Las políticas de grupo de dominio no son aplicables.</p>
+            <h3>âš ï¸ Sistema No Unido a Dominio</h3>
+            <p>Este sistema no estÃ¡ unido a un dominio Active Directory.</p>
+            <p>Las polÃ­ticas de grupo de dominio no son aplicables.</p>
         </div>
 "@
         }
 
-
+        # PolÃ­ticas locales
         if ($AnalisisPoliticas.PoliticasLocales -and $AnalisisPoliticas.PoliticasLocales.Count -gt 0) {
             $htmlContent += @"
-        <h3>🔒 Políticas de Seguridad Locales</h3>
+        <h3>ðŸ”’ PolÃ­ticas de Seguridad Locales</h3>
         <table>
             <tr>
-                <th>Política</th>
+                <th>PolÃ­tica</th>
                 <th>Valor</th>
-                <th>Categoría</th>
+                <th>CategorÃ­a</th>
             </tr>
 "@
             foreach ($politica in $AnalisisPoliticas.PoliticasLocales | Select-Object -First 20) {
@@ -2963,11 +2957,11 @@ function Generate-CompleteHTML {
         }
     }
 
-
+    # NUEVA SECCIÃ“N: VERIFICACIÃ“N DE CUMPLIMIENTO
     if ($VerificacionCumplimiento -and $VerificacionCumplimiento.ResumenCumplimiento) {
         $htmlContent += @"
-        <h2>✅ VERIFICACIÓN DE CUMPLIMIENTO (CIS BENCHMARKS)</h2>
-
+        <h2>âœ… VERIFICACIÃ“N DE CUMPLIMIENTO (CIS BENCHMARKS)</h2>
+        
         <div class="security-summary">
             <div class="security-metric">
                 <div class="number risk-low">$($VerificacionCumplimiento.ResumenCumplimiento.PorcentajeCumplimiento)%</div>
@@ -2983,23 +2977,23 @@ function Generate-CompleteHTML {
             </div>
             <div class="security-metric">
                 <div class="number risk-medium">$($VerificacionCumplimiento.ResumenCumplimiento.PendienteRevision)</div>
-                <div>Pendiente Revisión</div>
+                <div>Pendiente RevisiÃ³n</div>
             </div>
         </div>
-
+        
         <div class="$(if($VerificacionCumplimiento.ResumenCumplimiento.NivelCumplimiento -eq 'Excelente' -or $VerificacionCumplimiento.ResumenCumplimiento.NivelCumplimiento -eq 'Bueno'){'summary-box'}elseif($VerificacionCumplimiento.ResumenCumplimiento.NivelCumplimiento -eq 'Aceptable'){'info-box'}else{'warning-box'})">
-            <h3>📊 Nivel de Cumplimiento: $($VerificacionCumplimiento.ResumenCumplimiento.NivelCumplimiento)</h3>
+            <h3>ðŸ“Š Nivel de Cumplimiento: $($VerificacionCumplimiento.ResumenCumplimiento.NivelCumplimiento)</h3>
             <p>Total de verificaciones realizadas: $($VerificacionCumplimiento.ResumenCumplimiento.TotalVerificaciones)</p>
         </div>
 "@
 
         if ($VerificacionCumplimiento.Verificaciones -and $VerificacionCumplimiento.Verificaciones.Count -gt 0) {
-
-            $verificacionesProblematicas = $VerificacionCumplimiento.Verificaciones | Where-Object { $_.Cumple -ne "Sí" }
-
+            # Mostrar solo las verificaciones que no cumplen o estÃ¡n pendientes
+            $verificacionesProblematicas = $VerificacionCumplimiento.Verificaciones | Where-Object { $_.Cumple -ne "SÃ­" }
+            
             if ($verificacionesProblematicas.Count -gt 0) {
                 $htmlContent += @"
-        <h3>⚠️ Verificaciones que Requieren Atención</h3>
+        <h3>âš ï¸ Verificaciones que Requieren AtenciÃ³n</h3>
         <div class="compliance-grid">
 "@
                 foreach ($verificacion in $verificacionesProblematicas) {
@@ -3009,22 +3003,22 @@ function Generate-CompleteHTML {
                         "Revisar" { "compliance-pending" }
                         default { "compliance-pending" }
                     }
-
+                    
                     $criticidadClass = switch ($verificacion.Criticidad) {
                         "Alta" { "risk-high" }
                         "Media" { "risk-medium" }
                         "Baja" { "risk-low" }
                         default { "risk-medium" }
                     }
-
+                    
                     $htmlContent += @"
             <div class="compliance-card $cardClass">
                 <h4>$($verificacion.ID)</h4>
                 <p><strong>$($verificacion.Descripcion)</strong></p>
                 <p><strong>Estado Actual:</strong> $($verificacion.EstadoActual)</p>
-                <p><strong>Recomendación:</strong> $($verificacion.Recomendacion)</p>
+                <p><strong>RecomendaciÃ³n:</strong> $($verificacion.Recomendacion)</p>
                 <p><strong>Criticidad:</strong> <span class="$criticidadClass">$($verificacion.Criticidad)</span></p>
-                <p><strong>Categoría:</strong> $($verificacion.Categoria)</p>
+                <p><strong>CategorÃ­a:</strong> $($verificacion.Categoria)</p>
             </div>
 "@
                 }
@@ -3033,11 +3027,11 @@ function Generate-CompleteHTML {
         }
     }
 
-
+    # NUEVA SECCIÃ“N: ANÃLISIS DE PERMISOS
     if ($AnalisisPermisos -and $AnalisisPermisos.ResumenPermisos) {
         $htmlContent += @"
-        <h2>🔐 ANÁLISIS DE PERMISOS DE CARPETAS SENSIBLES</h2>
-
+        <h2>ðŸ” ANÃLISIS DE PERMISOS DE CARPETAS SENSIBLES</h2>
+        
         <div class="security-summary">
             <div class="security-metric">
                 <div class="number risk-low">$($AnalisisPermisos.ResumenPermisos.PorcentajeSeguras)%</div>
@@ -3049,41 +3043,41 @@ function Generate-CompleteHTML {
             </div>
             <div class="security-metric">
                 <div class="number risk-high">$($AnalisisPermisos.ResumenPermisos.CarpetasCriticas)</div>
-                <div>Críticas</div>
+                <div>CrÃ­ticas</div>
             </div>
             <div class="security-metric">
                 <div class="number">$($AnalisisPermisos.ResumenPermisos.TotalCarpetasAnalizadas)</div>
                 <div>Total Analizadas</div>
             </div>
         </div>
-
+        
         <div class="$(if($AnalisisPermisos.ResumenPermisos.NivelSeguridad -eq 'Excelente'){'summary-box'}elseif($AnalisisPermisos.ResumenPermisos.NivelSeguridad -eq 'Bueno' -or $AnalisisPermisos.ResumenPermisos.NivelSeguridad -eq 'Aceptable'){'info-box'}else{'warning-box'})">
-            <h3>🛡️ Nivel de Seguridad: $($AnalisisPermisos.ResumenPermisos.NivelSeguridad)</h3>
+            <h3>ðŸ›¡ï¸ Nivel de Seguridad: $($AnalisisPermisos.ResumenPermisos.NivelSeguridad)</h3>
         </div>
 "@
 
         if ($AnalisisPermisos.AnalisisPermisos) {
-            $carpetasProblematicas = $AnalisisPermisos.AnalisisPermisos | Where-Object { $_.Estado -in @("Advertencia", "Crítico") }
-
+            $carpetasProblematicas = $AnalisisPermisos.AnalisisPermisos | Where-Object { $_.Estado -in @("Advertencia", "CrÃ­tico") }
+            
             if ($carpetasProblematicas.Count -gt 0) {
                 $htmlContent += @"
-        <h3>⚠️ Carpetas con Permisos Problemáticos</h3>
+        <h3>âš ï¸ Carpetas con Permisos ProblemÃ¡ticos</h3>
         <table>
             <tr>
                 <th>Ruta</th>
-                <th>Descripción</th>
+                <th>DescripciÃ³n</th>
                 <th>Propietario</th>
-                <th>Permisos Problemáticos</th>
+                <th>Permisos ProblemÃ¡ticos</th>
                 <th>Estado</th>
             </tr>
 "@
                 foreach ($carpeta in $carpetasProblematicas) {
                     $estadoClass = switch ($carpeta.Estado) {
-                        "Crítico" { "status-critical" }
+                        "CrÃ­tico" { "status-critical" }
                         "Advertencia" { "status-warning" }
                         default { "status-normal" }
                     }
-
+                    
                     $htmlContent += @"
             <tr>
                 <td><strong>$($carpeta.Ruta)</strong></td>
@@ -3099,11 +3093,11 @@ function Generate-CompleteHTML {
         }
     }
 
-
+    # NUEVA SECCIÃ“N: AUDITORÃA DE SOFTWARE
     if ($AuditoriaSoftware -and $AuditoriaSoftware.ResumenAuditoria) {
         $htmlContent += @"
-        <h2>💿 AUDITORÍA DE SOFTWARE INSTALADO</h2>
-
+        <h2>ðŸ’¿ AUDITORÃA DE SOFTWARE INSTALADO</h2>
+        
         <div class="security-summary">
             <div class="security-metric">
                 <div class="number">$($AuditoriaSoftware.ResumenAuditoria.TotalSoftwareInstalado)</div>
@@ -3122,37 +3116,37 @@ function Generate-CompleteHTML {
                 <div>Software Seguro</div>
             </div>
         </div>
-
+        
         <div class="$(if($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo -eq 'Bajo'){'summary-box'}elseif($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo -eq 'Medio'){'info-box'}else{'warning-box'})">
-            <h3>⚠️ Nivel de Riesgo: $($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo)</h3>
+            <h3>âš ï¸ Nivel de Riesgo: $($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo)</h3>
         </div>
-
+        
 "@
-
+# NUEVA SECCIÃ“N: SOFTWARE INSTALADO
 if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
-    <h2>📦 INVENTARIO DE SOFTWARE INSTALADO</h2>
-
+    <h2>ðŸ“¦ INVENTARIO DE SOFTWARE INSTALADO</h2>
+    
     <div class="metrics-grid">
         <div class="metric-card">
-            <h4>📊 Resumen de Auditoría de Software</h4>
+            <h4>ðŸ“Š Resumen de AuditorÃ­a de Software</h4>
             <p><strong>Total Software:</strong> $($AuditoriaSoftware.ResumenAuditoria.TotalSoftwareInstalado)</p>
-            <p><strong>Software Problemático:</strong> $($AuditoriaSoftware.ResumenAuditoria.SoftwareConProblemas)</p>
+            <p><strong>Software ProblemÃ¡tico:</strong> $($AuditoriaSoftware.ResumenAuditoria.SoftwareConProblemas)</p>
             <p><strong>Nivel de Riesgo:</strong> <span class="status-indicator status-$(if($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo -eq 'Bajo'){'normal'}elseif($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo -eq 'Medio'){'warning'}else{'critical'})">$($AuditoriaSoftware.ResumenAuditoria.NivelRiesgo)</span></p>
-            <p><strong>Software Crítico:</strong> $($AuditoriaSoftware.ResumenAuditoria.SoftwareCritico)</p>
+            <p><strong>Software CrÃ­tico:</strong> $($AuditoriaSoftware.ResumenAuditoria.SoftwareCritico)</p>
             <p><strong>Software Riesgo Medio:</strong> $($AuditoriaSoftware.ResumenAuditoria.SoftwareRiesgoMedio)</p>
         </div>
     </div>
 "@
 
-
+    # Software problemÃ¡tico
     if ($AuditoriaSoftware.SoftwareProblematico -and $AuditoriaSoftware.SoftwareProblematico.Count -gt 0) {
         $htmlContent += @"
-    <h3>⚠️ Software Problemático Detectado</h3>
+    <h3>âš ï¸ Software ProblemÃ¡tico Detectado</h3>
     <table>
         <tr>
             <th>Software</th>
-            <th>Versión</th>
+            <th>VersiÃ³n</th>
             <th>Fabricante</th>
             <th>Instalado</th>
             <th>Criticidad</th>
@@ -3167,12 +3161,12 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
                 "Baja" { "status-normal" }
                 default { "" }
             }
-
+            
             $descripcionProblemas = ""
             foreach ($problema in $software.Problemas) {
                 $descripcionProblemas += "$($problema.Descripcion)<br>"
             }
-
+            
             $htmlContent += @"
         <tr>
             <td><strong>$($software.Nombre)</strong></td>
@@ -3187,16 +3181,16 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
         $htmlContent += "</table>"
     }
 
-
+    # Lista completa de software
     $htmlContent += @"
-    <h3>📋 Lista Completa de Software Instalado</h3>
+    <h3>ðŸ“‹ Lista Completa de Software Instalado</h3>
     <table>
         <tr>
             <th>Nombre</th>
-            <th>Versión</th>
+            <th>VersiÃ³n</th>
             <th>Fabricante</th>
-            <th>Fecha Instalación</th>
-            <th>Tamaño (MB)</th>
+            <th>Fecha InstalaciÃ³n</th>
+            <th>TamaÃ±o (MB)</th>
         </tr>
 "@
 
@@ -3207,7 +3201,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             <td>$($software.Version)</td>
             <td>$($software.Fabricante)</td>
             <td>$($software.FechaInstalacion)</td>
-            <td>$($software.TamañoMB)</td>
+            <td>$($software.TamaÃ±oMB)</td>
         </tr>
 "@
     }
@@ -3215,13 +3209,13 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
 }
         if ($AuditoriaSoftware.SoftwareProblematico -and $AuditoriaSoftware.SoftwareProblematico.Count -gt 0) {
             $htmlContent += @"
-        <h3>⚠️ Software que Requiere Atención</h3>
+        <h3>âš ï¸ Software que Requiere AtenciÃ³n</h3>
         <table>
             <tr>
                 <th>Nombre</th>
-                <th>Versión</th>
+                <th>VersiÃ³n</th>
                 <th>Fabricante</th>
-                <th>Fecha Instalación</th>
+                <th>Fecha InstalaciÃ³n</th>
                 <th>Criticidad</th>
                 <th>Problemas Detectados</th>
             </tr>
@@ -3233,9 +3227,9 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
                     "Baja" { "status-normal" }
                     default { "status-normal" }
                 }
-
+                
                 $problemasTexto = ($software.Problemas | ForEach-Object { $_.Tipo }) -join ", "
-
+                
                 $htmlContent += @"
             <tr>
                 <td><strong>$($software.Nombre)</strong></td>
@@ -3252,9 +3246,9 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     }
 
     $htmlContent += @"
-        <h2>📊 LOGS DE EVENTOS DE LOS 3 TIPOS PRINCIPALES</h2>
-
-        <h3>🔴 Logs del Sistema (Últimos eventos críticos)</h3>
+        <h2>ðŸ“Š LOGS DE EVENTOS DE LOS 3 TIPOS PRINCIPALES</h2>
+        
+        <h3>ðŸ”´ Logs del Sistema (Ãšltimos eventos crÃ­ticos)</h3>
         <table>
             <tr>
                 <th>Fecha/Hora</th>
@@ -3272,7 +3266,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             "Warning" { "status-warning" }
             default { "status-normal" }
         }
-
+        
         $htmlContent += @"
             <tr>
                 <td>$($log.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss"))</td>
@@ -3287,7 +3281,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>📱 Logs de Aplicación (Últimos eventos críticos)</h3>
+        <h3>ðŸ“± Logs de AplicaciÃ³n (Ãšltimos eventos crÃ­ticos)</h3>
         <table>
             <tr>
                 <th>Fecha/Hora</th>
@@ -3305,7 +3299,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             "Warning" { "status-warning" }
             default { "status-normal" }
         }
-
+        
         $htmlContent += @"
             <tr>
                 <td>$($log.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss"))</td>
@@ -3320,7 +3314,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🔒 Logs de Seguridad (Eventos de autenticación)</h3>
+        <h3>ðŸ”’ Logs de Seguridad (Eventos de autenticaciÃ³n)</h3>
         <table>
             <tr>
                 <th>Fecha/Hora</th>
@@ -3340,7 +3334,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             "Logout" { "status-normal" }
             default { "status-warning" }
         }
-
+        
         $htmlContent += @"
             <tr>
                 <td>$($log.TimeCreated.ToString("dd/MM/yyyy HH:mm:ss"))</td>
@@ -3356,14 +3350,14 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h2>🔍 DATOS EXTENDIDOS Y ANÁLISIS AVANZADO</h2>
-
-        <h3>🔄 Últimos Parches Instalados</h3>
+        <h2>ðŸ” DATOS EXTENDIDOS Y ANÃLISIS AVANZADO</h2>
+        
+        <h3>ðŸ”„ Ãšltimos Parches Instalados</h3>
         <table>
             <tr>
                 <th>HotFix ID</th>
-                <th>Descripción</th>
-                <th>Fecha Instalación</th>
+                <th>DescripciÃ³n</th>
+                <th>Fecha InstalaciÃ³n</th>
                 <th>Instalado Por</th>
             </tr>
 "@
@@ -3383,7 +3377,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>⚠️ Servicios Automáticos Detenidos</h3>
+        <h3>âš ï¸ Servicios AutomÃ¡ticos Detenidos</h3>
         <table>
             <tr>
                 <th>Nombre del Servicio</th>
@@ -3393,7 +3387,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
 "@
 
     if ($RevisarServicioTerceros) {
-        $htmlContent += "<th>Compañía</th><th>Tipo</th>"
+        $htmlContent += "<th>CompaÃ±Ã­a</th><th>Tipo</th>"
     }
 
     $htmlContent += "</tr>"
@@ -3406,7 +3400,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
                 <td><span class="status-indicator status-critical">$($servicio.Status)</span></td>
                 <td>$($servicio.StartType)</td>
 "@
-
+        
         if ($RevisarServicioTerceros) {
             $tipoClass = if ($servicio.EsMicrosoft) { "status-normal" } else { "status-warning" }
             $htmlContent += @"
@@ -3414,14 +3408,14 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
                 <td><span class="status-indicator $tipoClass">$($servicio.Tipo)</span></td>
 "@
         }
-
+        
         $htmlContent += "</tr>"
     }
 
     $htmlContent += @"
         </table>
 
-        <h3>🔥 TOP 5 Procesos por Uso de CPU</h3>
+        <h3>ðŸ”¥ TOP 5 Procesos por Uso de CPU</h3>
         <table>
             <tr>
                 <th>Proceso</th>
@@ -3445,7 +3439,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🧠 TOP 5 Procesos por Uso de Memoria</h3>
+        <h3>ðŸ§  TOP 5 Procesos por Uso de Memoria</h3>
         <table>
             <tr>
                 <th>Proceso</th>
@@ -3469,10 +3463,10 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🌐 Puertos Abiertos (Listening)</h3>
+        <h3>ðŸŒ Puertos Abiertos (Listening)</h3>
         <table>
             <tr>
-                <th>Dirección Local</th>
+                <th>DirecciÃ³n Local</th>
                 <th>Puerto</th>
                 <th>Estado</th>
                 <th>Proceso ID</th>
@@ -3493,11 +3487,11 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🔗 TOP 10 Conexiones Activas por IP</h3>
+        <h3>ðŸ”— TOP 10 Conexiones Activas por IP</h3>
         <table>
             <tr>
                 <th>IP Remota</th>
-                <th>Número de Conexiones</th>
+                <th>NÃºmero de Conexiones</th>
             </tr>
 "@
 
@@ -3513,13 +3507,13 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>👥 Usuarios Locales</h3>
+        <h3>ðŸ‘¥ Usuarios Locales</h3>
         <table>
             <tr>
                 <th>Nombre</th>
                 <th>Habilitado</th>
-                <th>Último Logon</th>
-                <th>Contraseña Expira</th>
+                <th>Ãšltimo Logon</th>
+                <th>ContraseÃ±a Expira</th>
             </tr>
 "@
 
@@ -3528,7 +3522,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
         $htmlContent += @"
             <tr>
                 <td><strong>$($usuario.Name)</strong></td>
-                <td><span class="status-indicator $habilitadoClass">$(if($usuario.Enabled){'Sí'}else{'No'})</span></td>
+                <td><span class="status-indicator $habilitadoClass">$(if($usuario.Enabled){'SÃ­'}else{'No'})</span></td>
                 <td>$($usuario.UltimoLogon)</td>
                 <td>$($usuario.PasswordExpires)</td>
             </tr>
@@ -3538,7 +3532,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🚫 Últimos 5 Intentos de Login Fallidos</h3>
+        <h3>ðŸš« Ãšltimos 5 Intentos de Login Fallidos</h3>
         <table>
             <tr>
                 <th>Fecha/Hora</th>
@@ -3570,11 +3564,11 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>⏰ Tareas Programadas (Estado)</h3>
+        <h3>â° Tareas Programadas (Estado)</h3>
         <table>
             <tr>
                 <th>Nombre de Tarea</th>
-                <th>Última Ejecución</th>
+                <th>Ãšltima EjecuciÃ³n</th>
                 <th>Resultado</th>
                 <th>Estado</th>
             </tr>
@@ -3586,9 +3580,9 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             "Error*" { "status-critical" }
             default { "status-warning" }
         }
-
+        
         $ultimaEjecucion = if ($tarea.LastRunTime) { $tarea.LastRunTime.ToString("dd/MM/yyyy HH:mm") } else { "Nunca" }
-
+        
         $htmlContent += @"
             <tr>
                 <td><strong>$($tarea.TaskName)</strong></td>
@@ -3599,13 +3593,13 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
 "@
     }
 
-
+    # SECCIÃ“N DE SEGURIDAD EXTENDIDA
     $htmlContent += @"
         </table>
 
-        <h2>🛡️ ANÁLISIS DE SEGURIDAD EXTENDIDO</h2>
-
-        <h3>🔍 Windows Defender</h3>
+        <h2>ðŸ›¡ï¸ ANÃLISIS DE SEGURIDAD EXTENDIDO</h2>
+        
+        <h3>ðŸ” Windows Defender</h3>
         <div class="metrics-grid">
             <div class="metric-card">
                 <h4>Estado de Windows Defender</h4>
@@ -3614,12 +3608,12 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     if ($DatosExtendidos.WindowsDefender -and -not $DatosExtendidos.WindowsDefender.Error) {
         $defenderStatus = if ($DatosExtendidos.WindowsDefender.Habilitado) { "status-normal" } else { "status-critical" }
         $realtimeStatus = if ($DatosExtendidos.WindowsDefender.TiempoRealActivo) { "status-normal" } else { "status-critical" }
-
+        
         $htmlContent += @"
-                <p><strong>Antivirus Habilitado:</strong> <span class="status-indicator $defenderStatus">$(if($DatosExtendidos.WindowsDefender.Habilitado){'Sí'}else{'No'})</span></p>
-                <p><strong>Protección en Tiempo Real:</strong> <span class="status-indicator $realtimeStatus">$(if($DatosExtendidos.WindowsDefender.TiempoRealActivo){'Activa'}else{'Inactiva'})</span></p>
-                <p><strong>Último Análisis Rápido:</strong> $($DatosExtendidos.WindowsDefender.UltimoAnalisisRapido)</p>
-                <p><strong>Último Análisis Completo:</strong> $($DatosExtendidos.WindowsDefender.UltimoAnalisisCompleto)</p>
+                <p><strong>Antivirus Habilitado:</strong> <span class="status-indicator $defenderStatus">$(if($DatosExtendidos.WindowsDefender.Habilitado){'SÃ­'}else{'No'})</span></p>
+                <p><strong>ProtecciÃ³n en Tiempo Real:</strong> <span class="status-indicator $realtimeStatus">$(if($DatosExtendidos.WindowsDefender.TiempoRealActivo){'Activa'}else{'Inactiva'})</span></p>
+                <p><strong>Ãšltimo AnÃ¡lisis RÃ¡pido:</strong> $($DatosExtendidos.WindowsDefender.UltimoAnalisisRapido)</p>
+                <p><strong>Ãšltimo AnÃ¡lisis Completo:</strong> $($DatosExtendidos.WindowsDefender.UltimoAnalisisCompleto)</p>
                 <p><strong>Edad de Definiciones:</strong> $($DatosExtendidos.WindowsDefender.EdadDefinicionesAV)</p>
 "@
     } else {
@@ -3633,7 +3627,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             </div>
         </div>
 
-        <h3>🔥 Estado del Firewall por Perfil</h3>
+        <h3>ðŸ”¥ Estado del Firewall por Perfil</h3>
         <table>
             <tr>
                 <th>Perfil</th>
@@ -3647,11 +3641,11 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     if ($DatosExtendidos.Firewall -and $DatosExtendidos.Firewall.Count -gt 0) {
         foreach ($perfil in $DatosExtendidos.Firewall) {
             $habilitadoClass = if ($perfil.Habilitado) { "status-normal" } else { "status-critical" }
-
+            
             $htmlContent += @"
             <tr>
                 <td><strong>$($perfil.Nombre)</strong></td>
-                <td><span class="status-indicator $habilitadoClass">$(if($perfil.Habilitado){'Sí'}else{'No'})</span></td>
+                <td><span class="status-indicator $habilitadoClass">$(if($perfil.Habilitado){'SÃ­'}else{'No'})</span></td>
                 <td>$($perfil.ConexionesEntrantes)</td>
                 <td>$($perfil.ConexionesSalientes)</td>
                 <td>$(if($perfil.NotificacionesActivas){'Activas'}else{'Inactivas'})</td>
@@ -3661,7 +3655,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     } else {
         $htmlContent += @"
             <tr>
-                <td colspan="5" style="text-align: center; font-style: italic;">Información del firewall no disponible</td>
+                <td colspan="5" style="text-align: center; font-style: italic;">InformaciÃ³n del firewall no disponible</td>
             </tr>
 "@
     }
@@ -3669,34 +3663,34 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     $htmlContent += @"
         </table>
 
-        <h3>🔒 Control de Acceso de Usuario (UAC)</h3>
+        <h3>ðŸ”’ Control de Acceso de Usuario (UAC)</h3>
         <div class="metric-card">
 "@
 
     if ($DatosExtendidos.UAC -and -not $DatosExtendidos.UAC.Error) {
         $uacStatus = if ($DatosExtendidos.UAC.Habilitado) { "status-normal" } else { "status-critical" }
-
+        
         $htmlContent += @"
-            <p><strong>UAC Habilitado:</strong> <span class="status-indicator $uacStatus">$(if($DatosExtendidos.UAC.Habilitado){'Sí'}else{'No'})</span></p>
+            <p><strong>UAC Habilitado:</strong> <span class="status-indicator $uacStatus">$(if($DatosExtendidos.UAC.Habilitado){'SÃ­'}else{'No'})</span></p>
             <p><strong>Nivel de UAC:</strong> $($DatosExtendidos.UAC.Nivel)</p>
-            <p><strong>Elevación No Segura:</strong> $(if($DatosExtendidos.UAC.ElevacionNoSegura){'Sí'}else{'No'})</p>
+            <p><strong>ElevaciÃ³n No Segura:</strong> $(if($DatosExtendidos.UAC.ElevacionNoSegura){'SÃ­'}else{'No'})</p>
 "@
     } else {
         $htmlContent += @"
-            <p><span class="status-indicator status-warning">Información de UAC no disponible</span></p>
+            <p><span class="status-indicator status-warning">InformaciÃ³n de UAC no disponible</span></p>
 "@
     }
 
     $htmlContent += @"
         </div>
 
-        <h3>📡 Configuración SNMP</h3>
+        <h3>ðŸ“¡ ConfiguraciÃ³n SNMP</h3>
         <div class="metric-card">
 "@
 
     if ($DatosExtendidos.ServicioSNMP) {
         $snmpStatus = if ($DatosExtendidos.ServicioSNMP.Status -eq "Running") { "status-normal" } else { "status-warning" }
-
+        
         $htmlContent += @"
             <p><strong>Servicio SNMP:</strong> <span class="status-indicator $snmpStatus">$($DatosExtendidos.ServicioSNMP.Status)</span></p>
             <p><strong>Tipo de Inicio:</strong> $($DatosExtendidos.ServicioSNMP.StartType)</p>
@@ -3711,23 +3705,23 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
         </div>
 
         <div class="footer">
-            <h3>📋 RESUMEN DEL INFORME</h3>
+            <h3>ðŸ“‹ RESUMEN DEL INFORME</h3>
             <p><strong>Servidor Analizado:</strong> $nombreServidor</p>
             <p><strong>Sistema Operativo:</strong> $sistemaOperativo</p>
             <p><strong>Fecha y Hora del Informe:</strong> $(Get-Date -Format "dd/MM/yyyy HH:mm:ss")</p>
-            <p><strong>Generado por:</strong> Script de Salud del Sistema v3.0 - Análisis Completo</p>
+            <p><strong>Generado por:</strong> Script de Salud del Sistema v3.0 - AnÃ¡lisis Completo</p>
             <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.3);">
             <p style="font-size: 0.9em; opacity: 0.8;">
-                Este informe incluye análisis de los 4 subsistemas principales (CPU, Memoria, Disco, Red),
-                logs de eventos de seguridad, análisis de confiabilidad, diagnóstico avanzado de hardware,
-                verificación de cumplimiento con CIS Benchmarks, análisis de permisos de carpetas sensibles,
-                auditoría de software instalado, y análisis completo de seguridad del sistema.
+                Este informe incluye anÃ¡lisis de los 4 subsistemas principales (CPU, Memoria, Disco, Red), 
+                logs de eventos de seguridad, anÃ¡lisis de confiabilidad, diagnÃ³stico avanzado de hardware,
+                verificaciÃ³n de cumplimiento con CIS Benchmarks, anÃ¡lisis de permisos de carpetas sensibles,
+                auditorÃ­a de software instalado, y anÃ¡lisis completo de seguridad del sistema.
             </p>
         </div>
     </div>
 
     <script>
-        // Agregar interactividad básica
+        // Agregar interactividad bÃ¡sica
         document.addEventListener('DOMContentLoaded', function() {
             // Efecto hover en las tarjetas
             const cards = document.querySelectorAll('.metric-card, .header-card, .compliance-card');
@@ -3746,7 +3740,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             rows.forEach(row => {
                 row.addEventListener('mouseenter', function() {
                     if (this.parentElement.tagName === 'TBODY' || this.parentElement.parentElement.tagName === 'TABLE') {
-                        this.style.backgroundColor = '
+                        this.style.backgroundColor = '#e3f2fd';
                         this.style.transition = 'background-color 0.2s ease';
                     }
                 });
@@ -3757,7 +3751,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
                 });
             });
 
-            // Animación de aparición para las secciones
+            // AnimaciÃ³n de apariciÃ³n para las secciones
             const sections = document.querySelectorAll('h2, h3');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -3783,32 +3777,32 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
     return $htmlContent
 }
 
-
+# FUNCIÃ“N PRINCIPAL MEJORADA
 function Main {
     try {
-        Write-Host "`n🚀 INICIANDO ANÁLISIS COMPLETO DE SALUD DEL SISTEMA" -ForegroundColor Green
+        Write-Host "`nðŸš€ INICIANDO ANÃLISIS COMPLETO DE SALUD DEL SISTEMA" -ForegroundColor Green
         Write-Host "=" * 80 -ForegroundColor Green
         Write-Host "Servidor: $NombreServidor" -ForegroundColor Cyan
         Write-Host "Fecha: $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')" -ForegroundColor Cyan
         Write-Host "=" * 80 -ForegroundColor Green
-
-
-        Write-Host "`n📋 FASE 1: Recopilando información del sistema..." -ForegroundColor Yellow
+        
+        # 1. InformaciÃ³n bÃ¡sica del sistema
+        Write-Host "`nðŸ“‹ FASE 1: Recopilando informaciÃ³n del sistema..." -ForegroundColor Yellow
         $infoSistema = Get-InformacionSistema
-
-
-        Write-Host "`n📊 FASE 2: Analizando métricas de rendimiento..." -ForegroundColor Yellow
+        
+        # 2. MÃ©tricas de rendimiento de los 4 subsistemas
+        Write-Host "`nðŸ“Š FASE 2: Analizando mÃ©tricas de rendimiento..." -ForegroundColor Yellow
         $metricasRendimiento = Get-MetricasRendimiento
-
-
-        Write-Host "`n📝 FASE 3: Recopilando logs de eventos..." -ForegroundColor Yellow
+        
+        # 3. Logs de eventos
+        Write-Host "`nðŸ“ FASE 3: Recopilando logs de eventos..." -ForegroundColor Yellow
         $logsEventos = Get-LogsEventos -Dias $DiasLogs
-
-
-        Write-Host "`n🔍 FASE 4: Recopilando datos extendidos..." -ForegroundColor Yellow
+        
+        # 4. Datos extendidos
+        Write-Host "`nðŸ” FASE 4: Recopilando datos extendidos..." -ForegroundColor Yellow
         $datosExtendidos = Get-DatosExtendidos -ParchesFaltantes $ParchesFaltantes -RevisarServicioTerceros $RevisarServicioTerceros
-
-
+        
+        # 5. NUEVAS FUNCIONALIDADES DE SEGURIDAD
         $analisisConfiabilidad = $null
         $diagnosticoHardware = $null
         $analisisRoles = $null
@@ -3816,103 +3810,104 @@ function Main {
         $verificacionCumplimiento = $null
         $analisisPermisos = $null
         $auditoriaSoftware = $null
-
+        
         if ($AnalisisSeguridad) {
-            Write-Host "`n🛡️ FASE 5: Ejecutando análisis de seguridad avanzado..." -ForegroundColor Yellow
-
-
-            Write-Host "   5.1 Análisis de confiabilidad..." -ForegroundColor Cyan
+            Write-Host "`nðŸ›¡ï¸ FASE 5: Ejecutando anÃ¡lisis de seguridad avanzado..." -ForegroundColor Yellow
+            
+            # 5.1 AnÃ¡lisis de confiabilidad
+            Write-Host "   5.1 AnÃ¡lisis de confiabilidad..." -ForegroundColor Cyan
             $analisisConfiabilidad = Get-AnalisisConfiabilidad
-
-
-            Write-Host "   5.2 Diagnóstico de hardware avanzado..." -ForegroundColor Cyan
+            
+            # 5.2 DiagnÃ³stico de hardware avanzado
+            Write-Host "   5.2 DiagnÃ³stico de hardware avanzado..." -ForegroundColor Cyan
             $diagnosticoHardware = Get-DiagnosticoHardwareAvanzado
-
-
-            Write-Host "   5.3 Análisis de roles de servidor..." -ForegroundColor Cyan
+            
+            # 5.3 AnÃ¡lisis de roles de servidor
+            Write-Host "   5.3 AnÃ¡lisis de roles de servidor..." -ForegroundColor Cyan
             $analisisRoles = Get-AnalisisRolesServidor
-
-
-            Write-Host "   5.4 Análisis de políticas de grupo..." -ForegroundColor Cyan
+            
+            # 5.4 AnÃ¡lisis de polÃ­ticas de grupo
+            Write-Host "   5.4 AnÃ¡lisis de polÃ­ticas de grupo..." -ForegroundColor Cyan
             $analisisPoliticas = Get-AnalisisPoliticasGrupo
-
-
-            Write-Host "   5.5 Análisis de permisos de carpetas..." -ForegroundColor Cyan
+            
+            # 5.5 AnÃ¡lisis de permisos
+            Write-Host "   5.5 AnÃ¡lisis de permisos de carpetas..." -ForegroundColor Cyan
             $analisisPermisos = Get-AnalisisPermisos
-
-
-            Write-Host "   5.6 Auditoría de software instalado..." -ForegroundColor Cyan
+            
+            # 5.6 AuditorÃ­a de software
+            Write-Host "   5.6 AuditorÃ­a de software instalado..." -ForegroundColor Cyan
             $auditoriaSoftware = Get-AuditoriaSoftware
         }
-
+        
         if ($VerificarCumplimiento) {
-            Write-Host "`n✅ FASE 6: Verificando cumplimiento con estándares..." -ForegroundColor Yellow
+            Write-Host "`nâœ… FASE 6: Verificando cumplimiento con estÃ¡ndares..." -ForegroundColor Yellow
             $verificacionCumplimiento = Get-VerificacionCumplimiento
         }
-
-
-        Write-Host "`n📄 FASE FINAL: Generando informe completo..." -ForegroundColor Yellow
+        
+        # Generar informe
+        Write-Host "`nðŸ“„ FASE FINAL: Generando informe completo..." -ForegroundColor Yellow
         Write-Progress -Activity "Generando informe HTML" -PercentComplete 90
-
+        
         $htmlContent = Generate-CompleteHTML -InfoSistema $infoSistema -MetricasRendimiento $metricasRendimiento -LogsEventos $logsEventos -DatosExtendidos $datosExtendidos -AnalisisConfiabilidad $analisisConfiabilidad -DiagnosticoHardware $diagnosticoHardware -AnalisisRoles $analisisRoles -AnalisisPoliticas $analisisPoliticas -VerificacionCumplimiento $verificacionCumplimiento -AnalisisPermisos $analisisPermisos -AuditoriaSoftware $auditoriaSoftware
-
-
+        
+        # Guardar archivo
         $archivoHTML = "$ArchivoSalida.html"
         $htmlContent | Out-File -FilePath $archivoHTML -Encoding UTF8
-
+        
         Write-Progress -Activity "Completado" -PercentComplete 100
-
-
+        
+        # Resumen final
         Write-Host "`n" + "=" * 80 -ForegroundColor Green
-        Write-Host "✅ ANÁLISIS COMPLETADO EXITOSAMENTE" -ForegroundColor Green
+        Write-Host "âœ… ANÃLISIS COMPLETADO EXITOSAMENTE" -ForegroundColor Green
         Write-Host "=" * 80 -ForegroundColor Green
-        Write-Host "📁 Archivo generado: $archivoHTML" -ForegroundColor Cyan
-        Write-Host "📊 Servidor analizado: $($infoSistema.NombreServidor)" -ForegroundColor Cyan
-        Write-Host "🖥️ Sistema operativo: $($infoSistema.NombreSO)" -ForegroundColor Cyan
-        Write-Host "⏱️ Tiempo de actividad: $($infoSistema.TiempoActividad.Days) días, $($infoSistema.TiempoActividad.Hours) horas" -ForegroundColor Cyan
-
-
-        Write-Host "`n📈 ESTADÍSTICAS DEL ANÁLISIS:" -ForegroundColor Yellow
-        Write-Host "   • Logs del sistema analizados: $($logsEventos.LogsSistema.Count)" -ForegroundColor White
-        Write-Host "   • Logs de aplicación analizados: $($logsEventos.LogsAplicacion.Count)" -ForegroundColor White
-        Write-Host "   • Logs de seguridad analizados: $($logsEventos.LogsSeguridad.Count)" -ForegroundColor White
-        Write-Host "   • Servicios automáticos detenidos: $($datosExtendidos.ServiciosDetenidos.Count)" -ForegroundColor White
-        Write-Host "   • Parches recientes instalados: $($datosExtendidos.UltimosParches.Count)" -ForegroundColor White
-
+        Write-Host "ðŸ“ Archivo generado: $archivoHTML" -ForegroundColor Cyan
+        Write-Host "ðŸ“Š Servidor analizado: $($infoSistema.NombreServidor)" -ForegroundColor Cyan
+        Write-Host "ðŸ–¥ï¸ Sistema operativo: $($infoSistema.NombreSO)" -ForegroundColor Cyan
+        Write-Host "â±ï¸ Tiempo de actividad: $($infoSistema.TiempoActividad.Days) dÃ­as, $($infoSistema.TiempoActividad.Hours) horas" -ForegroundColor Cyan
+        
+        # EstadÃ­sticas del anÃ¡lisis
+        Write-Host "`nðŸ“ˆ ESTADÃSTICAS DEL ANÃLISIS:" -ForegroundColor Yellow
+        Write-Host "   â€¢ Logs del sistema analizados: $($logsEventos.LogsSistema.Count)" -ForegroundColor White
+        Write-Host "   â€¢ Logs de aplicaciÃ³n analizados: $($logsEventos.LogsAplicacion.Count)" -ForegroundColor White
+        Write-Host "   â€¢ Logs de seguridad analizados: $($logsEventos.LogsSeguridad.Count)" -ForegroundColor White
+        Write-Host "   â€¢ Servicios automÃ¡ticos detenidos: $($datosExtendidos.ServiciosDetenidos.Count)" -ForegroundColor White
+        Write-Host "   â€¢ Parches recientes instalados: $($datosExtendidos.UltimosParches.Count)" -ForegroundColor White
+        
         if ($AnalisisSeguridad) {
-            Write-Host "`n🛡️ ANÁLISIS DE SEGURIDAD:" -ForegroundColor Yellow
+            Write-Host "`nðŸ›¡ï¸ ANÃLISIS DE SEGURIDAD:" -ForegroundColor Yellow
             if ($verificacionCumplimiento -and $verificacionCumplimiento.ResumenCumplimiento) {
-                Write-Host "   • Cumplimiento general: $($verificacionCumplimiento.ResumenCumplimiento.PorcentajeCumplimiento)%" -ForegroundColor White
-                Write-Host "   • Verificaciones exitosas: $($verificacionCumplimiento.ResumenCumplimiento.Cumple)" -ForegroundColor White
-                Write-Host "   • Verificaciones fallidas: $($verificacionCumplimiento.ResumenCumplimiento.NoCumple)" -ForegroundColor White
+                Write-Host "   â€¢ Cumplimiento general: $($verificacionCumplimiento.ResumenCumplimiento.PorcentajeCumplimiento)%" -ForegroundColor White
+                Write-Host "   â€¢ Verificaciones exitosas: $($verificacionCumplimiento.ResumenCumplimiento.Cumple)" -ForegroundColor White
+                Write-Host "   â€¢ Verificaciones fallidas: $($verificacionCumplimiento.ResumenCumplimiento.NoCumple)" -ForegroundColor White
             }
             if ($analisisPermisos -and $analisisPermisos.ResumenPermisos) {
-                Write-Host "   • Carpetas analizadas: $($analisisPermisos.ResumenPermisos.TotalCarpetasAnalizadas)" -ForegroundColor White
-                Write-Host "   • Carpetas con problemas: $($analisisPermisos.ResumenPermisos.CarpetasConProblemas)" -ForegroundColor White
+                Write-Host "   â€¢ Carpetas analizadas: $($analisisPermisos.ResumenPermisos.TotalCarpetasAnalizadas)" -ForegroundColor White
+                Write-Host "   â€¢ Carpetas con problemas: $($analisisPermisos.ResumenPermisos.CarpetasConProblemas)" -ForegroundColor White
             }
             if ($auditoriaSoftware -and $auditoriaSoftware.ResumenAuditoria) {
-                Write-Host "   • Software instalado: $($auditoriaSoftware.ResumenAuditoria.TotalSoftwareInstalado)" -ForegroundColor White
-                Write-Host "   • Software problemático: $($auditoriaSoftware.ResumenAuditoria.SoftwareConProblemas)" -ForegroundColor White
+                Write-Host "   â€¢ Software instalado: $($auditoriaSoftware.ResumenAuditoria.TotalSoftwareInstalado)" -ForegroundColor White
+                Write-Host "   â€¢ Software problemÃ¡tico: $($auditoriaSoftware.ResumenAuditoria.SoftwareConProblemas)" -ForegroundColor White
             }
         }
-
-        Write-Host "`n🌐 Para ver el informe completo, abra el archivo HTML en su navegador." -ForegroundColor Green
+        
+        Write-Host "`nðŸŒ Para ver el informe completo, abra el archivo HTML en su navegador." -ForegroundColor Green
         Write-Host "=" * 80 -ForegroundColor Green
-
-
+        
+        # Abrir automÃ¡ticamente el archivo si es posible
         try {
             Start-Process $archivoHTML
-            Write-Host "🚀 Abriendo informe en el navegador predeterminado..." -ForegroundColor Green
+            Write-Host "ðŸš€ Abriendo informe en el navegador predeterminado..." -ForegroundColor Green
         } catch {
-            Write-Host "ℹ️ Abra manualmente el archivo: $archivoHTML" -ForegroundColor Yellow
+            Write-Host "â„¹ï¸ Abra manualmente el archivo: $archivoHTML" -ForegroundColor Yellow
         }
-
+        
     } catch {
-        Write-Error "❌ Error durante la ejecución del script: $_"
-        Write-Host "📧 Si el problema persiste, contacte al administrador del sistema." -ForegroundColor Red
+        Write-Error "âŒ Error durante la ejecuciÃ³n del script: $_"
+        Write-Host "ðŸ“§ Si el problema persiste, contacte al administrador del sistema." -ForegroundColor Red
         exit 1
     }
 }
 
-
+# Ejecutar funciÃ³n principal
 Main
+
