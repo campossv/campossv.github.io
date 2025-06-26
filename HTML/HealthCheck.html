@@ -2237,7 +2237,7 @@
                 <p>Descripción: Genera un informe diario con los últimos 7 días de logs.</p>
                 
                 <h3>2. Auditoría de Seguridad Completa</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Auditorias\Seguridad" -AnalisisSeguridad $true -VerificarCumplimiento $true</code></pre>
+                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Auditorias\Seguridad" -AnalisisSeguridad -VerificarCumplimiento</code></pre>
                 <p>Descripción: Realiza un análisis completo de seguridad y cumplimiento.</p>
                 
                 <h3>3. Diagnóstico de Problemas de Rendimiento</h3>
@@ -2245,15 +2245,15 @@
                 <p>Descripción: Genera un informe enfocado en métricas de rendimiento.</p>
                 
                 <h3>4. Verificación de Parches Faltantes</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Parches" -ParchesFaltantes $true</code></pre>
+                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Parches" -ParchesFaltantes</code></pre>
                 <p>Descripción: Identifica parches de seguridad faltantes en el sistema.</p>
                 
                 <h3>5. Inventario de Software y Servicios</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Inventario" -RevisarServicioTerceros $true -FormatoExportar JSON</code></pre>
+                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Inventario" -RevisarServicioTerceros -FormatoExportar JSON</code></pre>
                 <p>Descripción: Crea un inventario de software instalado y servicios de terceros en formato JSON.</p>
                 
                 <h3>Ejemplo de Uso Completo</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes\InformeCompleto" -DiasLogs 30 -FormatoExportar HTML -ParchesFaltantes $true -RevisarServicioTerceros $true -AnalisisSeguridad $true -VerificarCumplimiento $true</code></pre>
+                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes\InformeCompleto" -DiasLogs 30 -FormatoExportar HTML -ParchesFaltantes -RevisarServicioTerceros -AnalisisSeguridad -VerificarCumplimiento</code></pre>
                 <p>Este comando generará un informe completo que incluye:</p>
                 <ul>
                     <li>30 días de logs de eventos</li>
