@@ -2231,10 +2231,142 @@
         <div class="code-container">
             <h2>Script completo</h2>
             <p>
-              <b>Código:</b> 
+              <b>Código:</b>
             </p>
-    </div>
-        </section>
+            <div class="script-preview">
+              <pre><code id="script-preview" class="language-powershell"></code></pre>
+              <div class="editor-buttons">
+                <button id="copy-script" class="editor-button">Copiar</button>
+                <button id="save-script" class="editor-button">Guardar</button>
+                <span id="editor-message" class="editor-message"></span>
+              </div>
+            </div>
+            <style>
+              .script-editor-container {
+                margin: 20px 0;
+                width: 100%;
+              }
+              .script-editor {
+                width: 100%;
+                padding: 10px;
+                font-family: 'Consolas', 'Courier New', monospace;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                background-color: #f8f8f8;
+                color: #333;
+                resize: vertical;
+              }
+              .editor-buttons {
+                margin-top: 10px;
+                display: flex;
+                gap: 10px;
+                align-items: center;
+              }
+              .editor-button {
+                padding: 8px 16px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+              }
+              .editor-button:hover {
+                background-color: #45a049;
+              }
+              .editor-message {
+                margin-left: 10px;
+                color: #4CAF50;
+                font-weight: bold;
+                opacity: 0;
+                transition: opacity 0.3s;
+              }
+              .script-preview {
+                margin-top: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                background-color: #f9f9f9;
+                max-height: 500px;
+                overflow-y: auto;
+              }
+            </style>
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const scriptPreview = document.getElementById('script-preview');
+                const copyButton = document.getElementById('copy-script');
+                const saveButton = document.getElementById('save-script');
+                const editorMessage = document.getElementById('editor-message');
+                
+                // Cargar el script completo desde archivo externo
+                let scriptContent = '';
+                
+                // Función para cargar el script desde un archivo
+                async function loadScript() {
+                  try {
+                    const response = await fetch('../MisScripts/Health-Check.ps1');
+                    if (!response.ok) {
+                      throw new Error(`Error al cargar el script: ${response.status}`);
+                    }
+                    scriptContent = await response.text();
+                    // Mostrar el script en la vista previa
+                    document.getElementById('script-preview').textContent = scriptContent;
+                    Prism.highlightElement(document.getElementById('script-preview'));
+                  } catch (error) {
+                    console.error('Error al cargar el script:', error);
+                    document.getElementById('script-preview').textContent = 'Error al cargar el script. Por favor, inténtelo de nuevo más tarde.';
+                    showMessage('Error al cargar el script', true);
+                  }
+                }
+                
+                // Cargar el script inmediatamente
+                loadScript();
+                
+                // Mostrar el script en la vista previa
+                scriptPreview.textContent = scriptContent;
+                Prism.highlightElement(scriptPreview);
+                
+                // Copiar el código
+                copyButton.addEventListener('click', function() {
+                  const tempTextarea = document.createElement('textarea');
+                  tempTextarea.value = scriptContent;
+                  document.body.appendChild(tempTextarea);
+                  tempTextarea.select();
+                  document.execCommand('copy');
+                  document.body.removeChild(tempTextarea);
+                  showMessage('¡Código copiado!');
+                });
+                
+                // Guardar el código
+                saveButton.addEventListener('click', function() {
+                  const blob = new Blob([scriptContent], {type: 'text/plain'});
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'Health-Check.ps1';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  showMessage('¡Archivo guardado!');
+                });
+                
+                // Mostrar mensaje
+                function showMessage(msg, isError = false) {
+                  editorMessage.textContent = msg;
+                  editorMessage.style.opacity = '1';
+                  editorMessage.style.color = isError ? '#f44336' : '#4CAF50';
+                  setTimeout(() => {
+                    editorMessage.style.opacity = '0';
+                  }, 3000);
+                }
+                
+                // No necesitamos localStorage ya que el script se carga directamente
+              });
+            </script>
+        </div>
+    </section>
         <br>
     
     </main>
