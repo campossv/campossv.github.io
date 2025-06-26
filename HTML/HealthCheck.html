@@ -386,51 +386,9 @@
             <br>
             <b>Código relevante:</b>
           </p>
-        </section>
-          <section id="Get-InformacionSistema">
           <div class="code-container">
-              <pre><code class="language-powershell" >function Get-InformacionSistema {
-    try {
-        Write-Progress -Activity "Recopilando información del sistema" -PercentComplete 5
-
-        $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
-        $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop
-        $system = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
-        $bios = Get-CimInstance -ClassName Win32_BIOS -ErrorAction Stop
-
-        $domainInfo = if ($system.PartOfDomain) {
-            "Dominio: $($system.Domain)"
-        } else {
-            "Grupo de trabajo: $($system.Workgroup)"
-        }
-
-        return @{
-            NombreServidor = $NombreServidor
-            DireccionIP = $DireccionIP
-            NombreSO = $os.Caption
-            VersionSO = $os.Version
-            BuildNumber = $os.BuildNumber
-            ServicePack = $os.CSDVersion
-            UltimoReinicio = $os.LastBootUpTime
-            TiempoActividad = (Get-Date) - $os.LastBootUpTime
-            Fabricante = $system.Manufacturer
-            Modelo = $system.Model
-            NumeroSerie = $bios.SerialNumber
-            Procesador = $cpu.Name
-            Nucleos = $cpu.NumberOfCores
-            ProcesadoresLogicos = $cpu.NumberOfLogicalProcessors
-            VelocidadCPU = $cpu.MaxClockSpeed
-            MemoriaTotal = [math]::Round($system.TotalPhysicalMemory / 1GB, 2)
-            DominioWorkgroup = $domainInfo
-            TimeZone = (Get-TimeZone).DisplayName
-            Arquitectura = $os.OSArchitecture
-        }
-    } catch {
-        Write-Warning "Error al obtener información del sistema: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+              <pre><code id="get-informacionsistema-code" class="language-powershell">Cargando código...</code></pre>
+      <button class="copy-button" onclick="copyCodeFromElement('get-informacionsistema-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -447,115 +405,8 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-MetricasRendimiento {
-    try {
-        Write-Progress -Activity "Recopilando métricas de los 4 subsistemas" -PercentComplete 15
-
-        Write-Host "   Analizando subsistema CPU..." -ForegroundColor Yellow
-        $cpuSamples = @()
-        for ($i = 0; $i -lt 3; $i++) {
-            $cpuSamples += (Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 1 -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-            Start-Sleep -Milliseconds 500
-        }
-        $usoCPU = [math]::Round(($cpuSamples | Measure-Object -Average).Average, 2)
-
-        $colaProcesor = (Get-Counter '\System\Processor Queue Length' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-        $interrupciones = (Get-Counter '\Processor(_Total)\Interrupts/sec' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
-        Write-Host "   Analizando subsistema Memoria..." -ForegroundColor Yellow
-        $os = Get-CimInstance -ClassName Win32_OperatingSystem
-        $memTotal = [math]::Round($os.TotalVisibleMemorySize / 1KB, 2)
-        $memLibre = [math]::Round($os.FreePhysicalMemory / 1KB, 2)
-        $memUsada = $memTotal - $memLibre
-        $porcentajeMemoria = [math]::Round(($memUsada / $memTotal) * 100, 2)
-
-        $memVirtualTotal = [math]::Round($os.TotalVirtualMemorySize / 1KB, 2)
-        $memVirtualLibre = [math]::Round($os.FreeVirtualMemory / 1KB, 2)
-        $paginasPorSeg = (Get-Counter '\Memory\Pages/sec' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-        $cacheBytes = (Get-Counter '\Memory\Cache Bytes' -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
-        Write-Host "   Analizando subsistema Disco..." -ForegroundColor Yellow
-        $discos = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }
-        $metricasDisco = @()
-
-        foreach ($disco in $discos) {
-            $espacioLibre = [math]::Round($disco.FreeSpace / 1GB, 2)
-            $espacioTotal = [math]::Round($disco.Size / 1GB, 2)
-            $espacioUsado = $espacioTotal - $espacioLibre
-            $usoDisco = if ($espacioTotal -gt 0) { [math]::Round(($espacioUsado / $espacioTotal) * 100, 2) } else { 0 }
-
-            $discoFisico = $disco.DeviceID.Replace(":", "")
-            $tiempoLectura = (Get-Counter "\LogicalDisk($discoFisico)\Avg. Disk sec/Read" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-            $tiempoEscritura = (Get-Counter "\LogicalDisk($discoFisico)\Avg. Disk sec/Write" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-            $colaDisco = (Get-Counter "\LogicalDisk($discoFisico)\Current Disk Queue Length" -ErrorAction SilentlyContinue).CounterSamples.CookedValue
-
-            $metricasDisco += @{
-                Unidad = $disco.DeviceID
-                TotalGB = $espacioTotal
-                LibreGB = $espacioLibre
-                UsadoGB = $espacioUsado
-                PorcentajeUsado = $usoDisco
-                SistemaArchivos = $disco.FileSystem
-                Etiqueta = $disco.VolumeName
-                TiempoLectura = [math]::Round($tiempoLectura * 1000, 2)
-                TiempoEscritura = [math]::Round($tiempoEscritura * 1000, 2)
-                ColaDisco = [math]::Round($colaDisco, 2)
-                Estado = switch ($usoDisco) {
-                    { $_ -gt 90 } { "Crítico" }
-                    { $_ -gt 80 } { "Advertencia" }
-                    default { "Normal" }
-                }
-            }
-        }
-
-        Write-Host "   Analizando subsistema Red..." -ForegroundColor Yellow
-        $interfacesRed = Get-CimInstance -ClassName Win32_PerfRawData_Tcpip_NetworkInterface |
-                        Where-Object { $_.Name -notlike "*Loopback*" -and $_.Name -notlike "*Teredo*" -and $_.Name -ne "_Total" }
-
-        $metricasRed = @()
-        foreach ($interfaz in $interfacesRed) {
-            $bytesEnviados = [math]::Round($interfaz.BytesSentPerSec / 1KB, 2)
-            $bytesRecibidos = [math]::Round($interfaz.BytesReceivedPerSec / 1KB, 2)
-
-            $metricasRed += @{
-                Interfaz = $interfaz.Name
-                BytesEnviados = $bytesEnviados
-                BytesRecibidos = $bytesRecibidos
-                PaquetesEnviados = $interfaz.PacketsSentPerSec
-                PaquetesRecibidos = $interfaz.PacketsReceivedPerSec
-                ErroresEnvio = $interfaz.PacketsOutboundErrors
-                ErroresRecepcion = $interfaz.PacketsReceivedErrors
-                Ancho = "N/A"
-            }
-        }
-
-        return @{
-            CPU = @{
-                UsoCPU = $usoCPU
-                ColaProcesor = [math]::Round($colaProcesor, 2)
-                Interrupciones = [math]::Round($interrupciones, 0)
-                Estado = if ($usoCPU -gt 80) { "Alto" } elseif ($usoCPU -gt 60) { "Medio" } else { "Normal" }
-            }
-            Memoria = @{
-                PorcentajeUsado = $porcentajeMemoria
-                TotalMB = [math]::Round($memTotal / 1024, 2)
-                UsadaMB = [math]::Round($memUsada / 1024, 2)
-                LibreMB = [math]::Round($memLibre / 1024, 2)
-                VirtualTotalMB = [math]::Round($memVirtualTotal / 1024, 2)
-                VirtualLibreMB = [math]::Round($memVirtualLibre / 1024, 2)
-                PaginasPorSeg = [math]::Round($paginasPorSeg, 2)
-                CacheMB = [math]::Round($cacheBytes / 1MB, 2)
-                Estado = if ($porcentajeMemoria -gt 85) { "Alto" } elseif ($porcentajeMemoria -gt 70) { "Medio" } else { "Normal" }
-            }
-            Discos = $metricasDisco
-            Red = $metricasRed
-        }
-    } catch {
-        Write-Warning "Error al obtener métricas de rendimiento: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+          <pre><code id="get-metricasrendimiento-code" class="language-powershell">Cargando código...</code></pre>
+      <button class="copy-button" onclick="copyCodeFromElement('get-metricasrendimiento-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -572,7 +423,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-LogsEventos {
+          <pre><code id="get-logseventos-code" class="language-powershell">Cargando código...
     param([int]$Dias)
 
     try {
@@ -664,7 +515,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-logseventos-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -681,7 +532,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-AnalisisConfiabilidad {
+          <pre><code id="get-analisisconfiabilidad-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Analizando confiabilidad del sistema" -PercentComplete 35
         Write-Host "   Analizando registros de confiabilidad..." -ForegroundColor Yellow
@@ -816,7 +667,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-analisisconfiabilidad-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -833,7 +684,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-DiagnosticoHardwareAvanzado {
+          <pre><code id="get-diagnosticohardwareavanzado-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Realizando diagnóstico avanzado de hardware" -PercentComplete 45
         Write-Host "   Analizando hardware avanzado..." -ForegroundColor Yellow
@@ -1077,7 +928,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-diagnosticohardwareavanzado-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -1094,7 +945,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-AnalisisRolesServidor {
+          <pre><code id="get-analisisrolesservidor-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Analizando roles y características del servidor" -PercentComplete 55
         Write-Host "   Analizando roles de Windows Server..." -ForegroundColor Yellow
@@ -1376,7 +1227,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-analisisrolesservidor-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -1393,7 +1244,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-AnalisisPoliticasGrupo {
+          <pre><code id="get-analisispoliticasgrupo-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Analizando políticas de grupo aplicadas" -PercentComplete 60
         Write-Host "   Analizando políticas de grupo (GPO)..." -ForegroundColor Yellow
@@ -1545,7 +1396,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-analisispoliticasgrupo-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -1562,7 +1413,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-VerificacionCumplimiento {
+          <pre><code id="get-verificacioncumplimiento-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Verificando cumplimiento con estándares de seguridad" -PercentComplete 65
         Write-Host "   Verificando cumplimiento con CIS Benchmarks..." -ForegroundColor Yellow
@@ -1831,7 +1682,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-verificacioncumplimiento-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -1848,7 +1699,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-AnalisisPermisos {
+          <pre><code id="get-analisispermisos-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Analizando permisos de carpetas sensibles" -PercentComplete 70
         Write-Host "   Analizando permisos de carpetas sensibles..." -ForegroundColor Yellow
@@ -1986,7 +1837,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-analisispermisos-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -2003,7 +1854,7 @@
             <br>
             <b>Código relevante:</b>
           </p>
-          <pre><code class="language-powershell">function Get-AuditoriaSoftware {
+          <pre><code id="get-auditoriasoftware-code" class="language-powershell">Cargando código...
     try {
         Write-Progress -Activity "Realizando auditoría de software instalado" -PercentComplete 75
         Write-Host "   Auditando software instalado..." -ForegroundColor Yellow
@@ -2208,7 +2059,7 @@
         return @{ Error = $_.Exception.Message }
     }
 }</code></pre>
-      <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+      <button class="copy-button" onclick="copyCodeFromElement('get-auditoriasoftware-code')" aria-label="Copiar código">Copiar</button>
       <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
       </div>
       </section>
@@ -2373,5 +2224,86 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
       <script src="script.js"></script>
+      
+      <script>
+        // Función para copiar código desde un elemento específico
+        function copyCodeFromElement(elementId) {
+          const codeElement = document.getElementById(elementId);
+          if (codeElement) {
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = codeElement.textContent;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+            
+            // Buscar el elemento de confirmación más cercano
+            const container = codeElement.closest('.code-container');
+            if (container) {
+              const confirmation = container.querySelector('.copy-confirmation');
+              if (confirmation) {
+                confirmation.style.opacity = '1';
+                setTimeout(() => {
+                  confirmation.style.opacity = '0';
+                }, 2000);
+              }
+            }
+          }
+        }
+        
+        // Función para cargar fragmentos de código desde archivos externos
+        async function loadCodeSnippet(elementId, filePath, functionName) {
+          try {
+            const response = await fetch(filePath);
+            if (!response.ok) {
+              throw new Error(`Error al cargar el fragmento: ${response.status}`);
+            }
+            const fullScript = await response.text();
+            let codeContent = fullScript;
+            
+            // Si se especifica un nombre de función, extraer solo esa función
+            if (functionName) {
+              const functionRegex = new RegExp(`function ${functionName}[\s\S]*?^}`, 'm');
+              const match = fullScript.match(functionRegex);
+              if (match) {
+                codeContent = match[0];
+              }
+            }
+            
+            // Mostrar el código en el elemento correspondiente
+            const codeElement = document.getElementById(elementId);
+            if (codeElement) {
+              codeElement.textContent = codeContent;
+              Prism.highlightElement(codeElement);
+            }
+            return codeContent;
+          } catch (error) {
+            console.error(`Error al cargar el fragmento ${functionName}:`, error);
+            const codeElement = document.getElementById(elementId);
+            if (codeElement) {
+              codeElement.textContent = `Error al cargar el fragmento de código: ${error.message}`;
+            }
+            return null;
+          }
+        }
+        
+        // Cargar todos los fragmentos de código cuando se cargue la página
+        document.addEventListener('DOMContentLoaded', function() {
+          // Cargar el script completo
+          loadScript();
+          
+          // Cargar los fragmentos individuales
+          loadCodeSnippet('get-informacionsistema-code', '../MisScripts/Health-Check.ps1', 'Get-InformacionSistema');
+          loadCodeSnippet('get-metricasrendimiento-code', '../MisScripts/Health-Check.ps1', 'Get-MetricasRendimiento');
+          loadCodeSnippet('get-logseventos-code', '../MisScripts/Health-Check.ps1', 'Get-LogsEventos');
+          loadCodeSnippet('get-analisisconfiabilidad-code', '../MisScripts/Health-Check.ps1', 'Get-AnalisisConfiabilidad');
+          loadCodeSnippet('get-diagnosticohardwareavanzado-code', '../MisScripts/Health-Check.ps1', 'Get-DiagnosticoHardwareAvanzado');
+          loadCodeSnippet('get-analisisrolesservidor-code', '../MisScripts/Health-Check.ps1', 'Get-AnalisisRolesServidor');
+          loadCodeSnippet('get-analisispoliticasgrupo-code', '../MisScripts/Health-Check.ps1', 'Get-AnalisisPoliticasGrupo');
+          loadCodeSnippet('get-verificacioncumplimiento-code', '../MisScripts/Health-Check.ps1', 'Get-VerificacionCumplimiento');
+          loadCodeSnippet('get-analisispermisos-code', '../MisScripts/Health-Check.ps1', 'Get-AnalisisPermisos');
+          loadCodeSnippet('get-auditoriasoftware-code', '../MisScripts/Health-Check.ps1', 'Get-AuditoriaSoftware');
+        });
+      </script>
       </body>
   
