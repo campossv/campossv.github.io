@@ -2287,6 +2287,29 @@
           }
         }
         
+        // Función para cargar el script completo
+        async function loadScript() {
+          try {
+            const response = await fetch('../MisScripts/Health-Check.ps1');
+            if (!response.ok) {
+              throw new Error(`Error al cargar el script: ${response.status}`);
+            }
+            const scriptContent = await response.text();
+            // Mostrar el script en la vista previa
+            const scriptPreview = document.getElementById('script-preview');
+            if (scriptPreview) {
+              scriptPreview.textContent = scriptContent;
+              Prism.highlightElement(scriptPreview);
+            }
+          } catch (error) {
+            console.error('Error al cargar el script:', error);
+            const scriptPreview = document.getElementById('script-preview');
+            if (scriptPreview) {
+              scriptPreview.textContent = 'Error al cargar el script. Por favor, inténtelo de nuevo más tarde.';
+            }
+          }
+        }
+        
         // Cargar todos los fragmentos de código cuando se cargue la página
         document.addEventListener('DOMContentLoaded', function() {
           // Cargar el script completo
