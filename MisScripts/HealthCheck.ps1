@@ -4,12 +4,8 @@
 .DESCRIPTION
     Recopila métricas de rendimiento, logs de eventos, información de seguridad
     y genera informes detallados en múltiples formatos. 
-.PARAMETER SalidaArchivo
-    Ruta donde se guardarán los informes generados 
-.PARAMETER DiasLogs
-    Número de días hacia atrás para analizar logs 
 .EXAMPLE
-    .\monitor_system.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7   
+    .\HealthCheck.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7   
 .NOTES
     Requiere permisos de administrador
 .Author
