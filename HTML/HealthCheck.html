@@ -242,14 +242,7 @@
     </center>
     <main>
       <p>
-        Este script PowerShell (HealthCheck.ps1) es una herramienta avanzada de diagnóstico y monitoreo para sistemas Windows, diseñada para administradores de sistemas y equipos de soporte técnico. Recopila información detallada sobre:
-
-<ul>
-  <li>Rendimiento del sistema (CPU, memoria, disco, red).</li>
-  <li>Eventos de seguridad y aplicaciones (logs de Windows).</li>
-  <li>Configuraciones críticas (políticas de grupo, servicios, parches).</li>
-  <li>Seguridad y cumplimiento (CIS Benchmarks, permisos de archivos, análisis de software instalado).</li>
-</ul>
+        Este script PowerShell realiza un análisis completo de la salud del sistema, recopilando métricas de rendimiento, logs de eventos, información de seguridad y generando informes detallados en múltiples formatos. Está diseñado para ejecutarse con privilegios de administrador y proporciona una visión integral del estado del servidor o estación de trabajo.
         Genera informes en HTML, JSON, CSV o Excel para facilitar el análisis y la documentación.
       </p>
       <div class="video-container">
@@ -390,7 +383,15 @@
             <br>
             <b>Parámetros:</b> Ninguno
             <br>
-            <b>Retorna:</b> Objeto con información del sistema como nombre, SO, CPU, memoria, etc.
+            <b>Retorna:</b> Hashtable con:
+            <ul>
+              <li>Nombre del servidor</li>
+              <li>Dirección IP</li>
+              <li>Información del SO (nombre, versión, build)</li>
+              <li>Información del hardware (procesador, memoria, fabricante)</li>
+              <li>Tiempo de actividad desde el último reinicio</li>
+              <li>Información de dominio/workgroup</li>
+            </ul>
             <br>
             <b>Código relevante:</b>
           </p>
@@ -409,7 +410,13 @@
             <br>
             <b>Parámetros:</b> Ninguno
             <br>
-            <b>Retorna:</b> Objeto con métricas detalladas de cada subsistema.
+            <b>Retorna:</b> Hashtable con métricas detalladas de:
+            <ul>
+              <li>Uso de CPU y cola de procesos</li>
+              <li>Uso de memoria física y virtual</li>
+              <li>Espacio en disco y tiempos de respuesta</li>
+              <li>Tráfico y errores de red</li>
+            </ul>
             <br>
             <b>Código relevante:</b>
           </p>
@@ -425,9 +432,14 @@
           <p>
             <b>Propósito:</b> Recopila logs de eventos del sistema, aplicación y seguridad.
             <br>
-            <b>Parámetros:</b> Dias: Número de días hacia atrás para buscar logs
+            <b>Parámetros: Dias: </b>Número de días hacia atrás para buscar logs
             <br>
-            <b>Retorna:</b> Objeto con logs organizados por tipo.
+            <b>Retorna:</b> Hashtable con:
+            <ul>
+              <li>Logs del sistema (errores y advertencias)</li>
+              <li>Logs de aplicación (errores y advertencias)</li>
+              <li>Eventos de seguridad (logins fallidos, cambios de cuenta)</li>
+            </ul>
             <br>
             <b>Código relevante:</b>
           </p>
@@ -2164,7 +2176,7 @@
                 // Función para cargar el script desde un archivo
                 async function loadScript() {
                   try {
-                    const response = await fetch('../MisScripts/Health-Check.ps1');
+                    const response = await fetch('../MisScripts/HealthCheck.ps1');
                     if (!response.ok) {
                       throw new Error(`Error al cargar el script: ${response.status}`);
                     }
@@ -2229,34 +2241,12 @@
         <br>
         <section id="ejemplos-uso">
             <div class="code-container">
-                <h2>Ejemplos de Uso</h2>
-                <p>A continuación se presentan varios escenarios comunes de uso del script Health-Check.ps1:</p>
-                
-                <h3>1. Monitoreo Regular de Salud del Sistema</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes\SaludDiaria" -DiasLogs 7</code></pre>
-                <p>Descripción: Genera un informe diario con los últimos 7 días de logs.</p>
-                
-                <h3>2. Auditoría de Seguridad Completa</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Auditorias\Seguridad" -AnalisisSeguridad -VerificarCumplimiento</code></pre>
-                <p>Descripción: Realiza un análisis completo de seguridad y cumplimiento.</p>
-                
-                <h3>3. Diagnóstico de Problemas de Rendimiento</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Diagnosticos\Rendimiento" -FormatoExportar HTML</code></pre>
-                <p>Descripción: Genera un informe enfocado en métricas de rendimiento.</p>
-                
-                <h3>4. Verificación de Parches Faltantes</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Parches" -ParchesFaltantes</code></pre>
-                <p>Descripción: Identifica parches de seguridad faltantes en el sistema.</p>
-                
-                <h3>5. Inventario de Software y Servicios</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Inventario" -RevisarServicioTerceros -FormatoExportar JSON</code></pre>
-                <p>Descripción: Crea un inventario de software instalado y servicios de terceros en formato JSON.</p>
-                
-                <h3>Ejemplo de Uso Completo</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes\InformeCompleto" -DiasLogs 30 -FormatoExportar HTML -ParchesFaltantes -RevisarServicioTerceros -AnalisisSeguridad -VerificarCumplimiento</code></pre>
+                <h2>Ejemplo de Uso</h2>
+                <h3>Ejecución</h3>
+                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7 -FormatoExportar HTML -AnalisisSeguridad $true</code></pre>
                 <p>Este comando generará un informe completo que incluye:</p>
                 <ul>
-                    <li>30 días de logs de eventos</li>
+                    <li>7 días de logs de eventos</li>
                     <li>Verificación de parches faltantes</li>
                     <li>Análisis de servicios de terceros</li>
                     <li>Auditoría de seguridad completa</li>
@@ -2278,6 +2268,41 @@
             </div>
         </section>
         <br>
+        <section id="casos-uso">
+            <div class="code-container">
+                <h2>Casos de Uso</h2>
+                <h3>Monitoreo de Salud del Sistema Regular</h3>
+                <ul>
+                    <li>Ejecución programada para generar informes periódicos</li>
+                    <li>Identificación de problemas de rendimiento (CPU, memoria, disco)</li>
+                    <li>Detección temprana de fallos hardware</li>
+                </ul>
+                <h3>Investigación de Incidentes</h3>
+                <ul>
+                    <li>Análisis de logs de eventos para troubleshooting</li>
+                    <li>Revisión de intentos de acceso no autorizados</li>
+                    <li>Identificación de procesos maliciosos</li>
+                </ul>
+                <h3>Auditoría de Seguridad</h3>
+                <ul>
+                    <li>Verificación de cumplimiento con estándares CIS</li>
+                    <li>Análisis de permisos en carpetas sensibles</li>
+                    <li>Revisión de configuración de seguridad (firewall, UAC)</li>
+                </ul>
+                <h3>Planificación de Capacidad</h3>
+                <ul>
+                    <li>Análisis de tendencias de uso de recursos</li>
+                    <li>Identificación de necesidades de actualización</li>
+                    <li>Optimización de configuración del sistema</li>
+                </ul>
+                <h3>Documentación del Sistema</h3>
+                <ul>
+                    <li>Inventario de software instalado</li>
+                    <li>Configuración de red y servicios</li>
+                    <li>Especificaciones técnicas del hardware</li>
+                </ul>
+            </div>
+        </section>
     </main>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>

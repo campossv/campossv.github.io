@@ -1,23 +1,19 @@
 <#
 .SYNOPSIS
-    Script de monitoreo completo de salud del sistema
-    
+    Script de monitoreo completo de salud del sistema  
 .DESCRIPTION
     Recopila métricas de rendimiento, logs de eventos, información de seguridad
-    y genera informes detallados en múltiples formatos.
-    
+    y genera informes detallados en múltiples formatos. 
 .PARAMETER SalidaArchivo
-    Ruta donde se guardarán los informes generados
-    
+    Ruta donde se guardarán los informes generados 
 .PARAMETER DiasLogs
-    Número de días hacia atrás para analizar logs
-    
+    Número de días hacia atrás para analizar logs 
 .EXAMPLE
-    .\monitor_system.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7
-    
+    .\monitor_system.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7   
 .NOTES
-    Versión: 3.0
     Requiere permisos de administrador
+.Author
+    Vladimir Campos
 #>
 
 [CmdletBinding()]
@@ -31,7 +27,7 @@ param(
     [switch]$AnalisisSeguridad = $true,
     [switch]$VerificarCumplimiento = $true
 )
-
+Add-Type -AssemblyName System.Drawing
 $LPNG = "iVBORw0KGgoAAAANSUhEUgAAAJwAAABJCAYAAADIS0/RAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAHzcAAB83AeXxie8AAAgCaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgOS4xLWMwMDIgNzkuYTFjZDEyZiwgMjAyNC8xMS8xMS0xOTowODo0NiAgICAgICAgIj4NCgk8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KCQk8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczpBdHRyaWI9Imh0dHA6Ly9ucy5hdHRyaWJ1dGlvbi5jb20vYWRzLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczpwaG90b3Nob3A9Imh0dHA6Ly9ucy5hZG9iZS5jb20vcGhvdG9zaG9wLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgeG1wOkNyZWF0b3JUb29sPSJDYW52YSBkb2M9REFHbVNQOVF5VDQgdXNlcj1VQUZzbDYwbHp0ZyBicmFuZD1DQU5WQSBQUk8gMyB0ZW1wbGF0ZT1Db2xsYWdlIGRlIEZlbGljaXRhY2lvbiBDdW1wbGVhw7FvcyBGb3RvcyBNb2Rlcm5vIFBhc3RlbCIgeG1wOkNyZWF0ZURhdGU9IjIwMjUtMDUtMTlUMTE6NTg6MTctMDY6MDAiIHhtcDpNb2RpZnlEYXRlPSIyMDI1LTA1LTE5VDEyOjAyOjQyLTA2OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI1LTA1LTE5VDEyOjAyOjQyLTA2OjAwIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmQ0YjlhMjRhLWZiM2MtYTg0NS04MTUzLWNlYjBjZWI1ZTNiMiIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpkNGI5YTI0YS1mYjNjLWE4NDUtODE1My1jZWIwY2ViNWUzYjIiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpkNGI5YTI0YS1mYjNjLWE4NDUtODE1My1jZWIwY2ViNWUzYjIiPg0KCQkJPEF0dHJpYjpBZHM+DQoJCQkJPHJkZjpTZXE+DQoJCQkJCTxyZGY6bGkgQXR0cmliOkNyZWF0ZWQ9IjIwMjUtMDUtMTkiIEF0dHJpYjpFeHRJZD0iOTIyNGJiODItZTg3Zi00N2Q3LTg2N2MtYjhkYzYzOTM4NzIzIiBBdHRyaWI6RmJJZD0iNTI1MjY1OTE0MTc5NTgwIiBBdHRyaWI6VG91Y2hUeXBlPSIyIi8+DQoJCQkJPC9yZGY6U2VxPg0KCQkJPC9BdHRyaWI6QWRzPg0KCQkJPGRjOnRpdGxlPg0KCQkJCTxyZGY6QWx0Pg0KCQkJCQk8cmRmOmxpIHhtbDpsYW5nPSJ4LWRlZmF1bHQiPsKhQmllbnZlbmlkb3MgYWwgRXF1aXBvIERldmVsISAtIEx1bmVzIE1vdGl2YWNpb25hbDwvcmRmOmxpPg0KCQkJCTwvcmRmOkFsdD4NCgkJCTwvZGM6dGl0bGU+DQoJCQk8ZGM6Y3JlYXRvcj4NCgkJCQk8cmRmOlNlcT4NCgkJCQkJPHJkZjpsaT5XZWJtYXN0ZXIgRGV2ZWw8L3JkZjpsaT4NCgkJCQk8L3JkZjpTZXE+DQoJCQk8L2RjOmNyZWF0b3I+DQoJCQk8eG1wTU06SGlzdG9yeT4NCgkJCQk8cmRmOlNlcT4NCgkJCQkJPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmQ0YjlhMjRhLWZiM2MtYTg0NS04MTUzLWNlYjBjZWI1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"
 $lenbytes = [Convert]::FromBase64String($LPNG)
 $lenmemoria = New-Object System.IO.MemoryStream
@@ -1887,22 +1883,114 @@ function Get-AuditoriaSoftware {
     }
 }
 
-function Get-DatosExtendidos {
     param(
         [bool]$ParchesFaltantes = $false,
         [bool]$RevisarServicioTerceros = $false
     )
-    
+
     try {
         Write-Progress -Activity "Recopilando datos extendidos completos" -PercentComplete 40
         
         $datos = @{}
+        
+        if ($ParchesFaltantes) {
+            Write-Host "   Buscando actualizaciones faltantes..." -ForegroundColor Yellow
+            try {
+                # Buscar actualizaciones faltantes usando Windows Update API
+                $actualizacionesFaltantes = @()
+                
+                # Método 1: Usando PSWindowsUpdate si está disponible
+                if (Get-Module -ListAvailable -Name PSWindowsUpdate -ErrorAction SilentlyContinue) {
+                    Import-Module PSWindowsUpdate -ErrorAction SilentlyContinue
+                    $actualizacionesFaltantes = Get-WindowsUpdate -ErrorAction SilentlyContinue | 
+                                               Select-Object Title, Description, @{Name="KB";Expression={$_.KB}}, Size, @{Name="Importancia";Expression={$_.MsrcSeverity}}
+                }
+                
+                # Método 2: Usando COM Object si PSWindowsUpdate no está disponible
+                if ($actualizacionesFaltantes.Count -eq 0) {
+                    Write-Host "   Usando método alternativo para buscar actualizaciones..." -ForegroundColor Yellow
+                    try {
+                        $updateSession = New-Object -ComObject Microsoft.Update.Session
+                        $updateSearcher = $updateSession.CreateUpdateSearcher()
+                        $searchResult = $updateSearcher.Search("IsInstalled=0 and Type='Software'")
+                        
+                        if ($searchResult.Updates.Count -gt 0) {
+                            foreach ($update in $searchResult.Updates) {
+                                # Extraer número KB del título si existe
+                                $kbMatch = $update.Title -match "KB(\d+)"
+                                $kbNumber = if ($kbMatch) { "KB" + $matches[1] } else { "N/A" }
+                                 
+                                $actualizacionesFaltantes += [PSCustomObject]@{
+                                    Title = $update.Title
+                                    Description = $update.Description
+                                    KB = $kbNumber
+                                    Size = [math]::Round($update.MaxDownloadSize / 1MB, 2).ToString() + " MB"
+                                    Importancia = switch ($update.MsrcSeverity) {
+                                        "Critical" { "Crítica" }
+                                        "Important" { "Importante" }
+                                        "Moderate" { "Moderada" }
+                                        "Low" { "Baja" }
+                                        default { "No especificada" }
+                                    }
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-Host "   Error al buscar actualizaciones con COM: $_" -ForegroundColor Red
+                    }
+                }
+                
+                # Método 3: Usando PowerShell para Windows 10/11 y Server 2016+
+                if ($actualizacionesFaltantes.Count -eq 0) {
+                    Write-Host "   Usando método de PowerShell nativo para buscar actualizaciones..." -ForegroundColor Yellow
+                    try {
+                        $updates = Get-CimInstance -Namespace "root/Microsoft/Windows/WindowsUpdate" -ClassName "MSFT_WUOperationsSession" -ErrorAction SilentlyContinue
+                        if ($updates) {
+                            $scanResults = Invoke-CimMethod -InputObject $updates -MethodName ScanForUpdates -Arguments @{SearchCriteria="IsInstalled=0";OnlineScan=$true}
+                            if ($scanResults -and $scanResults.Updates) {
+                                foreach ($update in $scanResults.Updates) {
+                                    $actualizacionesFaltantes += [PSCustomObject]@{
+                                        Title = $update.Title
+                                        Description = $update.Description
+                                        KB = $update.KBArticleIDs -join ", "
+                                        Size = [math]::Round($update.MaxDownloadSize / 1MB, 2).ToString() + " MB"
+                                        Importancia = $update.MsrcSeverity
+                                    }
+                                }
+                            }
+                        }
+                    } catch {
+                        Write-Host "   Error al buscar actualizaciones con PowerShell: $_" -ForegroundColor Red
+                    }
+                }
+                
+                # Clasificar las actualizaciones por importancia
+                $datos.ActualizacionesFaltantes = $actualizacionesFaltantes | Sort-Object -Property @{Expression={switch($_.Importancia){"Crítica"{0}"Importante"{1}"Moderada"{2}"Baja"{3}default{4}}}}
+                
+                # Resumen de actualizaciones faltantes
+                $datos.ResumenActualizaciones = @{
+                    TotalActualizaciones = $actualizacionesFaltantes.Count
+                    ActualizacionesCriticas = ($actualizacionesFaltantes | Where-Object { $_.Importancia -eq "Crítica" }).Count
+                    ActualizacionesImportantes = ($actualizacionesFaltantes | Where-Object { $_.Importancia -eq "Importante" }).Count
+                    UltimaVerificacion = Get-Date -Format "dd/MM/yyyy HH:mm:ss"
+                }
+                
+                Write-Host "   Se encontraron $($actualizacionesFaltantes.Count) actualizaciones pendientes" -ForegroundColor Yellow
+            } catch {
+                Write-Host "   Error al buscar actualizaciones faltantes: $_" -ForegroundColor Red
+                $datos.ActualizacionesFaltantes = @()
+                $datos.ResumenActualizaciones = @{
+                    Error = "Error al buscar actualizaciones: $($_.Exception.Message)"
+                }
+            }
+        }
         
         # 1. PARCHES - Últimos instalados + Faltantes (si se solicita)
         Write-Host "   Analizando parches del sistema..." -ForegroundColor Yellow
         $datos.UltimosParches = Get-HotFix | Sort-Object InstalledOn -Descending | 
                                Select-Object -First 15 HotFixID, Description, InstalledOn, InstalledBy
         
+{{ ... }}
         if ($ParchesFaltantes) {
             try {
                 Write-Host "   Verificando parches faltantes..." -ForegroundColor Yellow
@@ -3667,6 +3755,79 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
         <div class="metric-card">
 "@
 
+    # Agregar sección de actualizaciones faltantes si está habilitado
+    if ($DatosExtendidos.ActualizacionesFaltantes -and $DatosExtendidos.ActualizacionesFaltantes.Count -gt 0) {
+        $htmlContent += @"
+    <h2>🔄 ACTUALIZACIONES PENDIENTES</h2>
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-title">Resumen de Actualizaciones</div>
+            <div class="metric-content">
+                <div class="metric-item">
+                    <span>Total:</span>
+                    <span class="metric-value">$($DatosExtendidos.ResumenActualizaciones.TotalActualizaciones)</span>
+                </div>
+                <div class="metric-item">
+                    <span>Críticas:</span>
+                    <span class="metric-value status-critical">$($DatosExtendidos.ResumenActualizaciones.ActualizacionesCriticas)</span>
+                </div>
+                <div class="metric-item">
+                    <span>Importantes:</span>
+                    <span class="metric-value status-warning">$($DatosExtendidos.ResumenActualizaciones.ActualizacionesImportantes)</span>
+                </div>
+                <div class="metric-item">
+                    <span>Última verificación:</span>
+                    <span class="metric-value">$($DatosExtendidos.ResumenActualizaciones.UltimaVerificacion)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-container">
+        <table class="data-table">
+            <tr>
+                <th>Título</th>
+                <th>KB</th>
+                <th>Importancia</th>
+                <th>Tamaño</th>
+            </tr>
+"@
+
+        foreach ($update in $DatosExtendidos.ActualizacionesFaltantes) {
+            $importanciaClass = switch ($update.Importancia) {
+                "Crítica" { "status-critical" }
+                "Importante" { "status-warning" }
+                "Moderada" { "status-moderate" }
+                default { "" }
+            }
+            
+            $htmlContent += @"
+            <tr>
+                <td title="$($update.Description)">$($update.Title)</td>
+                <td>$($update.KB)</td>
+                <td class="$importanciaClass">$($update.Importancia)</td>
+                <td>$($update.Size)</td>
+            </tr>
+"@
+        }
+        
+        $htmlContent += @"
+        </table>
+    </div>
+"@
+    } elseif ($ParchesFaltantes -and (!$DatosExtendidos.ActualizacionesFaltantes -or $DatosExtendidos.ActualizacionesFaltantes.Count -eq 0)) {
+        $htmlContent += @"
+    <h2>🔄 ACTUALIZACIONES PENDIENTES</h2>
+    <div class="alert-box status-normal">
+        <i class="fas fa-check-circle"></i>
+        <div>
+            <h3>Sistema Actualizado</h3>
+            <p>No se encontraron actualizaciones pendientes en el sistema.</p>
+        </div>
+    </div>
+"@
+    }
+
     if ($DatosExtendidos.UAC -and -not $DatosExtendidos.UAC.Error) {
         $uacStatus = if ($DatosExtendidos.UAC.Habilitado) { "status-normal" } else { "status-critical" }
         
@@ -3709,7 +3870,7 @@ if ($AuditoriaSoftware -and $AuditoriaSoftware.SoftwareInstalado) {
             <p><strong>Servidor Analizado:</strong> $nombreServidor</p>
             <p><strong>Sistema Operativo:</strong> $sistemaOperativo</p>
             <p><strong>Fecha y Hora del Informe:</strong> $(Get-Date -Format "dd/MM/yyyy HH:mm:ss")</p>
-            <p><strong>Generado por:</strong> Script de Salud del Sistema v3.0 - Análisis Completo</p>
+            <p><strong>Generado por:</strong> Script de Salud del Sistema - Análisis Completo</p>
             <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.3);">
             <p style="font-size: 0.9em; opacity: 0.8;">
                 Este informe incluye análisis de los 4 subsistemas principales (CPU, Memoria, Disco, Red), 
@@ -3872,6 +4033,12 @@ function Main {
         Write-Host "   • Logs de seguridad analizados: $($logsEventos.LogsSeguridad.Count)" -ForegroundColor White
         Write-Host "   • Servicios automáticos detenidos: $($datosExtendidos.ServiciosDetenidos.Count)" -ForegroundColor White
         Write-Host "   • Parches recientes instalados: $($datosExtendidos.UltimosParches.Count)" -ForegroundColor White
+        if ($ParchesFaltantes) {
+            Write-Host "   • Actualizaciones pendientes: $($datosExtendidos.ActualizacionesFaltantes.Count)" -ForegroundColor White
+            if ($datosExtendidos.ResumenActualizaciones.ActualizacionesCriticas -gt 0) {
+                Write-Host "   • Actualizaciones críticas pendientes: $($datosExtendidos.ResumenActualizaciones.ActualizacionesCriticas)" -ForegroundColor Red
+            }
+        }
         
         if ($AnalisisSeguridad) {
             Write-Host "`n🛡️ ANÁLISIS DE SEGURIDAD:" -ForegroundColor Yellow

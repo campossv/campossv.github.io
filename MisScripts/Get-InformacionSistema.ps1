@@ -1,21 +1,13 @@
 function Get-InformacionSistema {
     try {
-        Write-Progress -Activity "Recopilando información del sistema" -PercentComplete 5
-
-        $os = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
-        $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop
-        $system = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
-        $bios = Get-CimInstance -ClassName Win32_BIOS -ErrorAction Stop
-
-        $domainInfo = if ($system.PartOfDomain) {
-            "Dominio: $($system.Domain)"
-        } else {
-            "Grupo de trabajo: $($system.Workgroup)"
-        }
-
+        $os = Get-CimInstance -ClassName Win32_OperatingSystem
+        $cpu = Get-CimInstance -ClassName Win32_Processor
+        $system = Get-CimInstance -ClassName Win32_ComputerSystem
+        $bios = Get-CimInstance -ClassName Win32_BIOS
+        
         return @{
-            NombreServidor = $NombreServidor
-            DireccionIP = $DireccionIP
+            NombreServidor = $env:COMPUTERNAME
+            DireccionIP = (Test-Connection -ComputerName $env:COMPUTERNAME -Count 1).IPv4Address.IPAddressToString
             NombreSO = $os.Caption
             VersionSO = $os.Version
             BuildNumber = $os.BuildNumber
@@ -28,11 +20,9 @@ function Get-InformacionSistema {
             Procesador = $cpu.Name
             Nucleos = $cpu.NumberOfCores
             ProcesadoresLogicos = $cpu.NumberOfLogicalProcessors
-            VelocidadCPU = $cpu.MaxClockSpeed
             MemoriaTotal = [math]::Round($system.TotalPhysicalMemory / 1GB, 2)
-            DominioWorkgroup = $domainInfo
+            DominioWorkgroup = if ($system.PartOfDomain) {"Dominio: $($system.Domain)"} else {"Grupo de trabajo: $($system.Workgroup)"}
             TimeZone = (Get-TimeZone).DisplayName
-            Arquitectura = $os.OSArchitecture
         }
     } catch {
         Write-Warning "Error al obtener información del sistema: $_"
