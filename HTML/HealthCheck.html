@@ -600,7 +600,6 @@
                 $fallosAplicacion = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1002, 1003) }).Count
                 $fallosSistema = ($eventosConfiabilidad | Where-Object { $_.EventID -eq 1008 }).Count
                 $reinicios = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1006, 1007) }).Count
-
                 $datos.EstadisticasEstabilidad = @{
                     FallosAplicacion = $fallosAplicacion
                     FallosSistema = $fallosSistema
