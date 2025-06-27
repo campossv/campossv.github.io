@@ -46,7 +46,6 @@ try {$DireccionIP = (Test-Connection -ComputerName $NombreServidor -Count 1 -Err
 
 if (-not (Test-Path -Path $SalidaArchivo)) {New-Item -ItemType Directory -Path $SalidaArchivo -Force | Out-Null}
 $ArchivoSalida = "$SalidaArchivo\InformeSalud_$($NombreServidor)_$FechaInforme"
-
 function Get-InformacionSistema {
     try {
         Write-Progress -Activity "Recopilando información del sistema" -PercentComplete 5
