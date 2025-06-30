@@ -18,8 +18,8 @@ param(
     [int]$DiasLogs = 15,
     [ValidateSet("HTML", "JSON", "CSV", "EXCEL")]
     [string]$FormatoExportar = "HTML",
-    [switch]$ParchesFaltantes = $false,
-    [switch]$RevisarServicioTerceros = $false,
+    [switch]$ParchesFaltantes = $true,
+    [switch]$RevisarServicioTerceros = $true,
     [switch]$AnalisisSeguridad = $true,
     [switch]$VerificarCumplimiento = $true
 )
