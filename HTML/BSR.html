@@ -962,6 +962,11 @@ $logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALE
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
   <script>
     document.querySelectorAll('.code-container').forEach(container => {
+      const codeElement = container.querySelector('code');
+      if (!codeElement) {
+        return;
+      }
+
       const button = document.createElement('button');
       button.className = 'copy-button';
       button.textContent = 'Copiar';
@@ -974,7 +979,7 @@ $logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALE
       container.appendChild(confirmation);
 
       button.addEventListener('click', () => {
-        const code = container.querySelector('code').textContent;
+        const code = codeElement.textContent;
         navigator.clipboard.writeText(code);
 
         confirmation.classList.add('show');
