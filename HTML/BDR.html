@@ -258,7 +258,7 @@
 
       <div class="section">
         <h3>Funciones de Estilo de Interfaz</h3>
-        <div class="code-container">
+        <div class="code-container" data-copy="true">
           <h4>Set-ButtonStyle</h4>
           <p>Aplica un estilo consistente a los botones de la interfaz.</p>
           <pre><code class="language-powershell">function Set-ButtonStyle {
@@ -893,7 +893,7 @@ if ($script:jobs) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
   <script>
-    document.querySelectorAll('.code-container').forEach(container => {
+    document.querySelectorAll('.code-container[data-copy="true"]').forEach(container => {
       const codeElement = container.querySelector('code');
       if (!codeElement) {
         return;
