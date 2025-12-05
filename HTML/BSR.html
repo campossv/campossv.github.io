@@ -335,487 +335,511 @@ Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
 function Write-BuscarSoftwareLog {
-    param(
-        [Parameter(Mandatory)][string]$Message
-    )
+param(
+[Parameter(Mandatory)][string]$Message
+)
 
-    try {
-        $logDirectory = 'C:\Logs'
-        $logPath = Join-Path -Path $logDirectory -ChildPath 'BuscarSoftwareRed.log'
+try {
+$logDirectory = 'C:\Logs'
+$logPath = Join-Path -Path $logDirectory -ChildPath 'BuscarSoftwareRed.log'
 
-        if (-not (Test-Path -Path $logDirectory)) {
-            New-Item -Path $logDirectory -ItemType Directory -Force | Out-Null
-        }
+if (-not (Test-Path -Path $logDirectory)) {
+New-Item -Path $logDirectory -ItemType Directory -Force | Out-Null
+}
 
-        $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-        $entry = "[$timestamp] $Message"
-        Add-Content -Path $logPath -Value $entry -Encoding UTF8
-    }
-    catch {
-        
-    }
+$timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+$entry = "[$timestamp] $Message"
+Add-Content -Path $logPath -Value $entry -Encoding UTF8
+}
+catch {
+# No romper la ejecución del módulo si falla el log
+}
 }
 
 function Get-ImageFromBase64 {
-    param(
-        [Parameter(Mandatory)][string]$Base64
-    )
+param(
+[Parameter(Mandatory)][string]$Base64
+)
 
-    if ([string]::IsNullOrWhiteSpace($Base64)) {
-        return $null
-    }
+if ([string]::IsNullOrWhiteSpace($Base64)) {
+return $null
+}
 
-    try {
-        $bytes = [Convert]::FromBase64String($Base64)
-        $ms = New-Object System.IO.MemoryStream(, $bytes)
-        return [System.Drawing.Image]::FromStream($ms)
-    }
-    catch {
-        return $null
-    }
+try {
+$bytes = [Convert]::FromBase64String($Base64)
+$ms = New-Object System.IO.MemoryStream(, $bytes)
+return [System.Drawing.Image]::FromStream($ms)
+}
+catch {
+return $null
+}
 }
 
 function Get-DomainComputers {
-    param(
-        [ValidateSet('All', 'Servers', 'Workstations')]
-        [string]$Type = 'All'
-    )
+param(
+[ValidateSet('All', 'Servers', 'Workstations')]
+[string]$Type = 'All'
+)
 
-    try {
-        Import-Module ActiveDirectory -ErrorAction Stop
-    }
-    catch {
-        [System.Windows.Forms.MessageBox]::Show("No se pudo importar el módulo ActiveDirectory.\nAsegúrate de tener RSAT/AD instalado.", "Error", 'OK', 'Error') | Out-Null
-        return @()
-    }
+try {
+Import-Module ActiveDirectory -ErrorAction Stop
+}
+catch {
+[System.Windows.Forms.MessageBox]::Show("No se pudo importar el módulo ActiveDirectory.\nAsegúrate de tener RSAT/AD
+instalado.", "Error", 'OK', 'Error') | Out-Null
+return @()
+}
 
-    try {
-        $ldapFilter = '(objectClass=computer)'
+try {
+$ldapFilter = '(objectClass=computer)'
 
-        switch ($Type) {
-            'Servers' {
-                $ldapFilter = '(operatingSystem=*Server*)'
-            }
-            'Workstations' {
-                $ldapFilter = '(!(operatingSystem=*Server*))'
-            }
-        }
+switch ($Type) {
+'Servers' {
+$ldapFilter = '(operatingSystem=*Server*)'
+}
+'Workstations' {
+$ldapFilter = '(!(operatingSystem=*Server*))'
+}
+}
 
-        $computers = Get-ADComputer -LDAPFilter $ldapFilter -Properties OperatingSystem |
-        Select-Object Name, OperatingSystem
+$computers = Get-ADComputer -LDAPFilter $ldapFilter -Properties OperatingSystem |
+Select-Object Name, OperatingSystem
 
-        return $computers | Sort-Object Name
-    }
-    catch {
-        $errorMessage = $_.Exception.Message
-        $fullError = $_ | Out-String
-        Write-BuscarSoftwareLog -Message "Get-DomainComputers error. Type=$Type; Message=$errorMessage; Details=$fullError"
-        [System.Windows.Forms.MessageBox]::Show("Error al obtener equipos del dominio. Detalle: $errorMessage", "Error", 'OK', 'Error') | Out-Null
-        return @()
-    }
+return $computers | Sort-Object Name
+}
+catch {
+$errorMessage = $_.Exception.Message
+$fullError = $_ | Out-String
+Write-BuscarSoftwareLog -Message "Get-DomainComputers error. Type=$Type; Message=$errorMessage; Details=$fullError"
+[System.Windows.Forms.MessageBox]::Show("Error al obtener equipos del dominio. Detalle: $errorMessage", "Error", 'OK',
+'Error') | Out-Null
+return @()
+}
 }
 
 function Get-RemoteSoftwareFromRegistry {
-    param(
-        [Parameter(Mandatory)][string]$ComputerName,
-        [Parameter(Mandatory)][string]$SearchText
-    )
+param(
+[Parameter(Mandatory)][string]$ComputerName,
+[Parameter(Mandatory)][string]$SearchText
+)
 
-    $scriptBlock = {
-        param($SearchTextInner)
-        $paths = @(
-            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
-            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
-        )
+$scriptBlock = {
+param($SearchTextInner)
+$paths = @(
+'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
 
-        $apps = foreach ($path in $paths) {
-            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
-            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $SearchTextInner + "*") } |
-            Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
-        }
+$apps = foreach ($path in $paths) {
+Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $SearchTextInner + "*") } |
+Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
+}
 
-        return $apps
-    }
+return $apps
+}
 
-    try {
-        $sessionOptions = New-PSSessionOption -OperationTimeout 120000
-        $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -SessionOption $sessionOptions -ErrorAction Stop
-        foreach ($app in $result) {
-            [PSCustomObject]@{
-                ComputerName   = $ComputerName
-                DisplayName    = $app.DisplayName
-                DisplayVersion = $app.DisplayVersion
-                Publisher      = $app.Publisher
-                InstallDate    = $app.InstallDate
-            }
-        }
-    }
-    catch {
-        $errorMessage = $_.Exception.Message
-        $fullError = $_ | Out-String
-        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromRegistry error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
-        @()
-    }
+try {
+$sessionOptions = New-PSSessionOption -OperationTimeout 120000
+$result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -SessionOption
+$sessionOptions -ErrorAction Stop
+foreach ($app in $result) {
+[PSCustomObject]@{
+ComputerName = $ComputerName
+DisplayName = $app.DisplayName
+DisplayVersion = $app.DisplayVersion
+Publisher = $app.Publisher
+InstallDate = $app.InstallDate
+}
+}
+}
+catch {
+$errorMessage = $_.Exception.Message
+$fullError = $_ | Out-String
+Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromRegistry error. Computer=$ComputerName; Message=$errorMessage;
+Details=$fullError"
+@()
+}
 }
 
 function Get-RemoteSoftwareFromPackage {
-    param(
-        [Parameter(Mandatory)][string]$ComputerName,
-        [Parameter(Mandatory)][string]$SearchText
-    )
+param(
+[Parameter(Mandatory)][string]$ComputerName,
+[Parameter(Mandatory)][string]$SearchText
+)
 
-    $scriptBlock = {
-        param($SearchTextInner)
-        try {
-            $packages = Get-Package -ErrorAction Stop |
-            Where-Object { $_.Name -and ($_.Name -like "*" + $SearchTextInner + "*") }
+$scriptBlock = {
+param($SearchTextInner)
+try {
+$packages = Get-Package -ErrorAction Stop |
+Where-Object { $_.Name -and ($_.Name -like "*" + $SearchTextInner + "*") }
 
-            foreach ($pkg in $packages) {
-                [PSCustomObject]@{
-                    DisplayName    = $pkg.Name
-                    DisplayVersion = $pkg.Version
-                    Publisher      = $pkg.ProviderName
-                    InstallDate    = $null
-                }
-            }
-        }
-        catch {
-            @()
-        }
-    }
+foreach ($pkg in $packages) {
+[PSCustomObject]@{
+DisplayName = $pkg.Name
+DisplayVersion = $pkg.Version
+Publisher = $pkg.ProviderName
+InstallDate = $null
+}
+}
+}
+catch {
+@()
+}
+}
 
-    try {
-        $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -ErrorAction Stop
-        foreach ($app in $result) {
-            [PSCustomObject]@{
-                ComputerName   = $ComputerName
-                DisplayName    = $app.DisplayName
-                DisplayVersion = $app.DisplayVersion
-                Publisher      = $app.Publisher
-                InstallDate    = $app.InstallDate
-            }
-        }
-    }
-    catch {
-        $errorMessage = $_.Exception.Message
-        $fullError = $_ | Out-String
-        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromPackage error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
-        @()
-    }
+try {
+$result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -ErrorAction
+Stop
+foreach ($app in $result) {
+[PSCustomObject]@{
+ComputerName = $ComputerName
+DisplayName = $app.DisplayName
+DisplayVersion = $app.DisplayVersion
+Publisher = $app.Publisher
+InstallDate = $app.InstallDate
+}
+}
+}
+catch {
+$errorMessage = $_.Exception.Message
+$fullError = $_ | Out-String
+Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromPackage error. Computer=$ComputerName; Message=$errorMessage;
+Details=$fullError"
+@()
+}
 }
 
 function Get-RemoteSoftwareFromWmi {
-    param(
-        [Parameter(Mandatory)][string]$ComputerName,
-        [Parameter(Mandatory)][string]$SearchText
-    )
+param(
+[Parameter(Mandatory)][string]$ComputerName,
+[Parameter(Mandatory)][string]$SearchText
+)
 
-    try {
-        $instances = Get-CimInstance -ClassName Win32_Product -ComputerName $ComputerName -OperationTimeoutSec 120 -ErrorAction Stop |
-        Where-Object { $_.Name -and ($_.Name -like "*" + $SearchText + "*") }
+try {
+$instances = Get-CimInstance -ClassName Win32_Product -ComputerName $ComputerName -OperationTimeoutSec 120 -ErrorAction
+Stop |
+Where-Object { $_.Name -and ($_.Name -like "*" + $SearchText + "*") }
 
-        foreach ($inst in $instances) {
-            [PSCustomObject]@{
-                ComputerName   = $ComputerName
-                DisplayName    = $inst.Name
-                DisplayVersion = $inst.Version
-                Publisher      = $inst.Vendor
-                InstallDate    = $inst.InstallDate
-            }
-        }
-    }
-    catch {
-        $errorMessage = $_.Exception.Message
-        $fullError = $_ | Out-String
-        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromWmi error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
-        @()
-    }
+foreach ($inst in $instances) {
+[PSCustomObject]@{
+ComputerName = $ComputerName
+DisplayName = $inst.Name
+DisplayVersion = $inst.Version
+Publisher = $inst.Vendor
+InstallDate = $inst.InstallDate
+}
+}
+}
+catch {
+$errorMessage = $_.Exception.Message
+$fullError = $_ | Out-String
+Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromWmi error. Computer=$ComputerName; Message=$errorMessage;
+Details=$fullError"
+@()
+}
 }
 
 function Get-InstalledSoftwareRemote {
-    param(
-        [Parameter(Mandatory)] [string]$ComputerName,
-        [Parameter(Mandatory)] [string]$SearchText,
-        [switch]$UseWin32Product = $true
-    )
+param(
+[Parameter(Mandatory)] [string]$ComputerName,
+[Parameter(Mandatory)] [string]$SearchText,
+[switch]$UseWin32Product = $true
+)
 
-    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
-        Write-BuscarSoftwareLog -Message "Equipo no accesible por ICMP (posible problema de DNS, apagado o firewall ICMP): $ComputerName"
-        return @()
-    }
+# 0) Comprobar que el equipo responde a ICMP
+if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+Write-BuscarSoftwareLog -Message "Equipo no accesible por ICMP (posible problema de DNS, apagado o firewall ICMP):
+$ComputerName"
+return @()
+}
 
-    $results = @()
+$results = @()
 
-    $results += Get-RemoteSoftwareFromRegistry -ComputerName $ComputerName -SearchText $SearchText
+# 1) Registro (método principal)
+$results += Get-RemoteSoftwareFromRegistry -ComputerName $ComputerName -SearchText $SearchText
 
-    if (-not $results -or $results.Count -eq 0) {
-        $results += Get-RemoteSoftwareFromPackage -ComputerName $ComputerName -SearchText $SearchText
-    }
+# 2) Get-Package como fallback si no hubo resultados
+if (-not $results -or $results.Count -eq 0) {
+$results += Get-RemoteSoftwareFromPackage -ComputerName $ComputerName -SearchText $SearchText
+}
 
-    if ($UseWin32Product -and (-not $results -or $results.Count -eq 0)) {
-        $results += Get-RemoteSoftwareFromWmi -ComputerName $ComputerName -SearchText $SearchText
-    }
+# 3) WMI (Win32_Product) como último recurso automático si no hay resultados
+if ($UseWin32Product -and (-not $results -or $results.Count -eq 0)) {
+$results += Get-RemoteSoftwareFromWmi -ComputerName $ComputerName -SearchText $SearchText
+}
 
-    if (-not $results -or $results.Count -eq 0) {
-        return @()
-    }
+if (-not $results -or $results.Count -eq 0) {
+return @()
+}
 
-    return $results
+return $results
 }
 
 function Get-DefaultSilentArguments {
-    param(
-        [Parameter(Mandatory)][string]$InstallerPath
-    )
+param(
+[Parameter(Mandatory)][string]$InstallerPath
+)
 
-    $ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
+$ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
 
-    switch ($ext) {
-        '.msi' { '/i `"{0}`" /qn /norestart' -f $InstallerPath }
-        '.exe' { '/silent /norestart' }
-        default { '' }
-    }
+switch ($ext) {
+'.msi' { '/i `"{0}`" /qn /norestart' -f $InstallerPath }
+'.exe' { '/silent /norestart' }
+default { '' }
+}
 }
 
 function Invoke-RemoteInstall {
-    param(
-        [Parameter(Mandatory)][string]$ComputerName,
-        [Parameter(Mandatory)][string]$InstallerPath,
-        [string]$SilentArgs,
-        [string]$CustomCommand,
-        [string]$ExpectedDisplayName
-    )
+param(
+[Parameter(Mandatory)][string]$ComputerName,
+[Parameter(Mandatory)][string]$InstallerPath,
+[string]$SilentArgs,
+[string]$CustomCommand,
+[string]$ExpectedDisplayName
+)
 
-    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
-        Write-BuscarSoftwareLog -Message "Instalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
-        return $false
-    }
+if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+Write-BuscarSoftwareLog -Message "Instalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
+return $false
+}
 
-    if (-not (Test-Path -Path $InstallerPath)) {
-        Write-BuscarSoftwareLog -Message "Ruta de instalador no valida: $InstallerPath"
-        return $false
-    }
+if (-not (Test-Path -Path $InstallerPath)) {
+Write-BuscarSoftwareLog -Message "Ruta de instalador no valida: $InstallerPath"
+return $false
+}
 
-    $fileName = [System.IO.Path]::GetFileName($InstallerPath)
-    $ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
+$fileName = [System.IO.Path]::GetFileName($InstallerPath)
+$ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
 
-    if ([string]::IsNullOrWhiteSpace($SilentArgs)) {
-        $SilentArgs = Get-DefaultSilentArguments -InstallerPath $InstallerPath
-    }
+if ([string]::IsNullOrWhiteSpace($SilentArgs)) {
+$SilentArgs = Get-DefaultSilentArguments -InstallerPath $InstallerPath
+}
 
-    $session = $null
-    try {
-        $session = New-PSSession -ComputerName $ComputerName -ErrorAction Stop
+$session = $null
+try {
+$session = New-PSSession -ComputerName $ComputerName -ErrorAction Stop
 
-        $remoteFolder = 'C:\Temp\SoftwareDeploy'
+$remoteFolder = 'C:\Temp\SoftwareDeploy'
 
-        Invoke-Command -Session $session -ScriptBlock {
-            param($folder)
-            if (-not (Test-Path -Path $folder)) {
-                New-Item -Path $folder -ItemType Directory -Force | Out-Null
-            }
-        } -ArgumentList $remoteFolder -ErrorAction Stop
+Invoke-Command -Session $session -ScriptBlock {
+param($folder)
+if (-not (Test-Path -Path $folder)) {
+New-Item -Path $folder -ItemType Directory -Force | Out-Null
+}
+} -ArgumentList $remoteFolder -ErrorAction Stop
 
-        $uniqueName = ([guid]::NewGuid().ToString('N').Substring(0, 8) + '_' + $fileName)
-        $remotePath = Join-Path -Path $remoteFolder -ChildPath $uniqueName
+$uniqueName = ([guid]::NewGuid().ToString('N').Substring(0, 8) + '_' + $fileName)
+$remotePath = Join-Path -Path $remoteFolder -ChildPath $uniqueName
 
-        Copy-Item -Path $InstallerPath -Destination $remotePath -ToSession $session -Force
+Copy-Item -Path $InstallerPath -Destination $remotePath -ToSession $session -Force
 
-        $commandLine = $null
+$commandLine = $null
 
-        if (-not [string]::IsNullOrWhiteSpace($CustomCommand)) {
-            $commandLine = $CustomCommand.Replace('{InstallerPath}', '"{0}"' -f $remotePath)
-        }
-        else {
-            if ($ext -eq '.msi') {
-                if (-not $SilentArgs) { $SilentArgs = '/qn /norestart' }
-                $commandLine = "msiexec.exe /i `"$remotePath`" $SilentArgs"
-            }
-            else {
-                $commandLine = '"' + $remotePath + '" ' + $SilentArgs
-            }
-        }
+if (-not [string]::IsNullOrWhiteSpace($CustomCommand)) {
+$commandLine = $CustomCommand.Replace('{InstallerPath}', '"{0}"' -f $remotePath)
+}
+else {
+if ($ext -eq '.msi') {
+if (-not $SilentArgs) { $SilentArgs = '/qn /norestart' }
+$commandLine = "msiexec.exe /i `"$remotePath`" $SilentArgs"
+}
+else {
+$commandLine = '"' + $remotePath + '" ' + $SilentArgs
+}
+}
 
-        $scriptBlock = {
-            param($cmd, $expectedName)
+$scriptBlock = {
+param($cmd, $expectedName)
 
-            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $cmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $cmd" -WindowStyle Hidden -Wait -ErrorAction Stop
 
-            $installedOk = $true
+$installedOk = $true
 
-            if ($expectedName -and -not [string]::IsNullOrWhiteSpace($expectedName)) {
-                $paths = @(
-                    'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
-                    'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
-                )
+if ($expectedName -and -not [string]::IsNullOrWhiteSpace($expectedName)) {
+$paths = @(
+'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
 
-                $found = $false
-                foreach ($p in $paths) {
-                    $item = Get-ItemProperty -Path $p -ErrorAction SilentlyContinue |
-                    Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $expectedName + "*") } |
-                    Select-Object -First 1 DisplayName
+$found = $false
+foreach ($p in $paths) {
+$item = Get-ItemProperty -Path $p -ErrorAction SilentlyContinue |
+Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $expectedName + "*") } |
+Select-Object -First 1 DisplayName
 
-                    if ($item) {
-                        $found = $true
-                        break
-                    }
-                }
+if ($item) {
+$found = $true
+break
+}
+}
 
-                if (-not $found) {
-                    $installedOk = $false
-                }
-            }
+if (-not $found) {
+$installedOk = $false
+}
+}
 
-            return $installedOk
-        }
+return $installedOk
+}
 
-        $remoteResult = Invoke-Command -Session $session -ScriptBlock $scriptBlock -ArgumentList $commandLine, $ExpectedDisplayName -ErrorAction Stop
+$remoteResult = Invoke-Command -Session $session -ScriptBlock $scriptBlock -ArgumentList $commandLine,
+$ExpectedDisplayName -ErrorAction Stop
 
-        if ($remoteResult) {
-            Write-BuscarSoftwareLog -Message "Instalacion verificada via PSSession en $ComputerName. Comando: $commandLine"
-            return $true
-        }
-        else {
-            Write-BuscarSoftwareLog -Message "Instalador se ejecuto pero no se encontro el software esperado en el registro en $ComputerName. ExpectedDisplayName: $ExpectedDisplayName"
-            return $false
-        }
-    }
-    catch {
-        $msg = $_.Exception.Message
-        Write-BuscarSoftwareLog -Message "Error en instalacion remota para $ComputerName. Detalle: $msg"
-        return $false
-    }
-    finally {
-        if ($session) {
-            try { Remove-PSSession -Session $session -ErrorAction SilentlyContinue } catch { }
-        }
-    }
+if ($remoteResult) {
+Write-BuscarSoftwareLog -Message "Instalacion verificada via PSSession en $ComputerName. Comando: $commandLine"
+return $true
+}
+else {
+Write-BuscarSoftwareLog -Message "Instalador se ejecuto pero no se encontro el software esperado en el registro en
+$ComputerName. ExpectedDisplayName: $ExpectedDisplayName"
+return $false
+}
+}
+catch {
+$msg = $_.Exception.Message
+Write-BuscarSoftwareLog -Message "Error en instalacion remota para $ComputerName. Detalle: $msg"
+return $false
+}
+finally {
+if ($session) {
+try { Remove-PSSession -Session $session -ErrorAction SilentlyContinue } catch { }
+}
+}
 }
 
 function Invoke-RemoteUninstall {
-    param(
-        [Parameter(Mandatory)][string]$ComputerName,
-        [Parameter(Mandatory)][string]$DisplayName
-    )
+param(
+[Parameter(Mandatory)][string]$ComputerName,
+[Parameter(Mandatory)][string]$DisplayName
+)
 
-    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
-        Write-BuscarSoftwareLog -Message "Desinstalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
-        return $false
-    }
-
-    $methods = @('RegistryQuiet', 'RegistryNormal', 'Win32Product')
-
-    foreach ($method in $methods) {
-        try {
-            switch ($method) {
-                'RegistryQuiet' {
-                    $scriptBlock = {
-                        param($name)
-                        $paths = @(
-                            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
-                            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
-                        )
-
-                        foreach ($path in $paths) {
-                            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
-                            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.QuietUninstallString } |
-                            Select-Object -First 1 @{ Name = 'Command'; Expression = { $_.QuietUninstallString } }
-                        }
-                    }
-
-                    $cmdObj = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $DisplayName -ErrorAction Stop
-                    if ($cmdObj -and $cmdObj.Command) {
-                        $cmd = [string]$cmdObj.Command
-                        $sb = {
-                            param($uCmd)
-                            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
-                        }
-                        Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb -ArgumentList $cmd -ErrorAction Stop
-                        Write-BuscarSoftwareLog -Message "Desinstalacion exitosa (QuietUninstallString) en $ComputerName. DisplayName: $DisplayName Comando: $cmd"
-                        return $true
-                    }
-                }
-                'RegistryNormal' {
-                    $scriptBlock2 = {
-                        param($name)
-                        $paths = @(
-                            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
-                            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
-                        )
-
-                        foreach ($path in $paths) {
-                            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
-                            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.UninstallString } |
-                            Select-Object -First 1 DisplayName, UninstallString
-                        }
-                    }
-
-                    $info = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock2 -ArgumentList $DisplayName -ErrorAction Stop
-                    if ($info -and $info.UninstallString) {
-                        $u = [string]$info.UninstallString
-
-                        if ($u -match 'msiexec(.+?)/I\s*\{') {
-                            $u = $u -replace '/I', '/x'
-                            if ($u -notmatch '/qn') {
-                                $u += ' /qn /norestart'
-                            }
-                        }
-
-                        $sb2 = {
-                            param($uCmd)
-                            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
-                        }
-                        Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb2 -ArgumentList $u -ErrorAction Stop
-                        Write-BuscarSoftwareLog -Message "Desinstalacion iniciada (UninstallString) en $ComputerName. DisplayName: $DisplayName Comando: $u"
-                        return $true
-                    }
-                }
-                'Win32Product' {
-                    $sb3 = {
-                        param($name)
-                        $product = Get-CimInstance -ClassName Win32_Product -ErrorAction Stop |
-                        Where-Object { $_.Name -and ($_.Name -like "*" + $name + "*") } |
-                        Select-Object -First 1
-
-                        if ($product) {
-                            $result = $product.Uninstall()
-                            return $result.ReturnValue
-                        }
-                        else {
-                            return $null
-                        }
-                    }
-
-                    $rv = Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb3 -ArgumentList $DisplayName -ErrorAction Stop
-                    if ($rv -eq 0) {
-                        Write-BuscarSoftwareLog -Message "Desinstalacion exitosa via Win32_Product en $ComputerName. DisplayName: $DisplayName"
-                        return $true
-                    }
-                }
-            }
-        }
-        catch {
-            $msg = $_.Exception.Message
-            Write-BuscarSoftwareLog -Message "Metodo de desinstalacion '$method' fallo para $ComputerName. DisplayName: $DisplayName Detalle: $msg"
-        }
-    }
-
-    Write-BuscarSoftwareLog -Message "Todos los metodos de desinstalacion fallaron para $ComputerName. DisplayName: $DisplayName"
-    return $false
+if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+Write-BuscarSoftwareLog -Message "Desinstalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
+return $false
 }
 
+$methods = @('RegistryQuiet', 'RegistryNormal', 'Win32Product')
+
+foreach ($method in $methods) {
+try {
+switch ($method) {
+'RegistryQuiet' {
+$scriptBlock = {
+param($name)
+$paths = @(
+'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+
+foreach ($path in $paths) {
+Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.QuietUninstallString } |
+Select-Object -First 1 @{ Name = 'Command'; Expression = { $_.QuietUninstallString } }
+}
+}
+
+$cmdObj = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $DisplayName -ErrorAction
+Stop
+if ($cmdObj -and $cmdObj.Command) {
+$cmd = [string]$cmdObj.Command
+$sb = {
+param($uCmd)
+Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+}
+Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb -ArgumentList $cmd -ErrorAction Stop
+Write-BuscarSoftwareLog -Message "Desinstalacion exitosa (QuietUninstallString) en $ComputerName. DisplayName:
+$DisplayName Comando: $cmd"
+return $true
+}
+}
+'RegistryNormal' {
+$scriptBlock2 = {
+param($name)
+$paths = @(
+'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+)
+
+foreach ($path in $paths) {
+Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.UninstallString } |
+Select-Object -First 1 DisplayName, UninstallString
+}
+}
+
+$info = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock2 -ArgumentList $DisplayName -ErrorAction
+Stop
+if ($info -and $info.UninstallString) {
+$u = [string]$info.UninstallString
+
+if ($u -match 'msiexec(.+?)/I\s*\{') {
+$u = $u -replace '/I', '/x'
+if ($u -notmatch '/qn') {
+$u += ' /qn /norestart'
+}
+}
+
+$sb2 = {
+param($uCmd)
+Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+}
+Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb2 -ArgumentList $u -ErrorAction Stop
+Write-BuscarSoftwareLog -Message "Desinstalacion iniciada (UninstallString) en $ComputerName. DisplayName: $DisplayName
+Comando: $u"
+return $true
+}
+}
+'Win32Product' {
+$sb3 = {
+param($name)
+$product = Get-CimInstance -ClassName Win32_Product -ErrorAction Stop |
+Where-Object { $_.Name -and ($_.Name -like "*" + $name + "*") } |
+Select-Object -First 1
+
+if ($product) {
+$result = $product.Uninstall()
+return $result.ReturnValue
+}
+else {
+return $null
+}
+}
+
+$rv = Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb3 -ArgumentList $DisplayName -ErrorAction Stop
+if ($rv -eq 0) {
+Write-BuscarSoftwareLog -Message "Desinstalacion exitosa via Win32_Product en $ComputerName. DisplayName: $DisplayName"
+return $true
+}
+}
+}
+}
+catch {
+$msg = $_.Exception.Message
+Write-BuscarSoftwareLog -Message "Metodo de desinstalacion '$method' fallo para $ComputerName. DisplayName: $DisplayName
+Detalle: $msg"
+}
+}
+
+Write-BuscarSoftwareLog -Message "Todos los metodos de desinstalacion fallaron para $ComputerName. DisplayName:
+$DisplayName"
+return $false
+}
+
+# Crear formulario
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'Buscador de software en la red'
 $form.Size = New-Object System.Drawing.Size(900, 780)
 $form.StartPosition = 'CenterScreen'
 $form.TopMost = $false
 $(
-    $form.BackColor = [System.Drawing.Color]::FromArgb(245, 247, 250)
-    $form.Font = New-Object System.Drawing.Font('Segoe UI', 9)
-    $form.FormBorderStyle = 'FixedDialog'
-    $form.MaximizeBox = $false
+# Estilo general del formulario
+$form.BackColor = [System.Drawing.Color]::FromArgb(245, 247, 250)
+$form.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+$form.FormBorderStyle = 'FixedDialog'
+$form.MaximizeBox = $false
 )
 
+# Etiqueta y textbox de búsqueda
 $lblSearch = New-Object System.Windows.Forms.Label
 $lblSearch.Text = 'Nombre (o parte) del software:'
 $lblSearch.AutoSize = $true
@@ -827,6 +851,7 @@ $txtSearch.Location = New-Object System.Drawing.Point(190, 90)
 $txtSearch.Width = 300
 $txtSearch.BorderStyle = 'FixedSingle'
 
+# Filtro de tipo de equipo
 $lblType = New-Object System.Windows.Forms.Label
 $lblType.Text = 'Tipo de equipo:'
 $lblType.AutoSize = $true
@@ -843,6 +868,7 @@ $cmbType.FlatStyle = 'Flat'
 [void]$cmbType.Items.Add('Workstations')
 $cmbType.SelectedIndex = 0
 
+# Checkbox para uso de Win32_Product
 $chkUseWin32Product = New-Object System.Windows.Forms.CheckBox
 $chkUseWin32Product.Text = 'Usar Win32_Product (lento)'
 $chkUseWin32Product.AutoSize = $true
@@ -850,6 +876,7 @@ $chkUseWin32Product.Location = New-Object System.Drawing.Point(500, 90)
 $chkUseWin32Product.Checked = $true
 $chkUseWin32Product.ForeColor = [System.Drawing.Color]::FromArgb(80, 80, 80)
 
+# Controles para instalacion desatendida
 $lblInstaller = New-Object System.Windows.Forms.Label
 $lblInstaller.Text = 'Instalador:'
 $lblInstaller.AutoSize = $true
@@ -891,6 +918,7 @@ $txtExpectedName.Location = New-Object System.Drawing.Point(250, 658)
 $txtExpectedName.Width = 280
 $txtExpectedName.BorderStyle = 'FixedSingle'
 
+# Botón cargar equipos
 $btnLoadComputers = New-Object System.Windows.Forms.Button
 $btnLoadComputers.Text = 'Cargar equipos'
 $btnLoadComputers.Location = New-Object System.Drawing.Point(270, 55)
@@ -899,6 +927,7 @@ $btnLoadComputers.FlatStyle = 'Flat'
 $btnLoadComputers.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
 $btnLoadComputers.ForeColor = [System.Drawing.Color]::White
 
+# Lista de equipos
 $lblComputers = New-Object System.Windows.Forms.Label
 $lblComputers.Text = 'Equipos del dominio:'
 $lblComputers.AutoSize = $true
@@ -911,6 +940,7 @@ $lstComputers.Size = New-Object System.Drawing.Size(250, 400)
 $lstComputers.SelectionMode = 'MultiExtended'
 $lstComputers.BorderStyle = 'FixedSingle'
 
+# Botón buscar
 $btnSearch = New-Object System.Windows.Forms.Button
 $btnSearch.Text = 'Buscar en seleccionados'
 $btnSearch.Location = New-Object System.Drawing.Point(680, 90)
@@ -919,6 +949,7 @@ $btnSearch.FlatStyle = 'Flat'
 $btnSearch.BackColor = [System.Drawing.Color]::FromArgb(39, 174, 96)
 $btnSearch.ForeColor = [System.Drawing.Color]::White
 
+# Botón exportar a CSV
 $btnExportCsv = New-Object System.Windows.Forms.Button
 $btnExportCsv.Text = 'Exportar a CSV'
 $btnExportCsv.Location = New-Object System.Drawing.Point(600, 570)
@@ -927,6 +958,7 @@ $btnExportCsv.FlatStyle = 'Flat'
 $btnExportCsv.BackColor = [System.Drawing.Color]::FromArgb(52, 73, 94)
 $btnExportCsv.ForeColor = [System.Drawing.Color]::White
 
+# Botón copiar fila
 $btnCopySelected = New-Object System.Windows.Forms.Button
 $btnCopySelected.Text = 'Copiar selección'
 $btnCopySelected.Location = New-Object System.Drawing.Point(740, 570)
@@ -953,7 +985,560 @@ $btnUninstall.FlatStyle = 'Flat'
 $btnUninstall.BackColor = [System.Drawing.Color]::FromArgb(192, 57, 43)
 $btnUninstall.ForeColor = [System.Drawing.Color]::White
 
-$logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9...[TRUNCATED BASE64 POR LONGITUD]</code></pre>
+# Logo centrado arriba del nombre del software
+$logoBase64 =
+'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDoxMzQ5N2M2ZS1lYzU4LTMzNGEtYWVmNi1hYTFhZTg0YzRhNGIiIHN0RXZ0OndoZW49IjIwMjQtMTEtMjBUMTc6NTE6NDMtMDY6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMy4wIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz55i9rdAAAuNUlEQVR4nO2deXyU1fnovzOTmclkZ0ICWQyGgIDKUlBc2CKLgiDKYhGRKl7sVajQWkWF0ipwFYVfsWBj3RVFUIvI1kLAsAVZNBCWAAkhECALWSaTdTKZ5b1/nPfwToaZgPb+fu3nfng+n/mQmfc923Oe/XnOQacoCtfhOlyHwKD/d0/gOlyH/2S4ziDX4Tq0AdcZ5DpchzbgOoNch+vQBoQE+lGn0wHo1A+AVz4K8Lqvl69Xv/v+FqjNTwXfuXh8/pbjGNS/depcA0UefN/xBHiuV9/x+jy/lrnLsXQ+Y8h5+s4/WDvf5/9KxESvfjxqPwb1d6/Pd53Pc992wXCiU5970fbgWvCr0DbN+IMvDiUNXcucguGrrTXJubbVXhssUBRLZRADoIuLi7NardaOTqdT51UUA4rSasF6vV4xGo1KRUVFXW1tbZX6c6Rerzd4vV5fwv6p4I80ncViiQgLC2vvcrmUkJCQ5vj4eIfBYGg8efJkmdfrbQGIj49vHx0dHdvS0qIDMBqNSmNjY21ZWVmF2qeuU6dO8UajMdrlcul0Op1isVh0Doej4ty5czXh4eFhKSkpHZqbm41er9eg+K03AK48JpMJj8dTXVRUVKnOV9e9R48EV0tLpNvtRlEUQ4B26PV6r81ma6itra0AmtA2NdjGBpwCYq9CAGNycvIN6enpnZOTk2MAg6Io7tOnT1ds3LixwOVySRy41DH0gEGv15u6dO2a6HG7w91uNwBmsxmn01lZXFxc6bsXnTp1ijebze2dTicAISEhGI3GhlP5+aUoihfwtrNaI+Lj4hKdTqchEM0EwIXbbDbjcDgqL1y4UK2uSd+lS5eOQJTL5QJAxXNNUVFRuQ+e/An4Mj66du2aoChKtGxvNJlQFKXmTGHhJcAdpH3rzoIwiA4wAWFTp06NWLly5RCgC9ASpMMQRVGUmb/5zcU1q1eXDR4ypN7arl2LyWz2dklLo0+fPjqr1dqqQVvhZfmsurpa+eeWLbr6+npjZUVFaEpKimnF22/frIMepaWlutra2qaqqqqse+65J8fj8XgA98ZNm24cM3r0ECAcISW8586d+z41NTUPVcIWFBR079q16yAEURmA/BkzZux75513dKmpqa6ioqKewO0qAr0BpugLJqBmzZo1302ePPmSOoa38MyZLmmdOw9Rn7uDtNXX1dXx/b599mXLluVkbt1aADhUPF8rkxgBMxDzyquv9pn78ss3G41GL1CvjmsCos6fP++YMXNmzuZNmwqABnUMHWAxGAzGxqamW80m00AVHwagIiMj47uZM2dKYgIwrly5suPUqVOHAbEqbtwlJSU7b7jhhgK5b0PS0007d+wYANxKcJrxBTNQumTJkqw5c+bY1Xl5i4qKOqempt6jPtcDtZs2bfrugQceuKj22xwATwYgFDD9mJPTuV/fvkMBi/qsYdu2bVn33ntvcRvtW0EwBtEjCCwlIiJC99JLL5X96le/io6IiFA8Ho8SGRlJXl4eVVVVit1u112qqDDV2GxdR48enW4wGIofGDt2g8PhOG8yGunUqRPjx4+nZ8+el/tXFEVqqTbhyJEjvPf++ziamnA4HDFGo7H9xIkTL0ycONE4dOjQztu2bUt95JFHqm02mw5wAqYxY8ac3bhxo7u5uTmiqKhIufnmm1tenju3ZfHrr3dWkWKeMGHC2ddff12fmppqyc3N9a76/POGv2ZkpLpcrg5AzeOPP35q9uzZ4d27d9dfvHhRMRgM6HS6VnP2er2Eh4djsVgMGzZssP/xT3+KOVtUFAfUAVF333VXySuvvtoyaNCgiPLyco/vmp1OJ+3bt1diY2P1QBTQFYgYOWpU/tYtW4qBGnXzrkZYIQhi6LhkyZIuzz//vBU4DhSo7SVEA32AxIEDBxbv3bu3GJCSOgZIfOihhy69OGeO98677rLU1NTw9ddf2xctWmS9cOFCOFCi9pOUlpbWMG/evJrx48fHREdHs3379qaFCxcadu/enaDO22I0GnW///3vS5966qnIuLg4ysrKFKPRKGmrFQ4jIiIwGY2GL7/6qmbhwoVxJSUl0UAtEH3P0KHlc154wTl06NAIgM2bN9fOnz8/Oi8vLxooVnHt8sOJEWgH3HDbbbdVL1y4sGno0KGRAFu2bKmbO3duZF5eXju1fW2A9q0gGIMYVMT1UAf7Ljo6umnBggXY7XbWrVtHbm6ub5MooGttba0zKiqqYvbs2Z2WL1+eAlxESEQ5iO9g8m8jmt0ppY3B5zfJrB0RhFQOrPrd737neuONN5j86KP3rf/221vdbncpYsOzTp48WX7g4EE6xMczdOhQ4uPjLbW1tSPV/szA7tzc3LK6ujoGDx4MkALcq47VAmwFyp577jluv/12GhoacLlcSPMDhLo3GAy8/fbbHDlyBGAIQqpWAAlAIXB43LhxTJo0CZvNdrl9VVUVAwcOZMSIEb44TK2x25NirdYWRVHOAXZ1LsFAh2COhNtuuy3phx9+8AD59fX11YcPH+bixYuUlZXRo0cPBgwYgMfjwWq13lhSUnJDcnKyEziLII72CEl/Bjg2f/58duzYQXZ2NsBwdZx8dczuCG2SlZ6eTqdOnfj0009BMF8qgugiACuwOyoqyvanP/2JuLg4Ghsb8Xg8eL2aQjaZTISEhLB8+XKOHj2KugcmoBJIBs4BOU8++SQAH330EcBgIBI4or7n9MNLKBAP9Faf7/drPxAhMI6qe+XfvhUEdNJ9nkWpA+pra2t57bXXaGxspKGhwfedDjfffPPNeXl5Z4HCH374gb17985DmCgX0FS99EcUdYF6wJGSkhJhtVqNDofDk5+fX6ciKERtJx1yk7qoDupvdy1btmzB9OnTSx4YM+bAoUOH0s8WFXUEznTv3r3l008/5d133+XLL7/EZDLRp08f565du0xAIlAbGRnZnJiYyN/+9je5jgi1/1CEVNIDvP3220yfPp3q6mrKy8upqam5jByz2YzNZuPMmTO+uLAiBEI0qpO8bt06HA4HdrudpqYmAFwuF5mZmXz00UdMmjSJ++67D+Bcu5gY++TJk7t+8cUXyQifxEVwLWJAmA5J8/7wh0YEgdc+++yzkmgvQ8+ePVmzZg1Wq/VCUlJS45gxY9I2bdqUhBA24T77wcKFC2UzPUJ4han4l9rGDrBz507fIfTqmiN98Kivq6sjIyODiRMncujQIerr63E6nQhr+AocGtTxrsChSti+eI7ymZM/6NXxowFbkPbRavurRnHbYhA5kAl1ky5duuT/TvigQYNSVq1aVZz13XeFj02dSllZ2TwEB59C2LqlCC6VCO+Qnp5eUl5WFn4qPz/VarV+lJCQkF9WVtYBeKpdu3ZVAwcNurRxw4Y4BIe3qHNor/ZhRyBu7qJFixaUlZVdKi0pyb+pW7dJBfn5tXV1de6v166lpqaGKVOmUFFRweDBg727du1yAzcAjsTExKby8nKOHz8u1yE3VkGzV2lpaSEjI+NqOJQgGd+CIKrLyN+yZUvABvv372fNmjV88sknPP744wpQExMTU43w9y4gzKRg/ksIEG+xWPSjR48+BzR+8sknkjkMQJI6h/PHjh3zLlu2jPfff98DVN49YEDMpk2bbkQIA7M6Z39iUxD7ZVHH0ql/N3Al6NVnJgTNhKrtOXPmDG+88UaQJbQCGTSIUNu3wqHfusPQonL+IJ10C1okzxcManu5pjahLQ6SAwV6JxF4KCUl5amePXuax44dWzBs+HDKysp+B3TR6fW7EOq2HKGe8xB2cdmcF1/ctmPHjqV/Wb78cyCtsLCworm5uai8vPw00OPpp5/esWH9+jczMjK+NJvNJQhT4KTaTxlQBRwAXKtXr35x586dUU6n86jb42nsdOONMaWlpdbic+fMgL6yspLMzEzGPvAAiI2NBzyRkZHO7t27ExkZKdcTiSAGVxtICwduRBBvms+nC9AZwWDSJAq0eTqEiTgKGIMwawwAq1evxmaz4XK52LhxYxOCQCIJvMESTEC82+12ncjLswHe999/X44zAHhD/QwFdB988AG1tbUAnDp50o4mZY1BxpGhVrmWtugBn2fSyQ8EUQhTLBAO0xCEK/fgagzQFnHrCM4Asv01QVsaBIKr99sjo6LeCI+IMGRkZLyL0BajgO7odNmK11uIUJMWhCRsQGxGRObWrUXbMjOb1qxZc+zcuXMLHQ5HeX19PampqY7q6uolVqt119133+2+dOlSsdPpTEXYkQ0IkysBoY3OIhzCu4BngLNFhYWVY8eOPdGlS5d2323fHoJwLJ1ffvml95lnngEhLSMAd2hoKEajkbq6OrkeGfHydWx9IRb4Xwgb3MmVvpQHwbwFCIkfCG96YCrwkLqeC8BHQObWrVuV8vJyLl68yIULF/QIqR5O8I3Uo0anXC6XPTMzk969e3u///57EAQwBMGEBoQzfhioXrp0KQsXLqSwsLBGfRZD21E6/3W0FTTw9TMDvZeCwGEyV0a2JA6LaRuH1zKPnzLXq8K1ZtJlh3ogPCkpSZeYmBhy8sSJeGA88CbQD/geRSkAihDmkQNoNBgMzkWLFimRkZGxubm5k5uamsKzsrKoqan59tVXXy0ZMmQIY8aMaSwqKvpm+/btNR07dqSoqOgRIG3x4sWehIQEJ2KjqxC2eak6xn4EIU0Bumzbtu3Qe+++mzdjxowohC0b8uOPP1Lf0IDJZKpFDbl26dIFgJMnT4Kmst0I4vdNRErwAoMQQuAWoBtwE0JzxKnv2BFRkRYCE50MJ3ZGBD7uBu5Rx2b9+vUsWbIEtLBtKMEFmDRXQwHTli1bsNvtDBkyhMTERC9CClcjtG4nFRcsWrSI0aNHW/Lz82PQTKa2pKlMDPp+fm5eywgMUz89EPiTOLQi8F+DFpmSGuzfClfTIIHej2pubtbbbLYDgDkyKurGZofjNpfL9RlCAlxAbI4L0Ot0uqhhw4Y1DR8+/IeJEye2tLS0WBMSEhp79uxJeXl5GnAfEHPgwIHG+++/f69Op/vx/fff54MPPvi+trY2JDc39+CAgQPjNm7YcKPT6XQgtIBDHUMS0gCT2ZzocrlKTp482XLx4kUrQhvUlJSUtKR17kxqampVfn6+ArhNZjMnTpygvr4eBNNYEITtIrDQqEFoyXZALtCIliNpQAiD8wgGiST45p4AdiM0YA8EcygAc+fOle9IZ9UYpA/QGMQEhGZlZXH//ffz+uuv079/f/2qVasOPPXUU0MQxNaIMLl6A9H/+Mc/YtV25xFObFs04EEzmaRpEswnuhpUIEzlZkQougmtaqEeYY774vBq+af/EfiptVh6IKS6ujre4XDEAqc9bvePqamp/0Qg24GQpA7UMKRer48tLSuLv/POO5Uff/wxt2fPnll9+vShvLz8YeBz4ElEeG8y8DdFUZ6fPn06tbW1BwoLC/eOHz/efeTIEavZbLYiCDgELcpVA+iGjxiRHWu1ZsfHxzdMmDBh5IYNG7ogNtJgt9txOp3cdNNN1QjkN9/UtSulpaWoGVYLgsmcav+XN8ZgMNCxY0f59QzClzoI7AX2ANkIf+g4QqvV0nbyyYUwIU4Bp4FT/fv3b1q9ejX9+vWT78j1yQqCQODrE5iBkH379nHp0iUsFotu+vTp1Ss/+2xHz549q9W9GAg8CjwI9EVIbKf6TPYHiIjXF198wfz580lOTvYgwusx6iehR48e7sWLF5ORkUFoaGiQ6Wmg1+ulr9eAwOFxWuNwr/r9JMJMrUMzY//tGuTnFis6EAhLbWpqKh83btyKv69dm40Iw4LmJBk9Ho/++LFjw4BnZ8yYYYyKiqKkpKQfsBiBtF3qZycid/AsMKVz587MmDEDYMrpgoJHVX/BjWYSKYD1oXHjiseMHv2BxWI57/V6pzqdzuEI/8MLeD0eD+fOnWPevHmeLl262C0WS9OwYcPo3LmzXIsMYzrQbF8dwMyZMykoKCA7O9sw5oEHCAkJcUVFRREdE0NMTIwuJiYGq9WqT0xMNISGhjYgpOIV5QuxsbHyzzqEALEBtpm/+c2pAwcO8Mgjj9CpUyf5ThRCO1yLBFXU9yN0Oh379u0D8CiKcm7qY4/tOnr0aO633357aUh6ulvtsxmh4Y+j5ahaaYRu3boxefJkFixYYNy9e3fEO++8E/vJJ5+kf/zJJ+kZ77zTbufOnREvvvhiyDPPPIPJZLrqBKdMmcKBAwfYt2+f8Re/+IXXZDK5o6KjlRiBQ2JiYpTY2FhDx44ddXq9vgFNwPxHnOT7qSaWB4HUC8Al4K7Y2NjKxYsXnwOYOXNm7F//+tdUhAkRBRji4+PD+/btG3HnnXeab77lFu8vH34YYHpaWtqetLS0f0ZFRelOnjzp6tGjhw44mZ2dXVleXj4B+HbFihWN58+fD1+3bl3o2bNnLfn5+VLltwOSRo4cGfbZypU7iouLPX97992+RUVFDQipVI0wLVpAhKdHjBhB7969a8aOHevu3r07a9eulWuSYcxa/EpLOnbsSGRkJAMGDAjfuGGDvaGhoSIsLKyTTqdLAhS3220wGo064EB8fLyzubn5cnhTQv/+/cnMzOTs2bO8uWSJbvUXX0SHhoZ2HDduXO3bK1a4gJC6ujr3jh07QAisDup8WmkzP5COsBMRuo5TFMX+1ltvMWHCBO666646vV5/QKfTnXnwwQdvfPDBB7uu/eab1N/Onm28ePFiCcJ/q1LxI0N5OhBJTDWhp6SmpuY8/fTT1T7v1ALFTU1Nyt69ey/nM9qC/v3706NHD4B2hw4dqmhqarKEhoam6nQ6jyLAYDAYvJWVldkJCQkufNIK/wnwUxnEHRkV1Thq1Kjmc+fOORpExvD2nTt33pWenr7v7bffPmAwGO5avnz5zYi8RYzX6803mc1/joqKqq2uqvIgJHZac3Pz8kGDBmU2NDSk5Ofnt29sbHROnDixGTD//e9/vwnocuHixSOPPPLIe2u/+cbS0tJyEyL5aAI6DRo82LR58+YcvV7vyc7OHnnq5Mmu4RERqxobGs6gMYgHUXCpAHTs2LFm1KhRhtDQUOmgg3DydWjmxuXNWbt2LU8++SR6vb4R2BIdHb2vubnZiKLoXG430dHR+rLSUverCxY0VlZWJiCIupXTm5SURHR0NH369An5YtUq48svvdTUvn37qISEhDxEptjz7LPPyiRkDCKUrCAkaTAG8SIkfx1CEN2MMNmYPn06e/bskdnrKovFUqXX689MGD+++4jhw9OGDh3qzcnJcahtwS9idPDgQTIzMxk1apQbwUhF/oM7nU62bNlCc3OwoJ8GxcXFAJw6dao6OTl5g9FojGpubg5RFEWn0+kICwszHD161LFkyRK3x+NJQuybrKL4t8O1MsjlcuywsDDnxIkTGzt06PBj9t69pe+9917MPffc88sJEyYc7d27d+OIESNyd+3aNf7IkSOdAXdVVZV7w/r1tg3r15OcnMywYcOU7777rq6kpKR5y5Yt+sLCwvtsNlvDbf36NYWEhOz1er25wEPdunXzvvvOOzz3u9/R0NDgQJgvYUBE165dewwbOvT7GTNmVG/dujXl3Llzj998663HW1yuwsL8/AsI6RiHYNLiS5cueQDDmDFjznTt2rXO7Xb7Jwl1CIKUpo0OICcnh23btjFs2DDP4cOH7Waz2S4bWa1WcnJymDFjBi6XKxUR3y/zx+mRI0c4ePAgHTt29KSkpHzfs2fPAsDb0tJSajKZHPPmzWPlypXy9ZsRYdCTCO3QlgZpQZhrbuAO4BhQlJ+fz+DBg5k1axZqeBubzVZjMpn2RUVF1ezZs6dTYlJSqL2mxsiVIWuamprIyMhg1KhRYiC/UiSdTkdkZCTr16+/Jg2yevVqpk2bRkVFhbusrMzm9XptIHwTq9XK559/ztKlS0FEB29ECA0pZP7tTNJWLVYHRCjSAnyD4GxCQkLonJZmDg8Pb19SUpJQUVGRhKIMRUQp/g/AsOHDHzmSmzupqqoqF0E0HRCbsfSHH37wzpo9+4/7vv9eQcTnO1sslqoRI0Y4GhoavFlZWanRMTGdt2zZMmfwwIHNLrd7OiKpdhwwR0RE3HXHHXccz87OXux0OqOBeQaj0d2rV68TVVVV+ReKi/MR0vExRO7lr8888wwZGRkmFCUGnc5tt9tt/fr1o6ioCOB+BGEeRzBgHPBPREQFk8nEwIEDCQkJkU49AFFRUWzbtk2Wj3RWcVWC0Fq3AIcQDjyzZ89m0qRJ3HbbbciiPYCtW7cycuRI+TUBeBqh0bYhmOQSgWuFdAjNkYzQqoMQzv/fEGYQIMybOXPmMGHCBI4fP05cXBwdOnTo9P4HHyT++qmnXGr/CYgQ/X51PwDo168fDoej1ZpV2iA2Nlb6OxJuQzBpIcL8DQPWIzQ5PXv2pFOnTjQ1NV1mOIPBgF6vJzMzU/bRCxFpK1S/90bUS33vt/b7EDmVXQhT3+H3PBwR2h6s4nCX3/PhiP2S7ZtoA36qiYXb7aYgP9+JiNpIHXsAEd9+GPjmu+3bzX379atwOBxhjY2N7SIjIwdNmjTp/B133KGPiYnxvvzSS5vGjh07R21f4HA4QjZs2CBzF/1/O3v213fecUfzys8+49ixY+0//vjjAWVlZXWWsDBvr969K7Ozsw86nc4YRJKwxeNy/XD0yJFiFKUMEd0CEWPvAPDtt9+ycOHCltjY2AqA8PBw6WBKh9+LIEQzflKrpaWFrKysq6HFiVZqcYXdkZGRwbZt23C73eh0Ovr3709ERATvvPOOfCUJmITIJv+IICwHwaNhUoM0IJztUgSRTwe+Qmw8Bw8eZOLEiYwbN44333yTuro64uLiyp+aPt39h3nzOldUVMQhtKbs8zLk5ORcbc3XDMeOHePYsWNXe60FgUMjPz+U/P8cfjKD+ICCiMbI010uRAb3DqDu3NmzOwYMGBCZmZk5YOTIke+89tprGz/88EP3+PHj2bNnz6GPP/74y2nTpt2GkDh2tc/YGTNm7H/llVc2P/TQQ3Tt2pUlS5YsjoyK2jH35Zefvueee/bnHj681+l0JgCzEASdA1z0uN3laj9yozsgHFjKyspYtWoVs2bNAuAvf/kLp06dkuu3qHNvyyk2I4g3WW3jmzg1IHIzHoKUTrtcLk6cOHH5e36+KI694YYbaG5uprKy8iZgNCJPchahAa92VqEFIQwuqe3aIcK57YHvULPnIAomGxsbWblyJR6Px63X60usVmvHioqKRLSDWsHAhMZELtquMG4LwhClNgm09jEkDqNpu/bs3wL/CoPI9k6EJNMjnMyRwCabzbbhUnn5halTp7ZftWpVl6+//tqN2LxusbGxe91u97onnnji/JIlSzrv2bPHcsstt7RMnjx5R69evXb+6le/8qxfv74/0Lxs2bKjISEhHaZPn1546NChj0tLS/sjcialQCZCgl5CEJXv5sUgSkRiAPvzzz/PoEGD6NKlC6+88op8x6x+ZA4kWHgxBngOYepVozGSG7GplxCmQD0ipxIITIhSFS/CjGh+9dVXmTRpkm7r1q3HXnrppdyCggInwlStJ4B/4AdehJaxIez2cAQh90bUNh1X5/Q90JiZmcn27duZMmWKJzc3l1OnTrUgiFIWCfqPZULUcd2Klg7wIMyeLH7aqUcQwmUeQlvW+IznQuDwIiKv5EDsyX8E/Nw8SBLCnJqOsPXHIWy7RMRCuwIdjhw9Wm00GpeOnzAhFlgIfGY0Gt+aOXNm6GOPPcYHH3yQM3LkyK83bNiwaf78+auPHDny3aRJkzwRERH06NFjNrDZ4/Esffzxx29SFGVJTk5OCzABIYWKEDZ/KQLhvgQVjUCyEcGUuFwubr/9dtLS0mhsbJTrCFPfk/mAYOeoa9U+0xAMIJ1IJ4I5TiMI21cCBipXmYHwE24GUV4SFhamjBs3rmnjxo2rEP6amwD5CT/wTSL6ZvKPIWrXrAjingVMQwgK/uu//guAPXv2yD5k5W0gOlAQdWOzEHVdDwC/Vf/+OVCP2IsUnzEVxFrLEDispu3o3f84/FwNkga8oLavQou4VCGcRSuCgfZ/9NFHtVlZWYuaGhs3/uMf/+jzt3ffnTztiSeaTSYTq1atuh0oHDx4cE1ubq6+rq7uDuDIjp07m37729++2K1bt5wpjz3W9+Ff/vL+EcOHtyA2uzfCDLEhEGtDq6GSYEXLE7RHdfw8Hg+VlZW+6whDS6D5Mog/NCOcbj3CR6hHM8saEERZro53RS5EBVnrNQDoDxzetGmTcuTIEXr37q3cdNNN5wYPHtx+9+7dUUHa+4IeMHTs2NEyesyYnhHh4TfGx8fHpKSkxCQlJ+97dPJka3l5eT8EMY5X57b25MmTCrSqQZMaNBCDuBDCR9ZIgdACZfx07YHax0G1z6OIoI8bzVSsQDvAJI8cBKvGVXw+/nA13Pm2vyoj/lwGKUcg0IhYuA2xOMksZgQR/A54Zf/+/Q2bN2+eFhUV9fE7GRntZ86Ygdvt7oOIJIzbvXv3VoTPsBGYc096+kedU1N/MWrUqMzPP/vs+REjRjQj/JuxCClpRhCmjcBRiFgE8psQJe7BIAKhDXwz4IEQbEBs4jFELZYNraDOidhsGb9v18Z4Mkp0CxDu8XgaNmzYQO/evR2Aa8bMmRd3797dCcFkjQTfwBAgKiIiwvTB++971XVUA4Uej+fHmpqaOxEmUjFiH24C9M3NzZ6uXbtSUlKC+lweTgtmSZxF1I4dUb/bEebcz4FQBN5qEDi0owklicMGBK7bYkBZ6SA//nC18hTZXs+/eGCqLagDfkAs8ARic2SphYLYsCZESG7aH/7wh4/HjRt3rrCw8PcdOnT4CGGLhyNqc+QhmViE3TwM6FtaVtbvTFHRpLlz517avn37rcD/Vp+XIcJ4LoIfl4xDk0zWNtYRpv4rI0atCFKn09GhQwfKy8s9iI01IMy6SjR/x4OmwWShYjBoQZhCcQgzNX/dunXMnz8fQBk+bFg5IrAQi8BxW4elYgoLCxMTEhIKJk+evGfBggVERETI6FM9ggAvIASEPSwszJOamkpeXp7sQ1by+p709AcnYo/y0ULLP8lJt1gshIaGUlNT04SmiUoQwlQmKSUOFQRdgA+hJyYmMn/+fEpKSvj4k0+aSi5ebK++JyOQoOEqFL9Cz7CwMJ544glMJhObN29uOn36tH97OQcFgVuZiFV+LoMYEURSgWCQKlrXMkUiEBkKjPZ6vedvvfXW7+x2+6HNmze/NHr06BcRBXvrEJphoDqx74HUdu3a9bTZbNNWrFhx/vXXX09BOMgFCEmmIJxmLaFwJbRDc7wjEJIy0MaGo2WtW9Vhgchf/PnPf6agoCBk/vz5ph07dlhDQ0Nv0Ov14Tq93g3odOAxmUxenU7XoB4ZbksyuRG2tgkh1fMPHz7M0aNH6dWrF7GxsfYuXbo0FhYWdkT4csEubpBFisnl5eWeZcuWlRUXF7N27Vr69++vf/PNN+tnz57tRK2SffChh3LfXrGC5ORkoqOjqaurk0dkr5axdiH2uFzFSwVXueTAHx599FHmzp2L0+nU//rXvw7Nz8+PMJvNKQaDIRKdzoPo2Gsym71er7em8PRpGfC5vA/9+/fn6aefBtBPmzYt8r333os1m81D9QZDrV6nE4RsNOoTExKqP/zwwxN79uwx4CP8ExMTefnll0lOTta98MILkcuXL7eazeb0Vu1DQvRJSUm1X3zxxQ9bt26tUNu7fy6D6BESrgxhU1ajHYKRWWlZsBgBPOXxeEr79u17sqCgYMsbb7wR9eKLL/ZGEEsYQpp5AFNYWFiIzWZ75dtvv82fNWtWO+AlxMYcRDCiAaFBzAQ+y2BSx5Q2rgXBsNUB1hCBpuKviGC1b98enU5Ht27dwr766qv6xsbGFrPZ3NtgMHjR6UDcVBICtJSVle1KTEyUPkgwBnEhCD8U7QRd065du+jVq5cXUO6///765cuXd0YzswKZGxK3Mndk/Oabb1w7d+4kPT3dOGvWLM97771HXl5eWkJCwqVv162zA4adO3d61ACFvFhBlpsHYxJZeydDwQ5+ogPdt29fWRgatWfPnpqmpqZos9n8C71e79XpdPKGGyPQkJ2dnTVo0CAPYm8va7WioiJcLhc6nY7OnTsXLl68WNbj+ZpKJsD+7rvvGhB+52XattlsREdH4/F4SExMLFq8ePFOdf3+7es///xzGdip4V9gEB1aeLcBNcvuAwqCmEMQUj8GeOH06dNzxo8fX/XNN998dejQIcOXX36pRzhsOiDGaDSmVVZWfnzmzJn8cePGmRHM4UZkeUsQZkM4YsOkDe3vg0iGk7kEM0Ja+jOIUe1LOs9X3LT32Wef0bdvX4YPH95gNBq3hIeH78VXc6kX7G3btq1x0cKFIQitIBk3ENF5EREx6Rt1AM5+9dVXTJ06VYmJidGNGzfOtnz58lQEU8sCSn9Q1HkbEaZaBFCzYcMG0tPTnUDVwYMHXZ9++mnSgw8+eAzVn3n55ZdleUgCwsyrR/MDrrW0/CeVoBcUFADgcDiqLRbLxrCwMOn3ic4EDkM2btxY+8c//jECkeVudWz36NGjfP7550ybNs2LsCQK/MdZtmwZCxYs0Nnt9uEIvBpR96CmpoZTp05x++23KwihfDpQ+0WLFhlsNtvdiP1pApw/N8wLbatm6SBXITTMfoT0mbNu3bqQJ598kjVr1qwfPny4Cy1RF1NaWrqjoaHhpHribzaCSLLRch12NIkmLxTwh2hUaYJwCmUSyh/kiTwZjbqCEPPz89m/fz/qRWwNCI153vfz5ptvnr333nsrdu/Z0x4R5WnrqKxHnXs5gpE7AWRnZyOredPT0yvNZrMDQcDBzEgPQmM3Ioi9E8CKFSt46623aGlpOR8WFpb1zDPPfJmYmJgFXMjLy1MOH75cSdIdgdsa2k6QQmuH+Cefz/jwww+prKzEYrF4EAxfwpU4LBo7dmx1bm5ugrqeK7Tw8uXLg46xdOlSnnvuOex2ezhC+kfjgztFUZg+ffpV29tsNtk+BvVMzr+SKPRHnD/DyBDoJQTB7kY47b/5+OOP35oyZUrTtm3bdhmNxjFut9t89OjR7+vq6o6npaUB/BpR/LcHgUTfLLkLwSRxaA6dL0Sri6tU37MSmEHMaBooaA7kww8/5IYbbiAmJqbVnU4Gg4GcnBxef/31yz+hnYQLRkiKOl4FwkS4UZ1Di0/hX/OAAQPqsrKy5Mm/QLiVCcpyxMnEvsBRt9vtfeONN3jwwQdJTU29XImrKApPPPEE6nWhycAvEHisQTtW+98CDQ0N3HfffbzwwgsYjcar4TAEsVdO/Nadm5vLww8/TFJSUqv+bTYbn332mfzqRTBXOH4BqKNHjzJ27Fjfc0DB2re6D+BqDCI32t/B9b3nKhjIeqE6xEYaEQQ/HHh4+PDhX586depSXl5ebk5OTnuz2Zx76623AvwSUYC3F8EcZWiJQD1aIi2YBpF3PPme7osM8J481ir9D18GueyIlpSU8NRTT7WxzFbrDVPnFuxoqpT8doR5k4iQVhWvvfYaAwYM8CQkJDB79uyqrKysRHV9Mufi308zwmy0I+qwTgL7ysvLGT9+POnp6aj3ArN161YKCwtB7PdYhFm2H7E3FoLnBFoFLQjOTL7n+OW/l+d8+PBhHn300QDNrgAdGnHr8dPqf//736/WvgXtTL/Bf64bN268lvYyP6SHawvzBrrEQCL0akkZ6QDb1bFMiI2ZAJTefffde6urq3NSUlKIjo6mpaXlXkR17X5EvF1myWU0RzqV8khvIMKPRjsr0aKOLzPrTr/3QtCcebmWQOu9FvAlpmD5FEnYUrMmIzRlxeHDhxkxYgRLly6lubn5LMKJt6LlXPz7caprLEKYWL9Unx3Izc31+t18idrXWETEsBghfGTEKJij7rvHbSXX/Onh5yQSZT8yghUMh22BLwN7+ema8QoB0Fa5exyiJKKb2lCaIfJSgSZE4uwMrWtrAoEs6ItHbOadiGTZH2+55ZbTiqJw4sSJuxHHbQ8iHPfzCFNEErBcQAyCqPqj3fQnk3ahCNOlDBF+9iDKXm5ESGKZp/FV5TmITLtXnVsvtPuZ2io/8U84yXu1bOocZGjZ9z1ZeVCmzr2P+nsp2nl7VHw6EIR8liuDIKhrba/i4k6EmdWIyE+dRmhQ6cjHI8yqXurvexB7V6vO4xb1X3kjiw7NUS5Gy4N0Q2TnPWhMJddei8i7WBC5nBC/9/y1UTAcNqKd55H7IIndvw/fpKH0WeQFHPJsjxSKgdrLPmTBpMyBnEbcP1DVlgaRJQYKQoXHoJVl+BbnXYu0kM5ptdrHIQQRzcnLy5uFiDrMVid1Ai2RJP0D38W40SRwZwSRSV+kDsGwpercvGpfNyDOLEitIR3lg7RmMMlEfRBEFUmQcnA0KSfzDecQmXK7Ou4v0EK50smX65Pa7bz63i3qex40AtmNYBJfieoLLnXcSoR5FY4g4FHACLSaJj2CaPQI/OcitI6sezKoc+6JIH45D1k5UIV2mVs1wufpqY6nV/FVhGCkRrXPDuq62iMEo6SzYDh0qOMVqHiUGfUbVRxGIgSCPx4ksUuasKk4LlPfvwUhQCLRbo8M1N6jtrcjBKZN/S1oolASYiNCgoWqk7UgJEUh2nmQay1PlouoQBBdNuLit1mITSlQJycz1b6aw78fSeB56vc4dc5liARkJRqDhKh9GxCMYkIw/mmExGtEY5BmdV3HEBWx8ercAhGoVMf1ahtZsNiEYJpT6vMOCGSXqPOoQTCIAw23LgQxedGKH8tp24z19UNk5rgeEWqWkRzps8m7xE4g9k7eHuJFuyw6T51HHFq+5jRaZTFoRGxAmIcGdc35PjgPUfEahiDuODRfMRAOPepcLqj92FTcuBCM70X4TFFcmdiUBN6MYOSzCAazo/3XFi51rsESozJlUa22P4vPvchtMUgLWliuRR1YHgiqURHTwNVvwfPtU0a2KtTJNyNMoFqE5JcFaw1oROsPvhpE5lvkLScN6ne5WdI2NqjP8n3GlfVjvmXyDWiEWY5WQh4IJIPIg0vVaMEEk/qvDS1bL9ddjdgAeY7GjSDGCLXPRrWfSjT8BgNfXEi/qxjhb0hnV+5jNRp+pQmHOpdKNA0jNV6d+rsdLddkQ9PABep8ZThfanzfdZWiFYQG2kuJQ+lPSRxKnLrQ7skyEZzApTCvVds3Ifa5Ue3zFJrjHcw3lFdWVaBdANjmf6AjneowBLJlZEBGkWQyRdrq1wpS5UciuDoczQSpQxB2sBIL0GxFi9pWnkJDXVQTAjFS6hn91qBHO4PQiPYf1uh83g1Du7j7arkiGZlyoGlUA9oFzL5za0TDmU6dj0xsypCuDOHKd1toG7/SJwxFMFkk2lVG0gGXgQH5cap96v3ayhtepOko99gXP7KGSZ7ZkGF3qYn1PuuSdVFt4VDxwWETWrbeoM7HQvCqCd8+5J42+81D7qOsO2urvSyavIz3tv4LNuk4SWfN1xb2+HyuJZrlDwZ10ma0DZETvJbElZxLCK0vKZZRLqnV/B0w35yNfE86gPKZwefTVoLMN7ojx5V96f36CDQ3uBK/Evzxe7VojJx3CFr4Wq5XSnOZEHXT+v9g9N1nf1zKdxWf9+V7cr6+uPRdl3xH79PWHwLh0Nen9cWNlP6BnGw5X//SGT2taTfQPAK1l2vxtsUg/50QKDvbVhjxOlw7BCKEnxMyvQ4EMbGuw3W4DgL+lVqs63Ad/r+H6wxyHa5DG/B/AcCNEwMfhlGVAAAAAElFTkSuQmCC'
+
+$pictureLogo = New-Object System.Windows.Forms.PictureBox
+$pictureLogo.Size = New-Object System.Drawing.Size(150, 60)
+$pictureLogo.Location = New-Object System.Drawing.Point(720, 5)
+$pictureLogo.SizeMode = 'Zoom'
+$pictureLogo.BorderStyle = 'None'
+
+$logoImage = Get-ImageFromBase64 -Base64 $logoBase64
+if ($logoImage) {
+$pictureLogo.Image = $logoImage
+}
+
+# DataGridView para resultados
+$grid = New-Object System.Windows.Forms.DataGridView
+$grid.Location = New-Object System.Drawing.Point(270, 160)
+$grid.Size = New-Object System.Drawing.Size(600, 400)
+$grid.ReadOnly = $true
+$grid.AllowUserToAddRows = $false
+$grid.AllowUserToDeleteRows = $false
+$grid.AutoSizeColumnsMode = 'Fill'
+$grid.BorderStyle = 'FixedSingle'
+$grid.BackgroundColor = [System.Drawing.Color]::White
+$grid.EnableHeadersVisualStyles = $false
+
+$headerStyle = New-Object System.Windows.Forms.DataGridViewCellStyle
+$headerStyle.BackColor = [System.Drawing.Color]::FromArgb(52, 73, 94)
+$headerStyle.ForeColor = [System.Drawing.Color]::White
+$headerStyle.Font = New-Object System.Drawing.Font('Segoe UI', 9, [System.Drawing.FontStyle]::Bold)
+$grid.ColumnHeadersDefaultCellStyle = $headerStyle
+
+$rowStyle = New-Object System.Windows.Forms.DataGridViewCellStyle
+$rowStyle.BackColor = [System.Drawing.Color]::White
+$rowStyle.SelectionBackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+$rowStyle.SelectionForeColor = [System.Drawing.Color]::White
+$grid.DefaultCellStyle = $rowStyle
+
+$altRowStyle = New-Object System.Windows.Forms.DataGridViewCellStyle
+$altRowStyle.BackColor = [System.Drawing.Color]::FromArgb(245, 247, 250)
+$grid.AlternatingRowsDefaultCellStyle = $altRowStyle
+
+# Barra de progreso para carga/busqueda
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(60, 685)
+$progressBar.Size = New-Object System.Drawing.Size(500, 15)
+$progressBar.Style = 'Continuous'
+$progressBar.Minimum = 0
+$progressBar.Maximum = 100
+$progressBar.Value = 0
+$progressBar.Visible = $false
+
+# Barra de progreso para instalacion/desinstalacion (parte inferior)
+$progressBarInstall = New-Object System.Windows.Forms.ProgressBar
+$progressBarInstall.Location = New-Object System.Drawing.Point(60, 685)
+$progressBarInstall.Size = New-Object System.Drawing.Size(470, 15)
+$progressBarInstall.Style = 'Continuous'
+$progressBarInstall.Minimum = 0
+$progressBarInstall.Maximum = 100
+$progressBarInstall.Value = 0
+$progressBarInstall.Visible = $false
+
+# Label de estado
+$lblStatus = New-Object System.Windows.Forms.Label
+$lblStatus.Text = 'Listo.'
+$lblStatus.AutoSize = $true
+$lblStatus.Location = New-Object System.Drawing.Point(10, 560)
+$lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(90, 98, 110)
+
+# Agregar controles al formulario
+$form.Controls.AddRange(@(
+$lblSearch,
+$txtSearch,
+$lblType,
+$cmbType,
+$btnLoadComputers,
+$lblComputers,
+$lstComputers,
+$btnSearch,
+$btnExportCsv,
+$btnCopySelected,
+$btnInstall,
+$btnUninstall,
+$pictureLogo,
+$chkUseWin32Product,
+$lblInstaller,
+$txtInstallerPath,
+$btnBrowseInstaller,
+$lblInstallArgs,
+$txtInstallArgs,
+$lblExpectedName,
+$txtExpectedName,
+$grid,
+$lblStatus,
+$progressBar,
+$progressBarInstall
+))
+
+# Evento: Cargar equipos
+$btnLoadComputers.Add_Click({
+$lblStatus.Text = 'Cargando equipos del dominio...'
+$form.Refresh()
+
+$btnLoadComputers.Enabled = $false
+$btnSearch.Enabled = $false
+$lstComputers.Enabled = $false
+
+$progressBar.Style = 'Marquee'
+$progressBar.MarqueeAnimationSpeed = 30
+$progressBar.Visible = $true
+
+switch ($cmbType.SelectedItem) {
+'Servidores' { $type = 'Servers' }
+'Workstations' { $type = 'Workstations' }
+default { $type = 'All' }
+}
+
+$lstComputers.Items.Clear()
+$computers = Get-DomainComputers -Type $type
+
+if (-not $computers -or $computers.Count -eq 0) {
+$lblStatus.Text = 'No se encontraron equipos o hubo un error.'
+}
+else {
+foreach ($c in $computers) {
+[void]$lstComputers.Items.Add($c.Name)
+}
+
+$lblStatus.Text = "Equipos cargados: $($computers.Count)"
+}
+
+$progressBar.Visible = $false
+$progressBar.Style = 'Continuous'
+$progressBar.Value = 0
+
+$btnLoadComputers.Enabled = $true
+$btnSearch.Enabled = $true
+$lstComputers.Enabled = $true
+})
+
+# Convertir lista de resultados a DataTable para el grid
+function ConvertTo-DataTable {
+param([Parameter(Mandatory, ValueFromPipeline)][PSObject]$InputObject)
+begin {
+$dt = New-Object System.Data.DataTable
+$first = $true
+}
+process {
+$obj = $_
+if ($first) {
+foreach ($prop in $obj.PSObject.Properties.Name) {
+[void]$dt.Columns.Add($prop)
+}
+$first = $false
+}
+$row = $dt.NewRow()
+foreach ($prop in $obj.PSObject.Properties.Name) {
+$row[$prop] = $obj.$prop
+}
+[void]$dt.Rows.Add($row)
+}
+end {
+return $dt
+}
+}
+
+function Test-ComputerOnline {
+param(
+[Parameter(Mandatory)][string]$ComputerName
+)
+
+try {
+return Test-Connection -ComputerName $ComputerName -Count 1 -Quiet -ErrorAction SilentlyContinue
+}
+catch {
+return $false
+}
+}
+
+# Evento: Buscar software en equipos seleccionados
+$btnSearch.Add_Click({
+$searchText = $txtSearch.Text.Trim()
+if ([string]::IsNullOrWhiteSpace($searchText)) {
+[System.Windows.Forms.MessageBox]::Show('Escribe el nombre (o parte) del software a buscar.', 'Aviso', 'OK',
+'Information') | Out-Null
+return
+}
+
+if ($lstComputers.SelectedItems.Count -eq 0) {
+[System.Windows.Forms.MessageBox]::Show('Selecciona al menos un equipo de la lista.', 'Aviso', 'OK', 'Information') |
+Out-Null
+return
+}
+
+$selectedCount = $lstComputers.SelectedItems.Count
+if ($selectedCount -gt 20) {
+$answer = [System.Windows.Forms.MessageBox]::Show(
+"Has seleccionado $selectedCount equipos. La búsqueda puede tardar varios minutos. ¿Deseas continuar?",
+'Confirmación',
+[System.Windows.Forms.MessageBoxButtons]::YesNo,
+[System.Windows.Forms.MessageBoxIcon]::Question
+)
+
+if ($answer -ne [System.Windows.Forms.DialogResult]::Yes) {
+return
+}
+}
+
+$lblStatus.Text = 'Buscando en equipos seleccionados...'
+$form.Refresh()
+
+$btnSearch.Enabled = $false
+$btnLoadComputers.Enabled = $false
+$lstComputers.Enabled = $false
+
+$progressBar.Style = 'Continuous'
+$progressBar.Minimum = 0
+$progressBar.Maximum = $lstComputers.SelectedItems.Count
+$progressBar.Value = 0
+$progressBar.Visible = $true
+
+$useWin32 = $chkUseWin32Product.Checked
+
+$modulePath = Join-Path -Path $PSScriptRoot -ChildPath 'BuscarSoftwareRedModule.psm1'
+if (-not (Test-Path $modulePath)) {
+[System.Windows.Forms.MessageBox]::Show("No se encontró el módulo de lógica: $modulePath", 'Error', 'OK', 'Error') |
+Out-Null
+$btnSearch.Enabled = $true
+$btnLoadComputers.Enabled = $true
+$lstComputers.Enabled = $true
+return
+}
+
+$jobs = @()
+$offlineComputers = @()
+
+foreach ($item in $lstComputers.SelectedItems) {
+$computerName = [string]$item
+
+if (-not (Test-ComputerOnline -ComputerName $computerName)) {
+Write-BuscarSoftwareLog -Message "Equipo no accesible por ICMP (posible problema de DNS, apagado o firewall ICMP):
+$computerName"
+$offlineComputers += $computerName
+continue
+}
+
+$lblStatus.Text = "Creando tarea para $computerName..."
+$form.Refresh()
+
+$job = Start-Job -ScriptBlock {
+param($ComputerNameInner, $SearchTextInner, $UseWin32Inner, $ModulePathInner)
+
+Import-Module $ModulePathInner -ErrorAction Stop
+
+if ($UseWin32Inner) {
+Get-InstalledSoftwareRemote -ComputerName $ComputerNameInner -SearchText $SearchTextInner -UseWin32Product
+}
+else {
+Get-InstalledSoftwareRemote -ComputerName $ComputerNameInner -SearchText $SearchTextInner -UseWin32Product:$false
+}
+} -ArgumentList $computerName, $searchText, $useWin32, $modulePath
+
+$jobs += $job
+}
+
+$results = @()
+
+foreach ($job in $jobs) {
+$lblStatus.Text = "Esperando resultados de tareas en segundo plano..."
+$form.Refresh()
+
+$null = Wait-Job -Job $job -Timeout 300
+
+$res = Receive-Job -Job $job -ErrorAction SilentlyContinue
+if ($res) {
+$results += $res
+}
+
+Remove-Job -Job $job -Force -ErrorAction SilentlyContinue | Out-Null
+
+if ($progressBar.Value -lt $progressBar.Maximum) {
+$progressBar.Value += 1
+}
+}
+
+if ($results.Count -eq 0) {
+$lblStatus.Text = 'Búsqueda finalizada. No se encontraron coincidencias.'
+$grid.DataSource = $null
+}
+else {
+$lblStatus.Text = "Búsqueda finalizada. Resultados: $($results.Count)"
+
+# Construir DataTable explícito con normalización de InstallDate
+$dt = New-Object System.Data.DataTable
+[void]$dt.Columns.Add('ComputerName')
+[void]$dt.Columns.Add('DisplayName')
+[void]$dt.Columns.Add('DisplayVersion')
+[void]$dt.Columns.Add('Publisher')
+[void]$dt.Columns.Add('InstallDate')
+
+foreach ($r in $results) {
+$installDateText = ''
+
+if ($null -ne $r.InstallDate -and $r.InstallDate -ne '') {
+try {
+$dtParsed = [datetime]$r.InstallDate
+$installDateText = $dtParsed.ToString('yyyy-MM-dd')
+}
+catch {
+$installDateText = [string]$r.InstallDate
+}
+}
+
+$row = $dt.NewRow()
+$row['ComputerName'] = [string]$r.ComputerName
+$row['DisplayName'] = [string]$r.DisplayName
+$row['DisplayVersion'] = [string]$r.DisplayVersion
+$row['Publisher'] = [string]$r.Publisher
+$row['InstallDate'] = $installDateText
+[void]$dt.Rows.Add($row)
+}
+
+$grid.DataSource = $null
+$grid.DataSource = $dt
+}
+
+$progressBar.Visible = $false
+$progressBar.Value = 0
+
+if ($offlineComputers.Count -gt 0) {
+$mensajeOffline = "Los siguientes equipos no están accesibles (offline o sin respuesta ICMP):`r`n`r`n" +
+($offlineComputers -join "`r`n")
+[System.Windows.Forms.MessageBox]::Show($mensajeOffline, 'Equipos no accesibles', 'OK', 'Warning') | Out-Null
+}
+
+$btnSearch.Enabled = $true
+$btnLoadComputers.Enabled = $true
+$lstComputers.Enabled = $true
+})
+
+function Copy-CurrentGridRowToClipboard {
+if (-not $grid.CurrentRow) { return }
+
+$values = @()
+foreach ($cell in $grid.CurrentRow.Cells) {
+$values += [string]$cell.Value
+}
+
+$text = [string]::Join("`t", $values)
+[System.Windows.Forms.Clipboard]::SetText($text)
+}
+
+$btnExportCsv.Add_Click({
+if (-not $grid.DataSource -or -not $grid.Rows.Count) {
+[System.Windows.Forms.MessageBox]::Show('No hay resultados para exportar.', 'Aviso', 'OK', 'Information') | Out-Null
+return
+}
+
+$dialog = New-Object System.Windows.Forms.SaveFileDialog
+$dialog.Filter = 'CSV (*.csv)|*.csv|Todos los archivos (*.*)|*.*'
+$dialog.Title = 'Guardar resultados como CSV'
+$dialog.FileName = 'Resultados_BuscarSoftware.csv'
+
+if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+$path = $dialog.FileName
+$dataTable = [System.Data.DataTable]$grid.DataSource
+$dataTable | Export-Csv -Path $path -NoTypeInformation -Encoding UTF8
+[System.Windows.Forms.MessageBox]::Show("Resultados exportados a: $path", 'Información', 'OK', 'Information') | Out-Null
+}
+})
+
+$btnCopySelected.Add_Click({
+if (-not $grid.CurrentRow) {
+[System.Windows.Forms.MessageBox]::Show('No hay ninguna fila seleccionada.', 'Aviso', 'OK', 'Information') | Out-Null
+return
+}
+
+Copy-CurrentGridRowToClipboard
+[System.Windows.Forms.MessageBox]::Show('Datos de la fila copiados al portapapeles.', 'Información', 'OK',
+'Information') | Out-Null
+})
+
+$btnBrowseInstaller.Add_Click({
+$dialog = New-Object System.Windows.Forms.OpenFileDialog
+$dialog.Filter = 'Instaladores (*.exe;*.msi)|*.exe;*.msi|Todos los archivos (*.*)|*.*'
+$dialog.Title = 'Seleccionar instalador'
+
+if ($dialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+$txtInstallerPath.Text = $dialog.FileName
+}
+})
+
+$btnInstall.Add_Click({
+if ($lstComputers.SelectedItems.Count -eq 0) {
+[System.Windows.Forms.MessageBox]::Show('Selecciona al menos un equipo para instalar el software.', 'Aviso', 'OK',
+'Information') | Out-Null
+return
+}
+
+$installerPath = $txtInstallerPath.Text.Trim()
+if ([string]::IsNullOrWhiteSpace($installerPath)) {
+[System.Windows.Forms.MessageBox]::Show('Selecciona o escribe la ruta del instalador.', 'Aviso', 'OK', 'Information') |
+Out-Null
+return
+}
+
+$silentArgs = $txtInstallArgs.Text.Trim()
+
+$customCommand = $null
+
+$expectedDisplayName = $txtExpectedName.Text.Trim()
+if ([string]::IsNullOrWhiteSpace($expectedDisplayName)) {
+$expectedDisplayName = $txtSearch.Text.Trim()
+}
+$txtExpectedName.Text = $expectedDisplayName
+
+$msg = "Se intentara instalar el software de forma desatendida en los equipos seleccionados.\n\n" +
+"Instalador: $installerPath\n" +
+"Parametros: $silentArgs\n\n" +
+"Nota: Se probaran varios metodos (Invoke-Command, copia remota, WMI)."
+
+$answer = [System.Windows.Forms.MessageBox]::Show($msg, 'Confirmar instalación',
+[System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Question)
+if ($answer -ne [System.Windows.Forms.DialogResult]::Yes) { return }
+
+$btnInstall.Enabled = $false
+$btnSearch.Enabled = $false
+$btnLoadComputers.Enabled = $false
+$lstComputers.Enabled = $false
+
+$lblStatus.Text = 'Iniciando instalación desatendida en equipos seleccionados...'
+$form.Refresh()
+
+$progressBar.Style = 'Continuous'
+$progressBar.Minimum = 0
+$progressBar.Maximum = $lstComputers.SelectedItems.Count
+$progressBar.Value = 0
+$progressBar.Visible = $true
+
+$ok = 0
+$fail = 0
+
+foreach ($item in $lstComputers.SelectedItems) {
+$computerName = [string]$item
+$lblStatus.Text = "Instalando en $computerName..."
+$form.Refresh()
+
+$result = Invoke-RemoteInstall -ComputerName $computerName -InstallerPath $installerPath -SilentArgs $silentArgs
+-CustomCommand $customCommand -ExpectedDisplayName $expectedDisplayName
+if ($result) { $ok++ } else { $fail++ }
+
+if ($progressBarInstall.Value -lt $progressBarInstall.Maximum) {
+$progressBarInstall.Value += 1
+}
+}
+
+$progressBarInstall.Visible = $false
+$progressBarInstall.Value = 0
+
+$lblStatus.Text = "Instalacion finalizada. Exitosas: $ok. Fallidas: $fail."
+
+$btnInstall.Enabled = $true
+$btnSearch.Enabled = $true
+$btnLoadComputers.Enabled = $true
+$lstComputers.Enabled = $true
+
+[System.Windows.Forms.MessageBox]::Show("Instalacion finalizada. Exitosas: $ok. Fallidas: $fail.", 'Resultado de
+instalación', 'OK', 'Information') | Out-Null
+})
+
+$btnUninstall.Add_Click({
+if (-not $grid.DataSource -or -not $grid.Rows.Count) {
+[System.Windows.Forms.MessageBox]::Show('No hay resultados en la tabla de software para desinstalar.', 'Aviso', 'OK',
+'Information') | Out-Null
+return
+}
+
+if ($grid.SelectedRows.Count -eq 0) {
+[System.Windows.Forms.MessageBox]::Show('Selecciona al menos una fila en la tabla de resultados para desinstalar.',
+'Aviso', 'OK', 'Information') | Out-Null
+return
+}
+
+$count = $grid.SelectedRows.Count
+$msg = "Se intentara desinstalar de forma desatendida el software de las filas seleccionadas.\n\n" +
+"Filas seleccionadas: $count\n\n" +
+"Se usaran metodos en cascada (QuietUninstallString, UninstallString, Win32_Product)."
+
+$answer = [System.Windows.Forms.MessageBox]::Show($msg, 'Confirmar desinstalación',
+[System.Windows.Forms.MessageBoxButtons]::YesNo, [System.Windows.Forms.MessageBoxIcon]::Warning)
+if ($answer -ne [System.Windows.Forms.DialogResult]::Yes) { return }
+
+$btnUninstall.Enabled = $false
+$btnInstall.Enabled = $false
+$btnSearch.Enabled = $false
+$btnLoadComputers.Enabled = $false
+$lstComputers.Enabled = $false
+
+$lblStatus.Text = 'Iniciando desinstalación en equipos seleccionados...'
+$form.Refresh()
+
+$progressBarInstall.Style = 'Continuous'
+$progressBarInstall.Minimum = 0
+$progressBarInstall.Maximum = $grid.SelectedRows.Count
+$progressBarInstall.Value = 0
+$progressBarInstall.Visible = $true
+
+$ok = 0
+$fail = 0
+
+foreach ($row in $grid.SelectedRows) {
+$computerName = [string]$row.Cells['ComputerName'].Value
+$displayName = [string]$row.Cells['DisplayName'].Value
+
+if ([string]::IsNullOrWhiteSpace($computerName) -or [string]::IsNullOrWhiteSpace($displayName)) {
+continue
+}
+
+$lblStatus.Text = "Desinstalando '$displayName' en $computerName..."
+$form.Refresh()
+
+$result = Invoke-RemoteUninstall -ComputerName $computerName -DisplayName $displayName
+if ($result) { $ok++ } else { $fail++ }
+
+if ($progressBar.Value -lt $progressBar.Maximum) {
+$progressBar.Value += 1
+}
+}
+
+$progressBar.Visible = $false
+$progressBar.Value = 0
+
+$lblStatus.Text = "Desinstalacion finalizada. Exitosas: $ok. Fallidas: $fail."
+
+$btnUninstall.Enabled = $true
+$btnInstall.Enabled = $true
+$btnSearch.Enabled = $true
+$btnLoadComputers.Enabled = $true
+$lstComputers.Enabled = $true
+
+[System.Windows.Forms.MessageBox]::Show("Desinstalacion finalizada. Exitosas: $ok. Fallidas: $fail.", 'Resultado de
+desinstalación', 'OK', 'Information') | Out-Null
+})
+
+$grid.Add_CellDoubleClick({
+param($sender, $e)
+if ($e.RowIndex -ge 0) {
+Copy-CurrentGridRowToClipboard
+}
+})
+
+[void]$form.ShowDialog()
+
       </div>
     </section>
   </main>
