@@ -1,278 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 80%;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f0f2f5;
-      }
+
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 80%;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+
+    .header-text {
+      text-align: left;
+    }
+
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    nav ul li {
+      margin: 0 10px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    h2 {
+      color: #4267b2;
+    }
+
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .instructions ol {
+      margin-bottom: 0;
+    }
+
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .button:hover {
+      background-color: #365899;
+    }
+
+    @media (max-width: 600px) {
       header {
-        background-color: #4267b2;
-        color: white;
-        text-align: center;
-        padding: 1rem;
-        border-radius: 8px 8px 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        flex-direction: column;
       }
+
       .logo {
-        width: 100px;
-        height: auto;
-        margin-right: 20px;
+        margin-right: 0;
+        margin-bottom: 10px;
       }
+
       .header-text {
-        text-align: left;
+        text-align: center;
       }
-      nav {
-        background-color: #365899;
-        padding: 10px;
-      }
-      nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-      }
-      nav ul li {
-        margin: 0 10px;
-      }
-      nav ul li a {
-        color: white;
-        text-decoration: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      nav ul li a:hover {
-        background-color: #4267b2;
-      }
-      main {
-        background-color: white;
-        padding: 20px;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        margin-top: 0;
-      }
-      h2 {
-        color: #4267b2;
-      }
-      .instructions {
-        background-color: #e9ebee;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
-      .instructions ol {
-        margin-bottom: 0;
-      }
-      .code-block {
-        background-color: #f1f3f4;
-        border-left: 4px solid #4267b2;
-        padding: 15px;
-        margin-bottom: 20px;
-        overflow-x: auto;
-      }
-      .button {
-        display: inline-block;
-        background-color: #4267b2;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      .button:hover {
-        background-color: #365899;
-      }
-      @media (max-width: 600px) {
-        header {
-          flex-direction: column;
-        }
-        .logo {
-          margin-right: 0;
-          margin-bottom: 10px;
-        }
-        .header-text {
-          text-align: center;
-        }
-      }
-    </style>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="Automatización con PowerShell" />
-    <meta
-      name="keywords"
-      content="PowerShell, scripts, formularios, automatización, administración"
-    />
-    <meta
-      name="description"
-      content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
-    />
-    <title>Scripts de Vladi</title>
-    <link rel="shortcut icon" href="./favicon.ico" />
-    <link
-      rel="stylesheet"
-      href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
-    />
-  </head>
-  <body>
-    <header>
-      <div class="header-text">
-        <h1>Listado de scripts</h1>
-      </div>
-    </header>
-    
-     <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
-      target="_blank"
-      ><center>
-        <img
-          src="assets/Linkedin-Logo-e1660320077673.png"
-          style="width: 25%;"/></center
-    ></a>
-    
-    </h1>
-    <section id="instrucciones" class="instructions">
-  
-      <p>
-        <a href="/HTML/MDP01.html" onclick="handleNavigation(event, this.href)"> 
-          <b>01- Monitor de puertos:</b></a>
-      </p>
-      Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además, proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados. 
-      <p>
-        
-      </p>
-      <p>
-        <a href="MisScripts/ControlDeCambioClave.html" onclick="handleNavigation(event, this.href)"> 
-          <b>02- Control de Cambio de Clave:</b></a>
-        <p>Este script en PowerShell revela un enfoque sofisticado para gestionar eventos de seguridad relacionados con cambios de contraseña en Windows. El script extrae detalles de eventos, genera un informe en HTML y lo envía por correo electrónico, utilizando configuración cifrada para mayor seguridad.  </p>
-      </p>
-      <p>
-        <a href="MisScripts/controldecambiossobrecuentaslocales.html"
-          ><b>03- Control de cambios en cuentas y grupos:</b></a
-        >
-        <p></p>Este script en PowerShell controla y audita los grupos y miembros locales en un sistema Windows, detectando cambios entre ejecuciones. Adicionalmente, incluye funcionalidades para: 
-        <li>Registrar eventos de seguridad específicos.</li> 
-        <li>Determinar si una cuenta podría ser utilizada como cuenta de servicio.</li> 
-        <li>Comparar datos actuales de grupos/miembros con ejecuciones previas.</li> 
-        <li>Exportar la información en un archivo CSV y notificar resultados por correo electrónico.</li> 
-      </p>
-      <p>
-        <a href="MisScripts\BuscarLogsPorPalabrasEnVisor.html"
-          ><b>04- Buscar logs en event viewer:</b></a
-        >
-        <p>Este script crea una herramienta gráfica en PowerShell para buscar eventos en el Visor de Eventos de Windows (Event Viewer). Integra una interfaz de usuario (GUI) para facilitar la búsqueda de logs específicos, con opciones de exportación a formatos CSV y JSON.</p>
-      </p>
-      <p>
-        <a href="/HTML/EDGYUDUAD.html"
-          ><b>05- Enumerar grupos y usuarios de un Active Directory:</b></a
-        >
-        <p>El script proporcionado es una herramienta gráfica desarrollada en PowerShell que permite interactuar con Active Directory (AD) para consultar, filtrar y exportar información sobre grupos y usuarios . Está diseñado para ser utilizado por administradores de sistemas o auditores que necesiten explorar y analizar la estructura de AD de manera eficiente.</p>
-      </p>
-      <p>
-        <a href="/HTML/BEDCR-RDP.html"
-          ><b>06- Busqueda y Filtrado de Eventos de Conexión Remota:</b></a
-        >
-        <p>Este script en PowerShell proporciona una interfaz gráfica moderna para buscar y filtrar eventos de conexión remota en Windows. Permite visualizar los eventos en una tabla interactiva y exportar los resultados a un archivo CSV para su posterior análisis.</p>
-      </p>
-      <p>
-        <a href="/HTML/ACDAD.html"
-          ><b>07- Auditar cuentas del Active Directory:</b></a
-        >
-        <p>
-          El script tiene como objetivo auditar cuentas de usuario en
-          un dominio de&nbsp;<b>Active Directory (AD)</b>, identificando:<br>
-          <ul>
-            <li>
-              Cuentas
-              <b>inactivas</b> (que no han iniciado sesión en más de un número
-              específico de días).
-            </li>
-            <li>
-              Cuentas
-              <b>que&nbsp;nunca han sido usadas</b>.
-            </li>
-            <li>
-              Información
-              <b>adicional</b> como el estado de la cuenta, la política de
-              contraseñas, los grupos a los que pertenece el usuario, etc.
-            </li>
-          </ul>
-          <p>
-            Los resultados se muestran en una&nbsp;<b>interfaz gráfica</b>&nbsp;con
-            un&nbsp;<b>DataGridView</b>&nbsp;y se pueden exportar a un archivo CSV.
-          </p>
-      </p>
-      <p>
-        <a href="/HTML/BDR.html"
-          ><b>08- Barrido de Red:</b></a
-        >
-        <p>Este script de PowerShell proporciona una interfaz gráfica para escanear rangos de direcciones IP. Características principales:</p>
-        <ul>
-          <li>Interfaz moderna de Windows Forms con estilo personalizado</li>
-          <li>Escaneo de IP en paralelo para mejor rendimiento</li>
-          <li>Funcionalidad de exportación a CSV</li>
-          <li>Monitoreo de progreso en tiempo real</li>
-          <li>Selección personalizable de rango de IP</li>
-        </ul>
-      </p>
-      <p>
-        <a href="/HTML/LDCX509.html"
-          ><b>09- Lector de certificado X.509:</b></a
-        >
-        <p>Este script de PowerShell crea una interfaz gráfica de usuario (GUI) que permite a los usuarios pegar un certificado X.509 en formato hexadecimal, convertirlo a un objeto de certificado y mostrar sus propiedades y extensiones en una tabla. El script utiliza System.Windows.Forms y System.Drawing para crear la GUI, y System.Security.Cryptography.X509Certificates para procesar el certificado.</p>
-      </p>
-      <p>
-        <a href="/HTML/DDCSR.html"
-          ><b>10- Decodificador de CSR:</b></a
-        >
-        <p>El script crea una interfaz gráfica de usuario (GUI) que permite a los usuarios pegar un CSR en formato PEM, validar su estructura y decodificar su contenido utilizando OpenSSL. La información decodificada se muestra en una lista detallada dentro de la interfaz.</p>
-      </p>
-      <a href="/HTML/Calc01.html"
-          ><b>11- Calculadora avanzada:</b></a
-        >
-        <p>Crea una interfaz gráfica de usuario (GUI) para una calculadora avanzada con funcionalidades como operaciones aritméticas básicas, memoria, historial de operaciones, funciones trigonométricas, raíz cuadrada, potencia al cuadrado, potencia a una potencia dada, porcentaje y la capacidad de graficar funciones matemáticas.</p>
-      </p>
-      <a href="/HTML/MonNav01.html"
-          ><b>12- Monitoreo de Navegadores:</b></a
-        >
-        <p>El script es una herramienta de monitoreo en tiempo real diseñada para detectar y controlar el uso de navegadores web (Chrome, Firefox, Edge, Internet Explorer) en sistemas Windows. Su principal función es identificar accesos a sitios web sensibles (almacenamiento en la nube, redes sociales, correos electrónicos, etc.) mediante el análisis de títulos de ventanas y URLs, ejecutando acciones automatizadas como:
-          <ul>
-            <li>Captura de pantalla como evidencia.</li>
-            <li>Cierre forzado del navegador.</li>
-            <li>Registro en logs con detalles del evento.</li>
-            <li>Envío de alertas por correo electrónico con pruebas adjuntas.</li>
-          </ul></p>
-      </p>
-      <p>
-        <a href="/HTML/HealthCheck.html"
-          ><b>13- HealthCheck:</b></a
-        >
-        <p>Script de PowerShell para análisis completo del estado de sistemas Windows. Genera informes detallados sobre hardware, software, rendimiento, seguridad y actualizaciones pendientes. Características principales:
-          <ul>
-            <li>Detección de actualizaciones de Windows y software de terceros pendientes.</li>
-            <li>Análisis de rendimiento de CPU, memoria, disco y red.</li>
-            <li>Verificación de configuraciones de seguridad y cumplimiento.</li>
-            <li>Generación de informes en múltiples formatos (HTML, JSON, CSV, Excel).</li>
-            <li>Interfaz visual con gráficos y tablas para fácil interpretación.</li>
-          </ul></p>
-      </p>
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Automatización con PowerShell" />
+  <meta name="keywords" content="PowerShell, scripts, formularios, automatización, administración" />
+  <meta name="description"
+    content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes." />
+  <title>Scripts de Vladi</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css" />
+</head>
 
-</section>
+<body>
+  <header>
+    <div class="header-text">
+      <h1>Listado de scripts</h1>
+    </div>
+  </header>
+
+  <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
+    <center>
+      <img src="assets/Linkedin-Logo-e1660320077673.png" style="width: 25%;" />
+    </center>
+  </a>
+
+  </h1>
+  <section id="instrucciones" class="instructions">
+
+    <p>
+      <a href="/HTML/MDP01.html" onclick="handleNavigation(event, this.href)">
+        <b>01- Monitor de puertos:</b></a>
+    </p>
+    Este script en PowerShell crea una aplicación gráfica que permite a los administradores de sistemas monitorear
+    conexiones TCP/IP a un host y puerto específicos, registrando los resultados en un archivo de log. Además,
+    proporciona una interfaz de usuario intuitiva para visualizar y filtrar resultados.
+    <p>
+
+    </p>
+    <p>
+      <a href="MisScripts/ControlDeCambioClave.html" onclick="handleNavigation(event, this.href)">
+        <b>02- Control de Cambio de Clave:</b></a>
+    <p>Este script en PowerShell revela un enfoque sofisticado para gestionar eventos de seguridad relacionados con
+      cambios de contraseña en Windows. El script extrae detalles de eventos, genera un informe en HTML y lo envía por
+      correo electrónico, utilizando configuración cifrada para mayor seguridad. </p>
+    </p>
+    <p>
+      <a href="MisScripts/controldecambiossobrecuentaslocales.html"><b>03- Control de cambios en cuentas y
+          grupos:</b></a>
+    <p></p>Este script en PowerShell controla y audita los grupos y miembros locales en un sistema Windows, detectando
+    cambios entre ejecuciones. Adicionalmente, incluye funcionalidades para:
+    <li>Registrar eventos de seguridad específicos.</li>
+    <li>Determinar si una cuenta podría ser utilizada como cuenta de servicio.</li>
+    <li>Comparar datos actuales de grupos/miembros con ejecuciones previas.</li>
+    <li>Exportar la información en un archivo CSV y notificar resultados por correo electrónico.</li>
+    </p>
+    <p>
+      <a href="MisScripts\BuscarLogsPorPalabrasEnVisor.html"><b>04- Buscar logs en event viewer:</b></a>
+    <p>Este script crea una herramienta gráfica en PowerShell para buscar eventos en el Visor de Eventos de Windows
+      (Event Viewer). Integra una interfaz de usuario (GUI) para facilitar la búsqueda de logs específicos, con opciones
+      de exportación a formatos CSV y JSON.</p>
+    </p>
+    <p>
+      <a href="/HTML/EDGYUDUAD.html"><b>05- Enumerar grupos y usuarios de un Active Directory:</b></a>
+    <p>El script proporcionado es una herramienta gráfica desarrollada en PowerShell que permite interactuar con Active
+      Directory (AD) para consultar, filtrar y exportar información sobre grupos y usuarios . Está diseñado para ser
+      utilizado por administradores de sistemas o auditores que necesiten explorar y analizar la estructura de AD de
+      manera eficiente.</p>
+    </p>
+    <p>
+      <a href="/HTML/BEDCR-RDP.html"><b>06- Busqueda y Filtrado de Eventos de Conexión Remota:</b></a>
+    <p>Este script en PowerShell proporciona una interfaz gráfica moderna para buscar y filtrar eventos de conexión
+      remota en Windows. Permite visualizar los eventos en una tabla interactiva y exportar los resultados a un archivo
+      CSV para su posterior análisis.</p>
+    </p>
+    <p>
+      <a href="/HTML/ACDAD.html"><b>07- Auditar cuentas del Active Directory:</b></a>
+    <p>
+      El script tiene como objetivo auditar cuentas de usuario en
+      un dominio de&nbsp;<b>Active Directory (AD)</b>, identificando:<br>
+    <ul>
+      <li>
+        Cuentas
+        <b>inactivas</b> (que no han iniciado sesión en más de un número
+        específico de días).
+      </li>
+      <li>
+        Cuentas
+        <b>que&nbsp;nunca han sido usadas</b>.
+      </li>
+      <li>
+        Información
+        <b>adicional</b> como el estado de la cuenta, la política de
+        contraseñas, los grupos a los que pertenece el usuario, etc.
+      </li>
+    </ul>
+    <p>
+      Los resultados se muestran en una&nbsp;<b>interfaz gráfica</b>&nbsp;con
+      un&nbsp;<b>DataGridView</b>&nbsp;y se pueden exportar a un archivo CSV.
+    </p>
+    </p>
+    <p>
+      <a href="/HTML/BDR.html"><b>08- Barrido de Red:</b></a>
+    <p>Este script de PowerShell proporciona una interfaz gráfica para escanear rangos de direcciones IP.
+      Características principales:</p>
+    <ul>
+      <li>Interfaz moderna de Windows Forms con estilo personalizado</li>
+      <li>Escaneo de IP en paralelo para mejor rendimiento</li>
+      <li>Funcionalidad de exportación a CSV</li>
+      <li>Monitoreo de progreso en tiempo real</li>
+      <li>Selección personalizable de rango de IP</li>
+    </ul>
+    </p>
+    <p>
+      <a href="/HTML/LDCX509.html"><b>09- Lector de certificado X.509:</b></a>
+    <p>Este script de PowerShell crea una interfaz gráfica de usuario (GUI) que permite a los usuarios pegar un
+      certificado X.509 en formato hexadecimal, convertirlo a un objeto de certificado y mostrar sus propiedades y
+      extensiones en una tabla. El script utiliza System.Windows.Forms y System.Drawing para crear la GUI, y
+      System.Security.Cryptography.X509Certificates para procesar el certificado.</p>
+    </p>
+    <p>
+      <a href="/HTML/DDCSR.html"><b>10- Decodificador de CSR:</b></a>
+    <p>El script crea una interfaz gráfica de usuario (GUI) que permite a los usuarios pegar un CSR en formato PEM,
+      validar su estructura y decodificar su contenido utilizando OpenSSL. La información decodificada se muestra en una
+      lista detallada dentro de la interfaz.</p>
+    </p>
+    <a href="/HTML/Calc01.html"><b>11- Calculadora avanzada:</b></a>
+    <p>Crea una interfaz gráfica de usuario (GUI) para una calculadora avanzada con funcionalidades como operaciones
+      aritméticas básicas, memoria, historial de operaciones, funciones trigonométricas, raíz cuadrada, potencia al
+      cuadrado, potencia a una potencia dada, porcentaje y la capacidad de graficar funciones matemáticas.</p>
+    </p>
+    <a href="/HTML/MonNav01.html"><b>12- Monitoreo de Navegadores:</b></a>
+    <p>El script es una herramienta de monitoreo en tiempo real diseñada para detectar y controlar el uso de navegadores
+      web (Chrome, Firefox, Edge, Internet Explorer) en sistemas Windows. Su principal función es identificar accesos a
+      sitios web sensibles (almacenamiento en la nube, redes sociales, correos electrónicos, etc.) mediante el análisis
+      de títulos de ventanas y URLs, ejecutando acciones automatizadas como:
+    <ul>
+      <li>Captura de pantalla como evidencia.</li>
+      <li>Cierre forzado del navegador.</li>
+      <li>Registro en logs con detalles del evento.</li>
+      <li>Envío de alertas por correo electrónico con pruebas adjuntas.</li>
+    </ul>
+    </p>
+    </p>
+    <p>
+      <a href="/HTML/HealthCheck.html"><b>13- HealthCheck:</b></a>
+    <p>Script de PowerShell para análisis completo del estado de sistemas Windows. Genera informes detallados sobre
+      hardware, software, rendimiento, seguridad y actualizaciones pendientes. Características principales:
+    <ul>
+      <li>Detección de actualizaciones de Windows y software de terceros pendientes.</li>
+      <li>Análisis de rendimiento de CPU, memoria, disco y red.</li>
+      <li>Verificación de configuraciones de seguridad y cumplimiento.</li>
+      <li>Generación de informes en múltiples formatos (HTML, JSON, CSV, Excel).</li>
+      <li>Interfaz visual con gráficos y tablas para fácil interpretación.</li>
+    </ul>
+    </p>
+    </p>
+    <p>
+      <a href="/HTML/BSR.html"><b>14- Buscar software en la red:</b></a>
+    <p>Este script de PowerShell crea una interfaz gráfica para buscar software instalado en equipos del dominio,
+      consultar remotamente el registro, proveedores de paquetes y WMI, así como realizar instalación desatendida y
+      desinstalación remota en múltiples equipos.</p>
+    </p>
+
+  </section>
 
 
-    <script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <script src="assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>

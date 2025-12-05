@@ -1,0 +1,919 @@
+<head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #4267b2;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo {
+      width: 100px;
+      height: auto;
+      margin-right: 20px;
+    }
+    .header-text {
+      text-align: left;
+    }
+    nav {
+      background-color: #365899;
+      padding: 10px;
+    }
+    nav ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    nav ul li {
+      margin: 0 10px;
+    }
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    nav ul li a:hover {
+      background-color: #4267b2;
+    }
+    main {
+      background-color: white;
+      padding: 20px;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    h2 {
+      color: #4267b2;
+    }
+    .instructions {
+      background-color: #e9ebee;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .instructions ol {
+      margin-bottom: 0;
+    }
+    .code-block {
+      background-color: #f1f3f4;
+      border-left: 4px solid #4267b2;
+      padding: 15px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .button {
+      display: inline-block;
+      background-color: #4267b2;
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #365899;
+    }
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+      }
+      .logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+      .header-text {
+        text-align: center;
+      }
+    }
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .code-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .copy-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #4267b2;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .copy-confirmation {
+      display: none;
+      position: absolute;
+      top: 5px;
+      right: 80px;
+      background-color: #4caf50;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .copy-confirmation.show {
+      display: block;
+    }
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #6e8efb #e0e0e0;
+    }
+    *::-webkit-scrollbar {
+      width: 22px;
+    }
+    *::-webkit-scrollbar-track {
+      background: #e0e0e0;
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: #6e8efb;
+      border-radius: 20px;
+      border: 3px solid #e0e0e0;
+    }
+    .scroll-container {
+      height: 200px;
+      overflow-y: scroll;
+      padding: 20px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Buscar software en la red" />
+  <meta
+    name="keywords"
+    content="Buscar software en la red, PowerShell, scripts, formularios, automatización, administración"
+  />
+  <meta
+    name="description"
+    content="Herramienta avanzada en PowerShell con interfaz gráfica para buscar y administrar software instalado en equipos del dominio. Permite búsquedas remotas, instalación desatendida y desinstalación en múltiples equipos."
+  />
+  <title>Buscar software en la red</title>
+  <link rel="shortcut icon" href="./favicon.ico" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
+  />
+</head>
+<body>
+  <header>
+    <div class="header-text">
+      <h1>Buscar software en la red</h1>
+      <p>Documentación de la herramienta de administración remota de software en PowerShell</p>
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#overview">Descripción General</a></li>
+      <li><a href="#functions">Funciones</a></li>
+      <li><a href="#usage">Uso</a></li>
+      <li><a href="#examples">Ejemplos</a></li>
+      <li><a href="#script-completo">Script Completo</a></li>
+    </ul>
+  </nav>
+  <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
+  target="_blank"
+  ><center>
+    <img
+      src="/assets/Linkedin-Logo-e1660320077673.png"
+      style="width: 25%;"/></center
+></a>
+  <main>
+    <section id="overview">
+      <h2>Descripción General</h2>
+      <div class="instructions">
+        <p>Este script de PowerShell proporciona una interfaz gráfica avanzada para buscar software instalado en equipos del dominio. Permite consultar remotamente el registro, proveedores de paquetes y WMI para identificar aplicaciones instaladas, además de ofrecer opciones para instalación desatendida y desinstalación remota.</p>
+      </div>
+    </section>
+    <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/Administracion-remota-de-software:a?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S" allowfullscreen></iframe>
+
+    <section id="functions">
+      <h2>Funciones Principales</h2>
+      <div class="section">
+        <h3>Búsqueda remota de software</h3>
+        <div class="code-container">
+          <h4>Get-InstalledSoftwareRemote</h4>
+          <p>Orquesta la búsqueda de software instalado en un equipo remoto utilizando registro, Get-Package y Win32_Product como último recurso.</p>
+        </div>
+        <div class="code-container">
+          <h4>Get-RemoteSoftwareFromRegistry / Package / WMI</h4>
+          <p>Funciones auxiliares que extraen la información de software desde el registro, proveedores de paquetes y WMI.</p>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Instalación y desinstalación remota</h3>
+        <div class="code-container">
+          <h4>Invoke-RemoteInstall</h4>
+          <p>Permite copiar un instalador al equipo remoto y ejecutarlo de forma silenciosa, verificando la instalación mediante el registro.</p>
+        </div>
+        <div class="code-container">
+          <h4>Invoke-RemoteUninstall</h4>
+          <p>Realiza desinstalaciones en cascada usando QuietUninstallString, UninstallString y Win32_Product según disponibilidad.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="usage">
+      <h2>Instrucciones de Uso</h2>
+      <div class="instructions">
+        <ol>
+          <li>Cargar los equipos del dominio mediante el botón correspondiente.</li>
+          <li>Escribir el nombre o parte del nombre del software a buscar.</li>
+          <li>Seleccionar uno o varios equipos de la lista.</li>
+          <li>Pulsar en "Buscar en seleccionados" para iniciar la consulta remota.</li>
+          <li>Utilizar las opciones de exportación a CSV o copia de filas según sea necesario.</li>
+          <li>Opcionalmente, configurar un instalador y usar los botones de instalación o desinstalación remota.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="examples">
+      <h2>Ejemplo de Uso</h2>
+      <div class="instructions">
+        <p>Escenario típico:</p>
+        <ul>
+          <li>Buscar un software concreto (por ejemplo, "Chrome" o "Office") en un conjunto de servidores o estaciones de trabajo.</li>
+          <li>Ver en qué equipos está instalado y qué versión tienen.</li>
+          <li>Exportar los resultados a CSV para documentar el estado de la red.</li>
+          <li>Desplegar una nueva versión del software en equipos seleccionados mediante la instalación remota.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="script-completo">
+      <h2>Script Completo</h2>
+      <div class="instructions">
+        <p>A continuación se presenta el script completo de PowerShell para la búsqueda y administración remota de software. Puedes copiar el código completo usando el botón "Copiar" de tu navegador o editor.</p>
+      </div>
+      <div class="code-container">
+        <pre><code class="language-powershell">
+#requires -Version 5.1
+
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+[System.Windows.Forms.Application]::EnableVisualStyles()
+
+function Write-BuscarSoftwareLog {
+    param(
+        [Parameter(Mandatory)][string]$Message
+    )
+
+    try {
+        $logDirectory = 'C:\Logs'
+        $logPath = Join-Path -Path $logDirectory -ChildPath 'BuscarSoftwareRed.log'
+
+        if (-not (Test-Path -Path $logDirectory)) {
+            New-Item -Path $logDirectory -ItemType Directory -Force | Out-Null
+        }
+
+        $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+        $entry = "[$timestamp] $Message"
+        Add-Content -Path $logPath -Value $entry -Encoding UTF8
+    }
+    catch {
+        
+    }
+}
+
+function Get-ImageFromBase64 {
+    param(
+        [Parameter(Mandatory)][string]$Base64
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Base64)) {
+        return $null
+    }
+
+    try {
+        $bytes = [Convert]::FromBase64String($Base64)
+        $ms = New-Object System.IO.MemoryStream(, $bytes)
+        return [System.Drawing.Image]::FromStream($ms)
+    }
+    catch {
+        return $null
+    }
+}
+
+function Get-DomainComputers {
+    param(
+        [ValidateSet('All', 'Servers', 'Workstations')]
+        [string]$Type = 'All'
+    )
+
+    try {
+        Import-Module ActiveDirectory -ErrorAction Stop
+    }
+    catch {
+        [System.Windows.Forms.MessageBox]::Show("No se pudo importar el módulo ActiveDirectory.\nAsegúrate de tener RSAT/AD instalado.", "Error", 'OK', 'Error') | Out-Null
+        return @()
+    }
+
+    try {
+        $ldapFilter = '(objectClass=computer)'
+
+        switch ($Type) {
+            'Servers' {
+                $ldapFilter = '(operatingSystem=*Server*)'
+            }
+            'Workstations' {
+                $ldapFilter = '(!(operatingSystem=*Server*))'
+            }
+        }
+
+        $computers = Get-ADComputer -LDAPFilter $ldapFilter -Properties OperatingSystem |
+        Select-Object Name, OperatingSystem
+
+        return $computers | Sort-Object Name
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $fullError = $_ | Out-String
+        Write-BuscarSoftwareLog -Message "Get-DomainComputers error. Type=$Type; Message=$errorMessage; Details=$fullError"
+        [System.Windows.Forms.MessageBox]::Show("Error al obtener equipos del dominio. Detalle: $errorMessage", "Error", 'OK', 'Error') | Out-Null
+        return @()
+    }
+}
+
+function Get-RemoteSoftwareFromRegistry {
+    param(
+        [Parameter(Mandatory)][string]$ComputerName,
+        [Parameter(Mandatory)][string]$SearchText
+    )
+
+    $scriptBlock = {
+        param($SearchTextInner)
+        $paths = @(
+            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+        )
+
+        $apps = foreach ($path in $paths) {
+            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $SearchTextInner + "*") } |
+            Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
+        }
+
+        return $apps
+    }
+
+    try {
+        $sessionOptions = New-PSSessionOption -OperationTimeout 120000
+        $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -SessionOption $sessionOptions -ErrorAction Stop
+        foreach ($app in $result) {
+            [PSCustomObject]@{
+                ComputerName   = $ComputerName
+                DisplayName    = $app.DisplayName
+                DisplayVersion = $app.DisplayVersion
+                Publisher      = $app.Publisher
+                InstallDate    = $app.InstallDate
+            }
+        }
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $fullError = $_ | Out-String
+        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromRegistry error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
+        @()
+    }
+}
+
+function Get-RemoteSoftwareFromPackage {
+    param(
+        [Parameter(Mandatory)][string]$ComputerName,
+        [Parameter(Mandatory)][string]$SearchText
+    )
+
+    $scriptBlock = {
+        param($SearchTextInner)
+        try {
+            $packages = Get-Package -ErrorAction Stop |
+            Where-Object { $_.Name -and ($_.Name -like "*" + $SearchTextInner + "*") }
+
+            foreach ($pkg in $packages) {
+                [PSCustomObject]@{
+                    DisplayName    = $pkg.Name
+                    DisplayVersion = $pkg.Version
+                    Publisher      = $pkg.ProviderName
+                    InstallDate    = $null
+                }
+            }
+        }
+        catch {
+            @()
+        }
+    }
+
+    try {
+        $result = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $SearchText -ErrorAction Stop
+        foreach ($app in $result) {
+            [PSCustomObject]@{
+                ComputerName   = $ComputerName
+                DisplayName    = $app.DisplayName
+                DisplayVersion = $app.DisplayVersion
+                Publisher      = $app.Publisher
+                InstallDate    = $app.InstallDate
+            }
+        }
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $fullError = $_ | Out-String
+        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromPackage error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
+        @()
+    }
+}
+
+function Get-RemoteSoftwareFromWmi {
+    param(
+        [Parameter(Mandatory)][string]$ComputerName,
+        [Parameter(Mandatory)][string]$SearchText
+    )
+
+    try {
+        $instances = Get-CimInstance -ClassName Win32_Product -ComputerName $ComputerName -OperationTimeoutSec 120 -ErrorAction Stop |
+        Where-Object { $_.Name -and ($_.Name -like "*" + $SearchText + "*") }
+
+        foreach ($inst in $instances) {
+            [PSCustomObject]@{
+                ComputerName   = $ComputerName
+                DisplayName    = $inst.Name
+                DisplayVersion = $inst.Version
+                Publisher      = $inst.Vendor
+                InstallDate    = $inst.InstallDate
+            }
+        }
+    }
+    catch {
+        $errorMessage = $_.Exception.Message
+        $fullError = $_ | Out-String
+        Write-BuscarSoftwareLog -Message "Get-RemoteSoftwareFromWmi error. Computer=$ComputerName; Message=$errorMessage; Details=$fullError"
+        @()
+    }
+}
+
+function Get-InstalledSoftwareRemote {
+    param(
+        [Parameter(Mandatory)] [string]$ComputerName,
+        [Parameter(Mandatory)] [string]$SearchText,
+        [switch]$UseWin32Product = $true
+    )
+
+    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+        Write-BuscarSoftwareLog -Message "Equipo no accesible por ICMP (posible problema de DNS, apagado o firewall ICMP): $ComputerName"
+        return @()
+    }
+
+    $results = @()
+
+    $results += Get-RemoteSoftwareFromRegistry -ComputerName $ComputerName -SearchText $SearchText
+
+    if (-not $results -or $results.Count -eq 0) {
+        $results += Get-RemoteSoftwareFromPackage -ComputerName $ComputerName -SearchText $SearchText
+    }
+
+    if ($UseWin32Product -and (-not $results -or $results.Count -eq 0)) {
+        $results += Get-RemoteSoftwareFromWmi -ComputerName $ComputerName -SearchText $SearchText
+    }
+
+    if (-not $results -or $results.Count -eq 0) {
+        return @()
+    }
+
+    return $results
+}
+
+function Get-DefaultSilentArguments {
+    param(
+        [Parameter(Mandatory)][string]$InstallerPath
+    )
+
+    $ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
+
+    switch ($ext) {
+        '.msi' { '/i `"{0}`" /qn /norestart' -f $InstallerPath }
+        '.exe' { '/silent /norestart' }
+        default { '' }
+    }
+}
+
+function Invoke-RemoteInstall {
+    param(
+        [Parameter(Mandatory)][string]$ComputerName,
+        [Parameter(Mandatory)][string]$InstallerPath,
+        [string]$SilentArgs,
+        [string]$CustomCommand,
+        [string]$ExpectedDisplayName
+    )
+
+    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+        Write-BuscarSoftwareLog -Message "Instalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
+        return $false
+    }
+
+    if (-not (Test-Path -Path $InstallerPath)) {
+        Write-BuscarSoftwareLog -Message "Ruta de instalador no valida: $InstallerPath"
+        return $false
+    }
+
+    $fileName = [System.IO.Path]::GetFileName($InstallerPath)
+    $ext = [System.IO.Path]::GetExtension($InstallerPath).ToLowerInvariant()
+
+    if ([string]::IsNullOrWhiteSpace($SilentArgs)) {
+        $SilentArgs = Get-DefaultSilentArguments -InstallerPath $InstallerPath
+    }
+
+    $session = $null
+    try {
+        $session = New-PSSession -ComputerName $ComputerName -ErrorAction Stop
+
+        $remoteFolder = 'C:\Temp\SoftwareDeploy'
+
+        Invoke-Command -Session $session -ScriptBlock {
+            param($folder)
+            if (-not (Test-Path -Path $folder)) {
+                New-Item -Path $folder -ItemType Directory -Force | Out-Null
+            }
+        } -ArgumentList $remoteFolder -ErrorAction Stop
+
+        $uniqueName = ([guid]::NewGuid().ToString('N').Substring(0, 8) + '_' + $fileName)
+        $remotePath = Join-Path -Path $remoteFolder -ChildPath $uniqueName
+
+        Copy-Item -Path $InstallerPath -Destination $remotePath -ToSession $session -Force
+
+        $commandLine = $null
+
+        if (-not [string]::IsNullOrWhiteSpace($CustomCommand)) {
+            $commandLine = $CustomCommand.Replace('{InstallerPath}', '"{0}"' -f $remotePath)
+        }
+        else {
+            if ($ext -eq '.msi') {
+                if (-not $SilentArgs) { $SilentArgs = '/qn /norestart' }
+                $commandLine = "msiexec.exe /i `"$remotePath`" $SilentArgs"
+            }
+            else {
+                $commandLine = '"' + $remotePath + '" ' + $SilentArgs
+            }
+        }
+
+        $scriptBlock = {
+            param($cmd, $expectedName)
+
+            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $cmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+
+            $installedOk = $true
+
+            if ($expectedName -and -not [string]::IsNullOrWhiteSpace($expectedName)) {
+                $paths = @(
+                    'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                    'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+                )
+
+                $found = $false
+                foreach ($p in $paths) {
+                    $item = Get-ItemProperty -Path $p -ErrorAction SilentlyContinue |
+                    Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $expectedName + "*") } |
+                    Select-Object -First 1 DisplayName
+
+                    if ($item) {
+                        $found = $true
+                        break
+                    }
+                }
+
+                if (-not $found) {
+                    $installedOk = $false
+                }
+            }
+
+            return $installedOk
+        }
+
+        $remoteResult = Invoke-Command -Session $session -ScriptBlock $scriptBlock -ArgumentList $commandLine, $ExpectedDisplayName -ErrorAction Stop
+
+        if ($remoteResult) {
+            Write-BuscarSoftwareLog -Message "Instalacion verificada via PSSession en $ComputerName. Comando: $commandLine"
+            return $true
+        }
+        else {
+            Write-BuscarSoftwareLog -Message "Instalador se ejecuto pero no se encontro el software esperado en el registro en $ComputerName. ExpectedDisplayName: $ExpectedDisplayName"
+            return $false
+        }
+    }
+    catch {
+        $msg = $_.Exception.Message
+        Write-BuscarSoftwareLog -Message "Error en instalacion remota para $ComputerName. Detalle: $msg"
+        return $false
+    }
+    finally {
+        if ($session) {
+            try { Remove-PSSession -Session $session -ErrorAction SilentlyContinue } catch { }
+        }
+    }
+}
+
+function Invoke-RemoteUninstall {
+    param(
+        [Parameter(Mandatory)][string]$ComputerName,
+        [Parameter(Mandatory)][string]$DisplayName
+    )
+
+    if (-not (Test-ComputerOnline -ComputerName $ComputerName)) {
+        Write-BuscarSoftwareLog -Message "Desinstalacion omitida. Equipo sin respuesta ICMP: $ComputerName"
+        return $false
+    }
+
+    $methods = @('RegistryQuiet', 'RegistryNormal', 'Win32Product')
+
+    foreach ($method in $methods) {
+        try {
+            switch ($method) {
+                'RegistryQuiet' {
+                    $scriptBlock = {
+                        param($name)
+                        $paths = @(
+                            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+                        )
+
+                        foreach ($path in $paths) {
+                            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+                            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.QuietUninstallString } |
+                            Select-Object -First 1 @{ Name = 'Command'; Expression = { $_.QuietUninstallString } }
+                        }
+                    }
+
+                    $cmdObj = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock -ArgumentList $DisplayName -ErrorAction Stop
+                    if ($cmdObj -and $cmdObj.Command) {
+                        $cmd = [string]$cmdObj.Command
+                        $sb = {
+                            param($uCmd)
+                            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+                        }
+                        Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb -ArgumentList $cmd -ErrorAction Stop
+                        Write-BuscarSoftwareLog -Message "Desinstalacion exitosa (QuietUninstallString) en $ComputerName. DisplayName: $DisplayName Comando: $cmd"
+                        return $true
+                    }
+                }
+                'RegistryNormal' {
+                    $scriptBlock2 = {
+                        param($name)
+                        $paths = @(
+                            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+                        )
+
+                        foreach ($path in $paths) {
+                            Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+                            Where-Object { $_.DisplayName -and ($_.DisplayName -like "*" + $name + "*") -and $_.UninstallString } |
+                            Select-Object -First 1 DisplayName, UninstallString
+                        }
+                    }
+
+                    $info = Invoke-Command -ComputerName $ComputerName -ScriptBlock $scriptBlock2 -ArgumentList $DisplayName -ErrorAction Stop
+                    if ($info -and $info.UninstallString) {
+                        $u = [string]$info.UninstallString
+
+                        if ($u -match 'msiexec(.+?)/I\s*\{') {
+                            $u = $u -replace '/I', '/x'
+                            if ($u -notmatch '/qn') {
+                                $u += ' /qn /norestart'
+                            }
+                        }
+
+                        $sb2 = {
+                            param($uCmd)
+                            Start-Process -FilePath 'cmd.exe' -ArgumentList "/c $uCmd" -WindowStyle Hidden -Wait -ErrorAction Stop
+                        }
+                        Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb2 -ArgumentList $u -ErrorAction Stop
+                        Write-BuscarSoftwareLog -Message "Desinstalacion iniciada (UninstallString) en $ComputerName. DisplayName: $DisplayName Comando: $u"
+                        return $true
+                    }
+                }
+                'Win32Product' {
+                    $sb3 = {
+                        param($name)
+                        $product = Get-CimInstance -ClassName Win32_Product -ErrorAction Stop |
+                        Where-Object { $_.Name -and ($_.Name -like "*" + $name + "*") } |
+                        Select-Object -First 1
+
+                        if ($product) {
+                            $result = $product.Uninstall()
+                            return $result.ReturnValue
+                        }
+                        else {
+                            return $null
+                        }
+                    }
+
+                    $rv = Invoke-Command -ComputerName $ComputerName -ScriptBlock $sb3 -ArgumentList $DisplayName -ErrorAction Stop
+                    if ($rv -eq 0) {
+                        Write-BuscarSoftwareLog -Message "Desinstalacion exitosa via Win32_Product en $ComputerName. DisplayName: $DisplayName"
+                        return $true
+                    }
+                }
+            }
+        }
+        catch {
+            $msg = $_.Exception.Message
+            Write-BuscarSoftwareLog -Message "Metodo de desinstalacion '$method' fallo para $ComputerName. DisplayName: $DisplayName Detalle: $msg"
+        }
+    }
+
+    Write-BuscarSoftwareLog -Message "Todos los metodos de desinstalacion fallaron para $ComputerName. DisplayName: $DisplayName"
+    return $false
+}
+
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Buscador de software en la red'
+$form.Size = New-Object System.Drawing.Size(900, 780)
+$form.StartPosition = 'CenterScreen'
+$form.TopMost = $false
+$(
+    $form.BackColor = [System.Drawing.Color]::FromArgb(245, 247, 250)
+    $form.Font = New-Object System.Drawing.Font('Segoe UI', 9)
+    $form.FormBorderStyle = 'FixedDialog'
+    $form.MaximizeBox = $false
+)
+
+$lblSearch = New-Object System.Windows.Forms.Label
+$lblSearch.Text = 'Nombre (o parte) del software:'
+$lblSearch.AutoSize = $true
+$lblSearch.Location = New-Object System.Drawing.Point(10, 90)
+$lblSearch.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$txtSearch = New-Object System.Windows.Forms.TextBox
+$txtSearch.Location = New-Object System.Drawing.Point(190, 90)
+$txtSearch.Width = 300
+$txtSearch.BorderStyle = 'FixedSingle'
+
+$lblType = New-Object System.Windows.Forms.Label
+$lblType.Text = 'Tipo de equipo:'
+$lblType.AutoSize = $true
+$lblType.Location = New-Object System.Drawing.Point(10, 60)
+$lblType.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$cmbType = New-Object System.Windows.Forms.ComboBox
+$cmbType.Location = New-Object System.Drawing.Point(100, 55)
+$cmbType.Width = 150
+$cmbType.DropDownStyle = 'DropDownList'
+$cmbType.FlatStyle = 'Flat'
+[void]$cmbType.Items.Add('Todos')
+[void]$cmbType.Items.Add('Servidores')
+[void]$cmbType.Items.Add('Workstations')
+$cmbType.SelectedIndex = 0
+
+$chkUseWin32Product = New-Object System.Windows.Forms.CheckBox
+$chkUseWin32Product.Text = 'Usar Win32_Product (lento)'
+$chkUseWin32Product.AutoSize = $true
+$chkUseWin32Product.Location = New-Object System.Drawing.Point(500, 90)
+$chkUseWin32Product.Checked = $true
+$chkUseWin32Product.ForeColor = [System.Drawing.Color]::FromArgb(80, 80, 80)
+
+$lblInstaller = New-Object System.Windows.Forms.Label
+$lblInstaller.Text = 'Instalador:'
+$lblInstaller.AutoSize = $true
+$lblInstaller.Location = New-Object System.Drawing.Point(60, 600)
+$lblInstaller.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$txtInstallerPath = New-Object System.Windows.Forms.TextBox
+$txtInstallerPath.Location = New-Object System.Drawing.Point(125, 600)
+$txtInstallerPath.Width = 360
+$txtInstallerPath.BorderStyle = 'FixedSingle'
+
+$btnBrowseInstaller = New-Object System.Windows.Forms.Button
+$btnBrowseInstaller.Text = '...'
+$btnBrowseInstaller.Location = New-Object System.Drawing.Point(488, 600)
+$btnBrowseInstaller.Width = 40
+$btnBrowseInstaller.FlatStyle = 'Flat'
+$btnBrowseInstaller.BackColor = [System.Drawing.Color]::FromArgb(127, 140, 141)
+$btnBrowseInstaller.ForeColor = [System.Drawing.Color]::White
+
+$lblInstallArgs = New-Object System.Windows.Forms.Label
+$lblInstallArgs.Text = 'Parametros silenciosos (opcional):'
+$lblInstallArgs.AutoSize = $true
+$lblInstallArgs.Location = New-Object System.Drawing.Point(60, 630)
+$lblInstallArgs.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$txtInstallArgs = New-Object System.Windows.Forms.TextBox
+$txtInstallArgs.Location = New-Object System.Drawing.Point(250, 630)
+$txtInstallArgs.Width = 280
+$txtInstallArgs.BorderStyle = 'FixedSingle'
+
+$lblExpectedName = New-Object System.Windows.Forms.Label
+$lblExpectedName.Text = 'Nombre esperado (registro):'
+$lblExpectedName.AutoSize = $true
+$lblExpectedName.Location = New-Object System.Drawing.Point(60, 660)
+$lblExpectedName.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$txtExpectedName = New-Object System.Windows.Forms.TextBox
+$txtExpectedName.Location = New-Object System.Drawing.Point(250, 658)
+$txtExpectedName.Width = 280
+$txtExpectedName.BorderStyle = 'FixedSingle'
+
+$btnLoadComputers = New-Object System.Windows.Forms.Button
+$btnLoadComputers.Text = 'Cargar equipos'
+$btnLoadComputers.Location = New-Object System.Drawing.Point(270, 55)
+$btnLoadComputers.Width = 150
+$btnLoadComputers.FlatStyle = 'Flat'
+$btnLoadComputers.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+$btnLoadComputers.ForeColor = [System.Drawing.Color]::White
+
+$lblComputers = New-Object System.Windows.Forms.Label
+$lblComputers.Text = 'Equipos del dominio:'
+$lblComputers.AutoSize = $true
+$lblComputers.Location = New-Object System.Drawing.Point(10, 130)
+$lblComputers.ForeColor = [System.Drawing.Color]::FromArgb(45, 52, 63)
+
+$lstComputers = New-Object System.Windows.Forms.ListBox
+$lstComputers.Location = New-Object System.Drawing.Point(10, 160)
+$lstComputers.Size = New-Object System.Drawing.Size(250, 400)
+$lstComputers.SelectionMode = 'MultiExtended'
+$lstComputers.BorderStyle = 'FixedSingle'
+
+$btnSearch = New-Object System.Windows.Forms.Button
+$btnSearch.Text = 'Buscar en seleccionados'
+$btnSearch.Location = New-Object System.Drawing.Point(680, 90)
+$btnSearch.Width = 180
+$btnSearch.FlatStyle = 'Flat'
+$btnSearch.BackColor = [System.Drawing.Color]::FromArgb(39, 174, 96)
+$btnSearch.ForeColor = [System.Drawing.Color]::White
+
+$btnExportCsv = New-Object System.Windows.Forms.Button
+$btnExportCsv.Text = 'Exportar a CSV'
+$btnExportCsv.Location = New-Object System.Drawing.Point(600, 570)
+$btnExportCsv.Width = 130
+$btnExportCsv.FlatStyle = 'Flat'
+$btnExportCsv.BackColor = [System.Drawing.Color]::FromArgb(52, 73, 94)
+$btnExportCsv.ForeColor = [System.Drawing.Color]::White
+
+$btnCopySelected = New-Object System.Windows.Forms.Button
+$btnCopySelected.Text = 'Copiar selección'
+$btnCopySelected.Location = New-Object System.Drawing.Point(740, 570)
+$btnCopySelected.Width = 130
+$btnCopySelected.FlatStyle = 'Flat'
+$btnCopySelected.BackColor = [System.Drawing.Color]::FromArgb(127, 140, 141)
+$btnCopySelected.ForeColor = [System.Drawing.Color]::White
+
+$btnInstall = New-Object System.Windows.Forms.Button
+$btnInstall.Text = 'Instalar en seleccionados'
+$btnInstall.Location = New-Object System.Drawing.Point(600, 600)
+$btnInstall.Width = 190
+$btnInstall.Height = 60
+$btnInstall.FlatStyle = 'Flat'
+$btnInstall.BackColor = [System.Drawing.Color]::FromArgb(231, 76, 60)
+$btnInstall.ForeColor = [System.Drawing.Color]::White
+
+$btnUninstall = New-Object System.Windows.Forms.Button
+$btnUninstall.Text = 'Desinstalar seleccionados'
+$btnUninstall.Location = New-Object System.Drawing.Point(600, 670)
+$btnUninstall.Width = 190
+$btnUninstall.Height = 40
+$btnUninstall.FlatStyle = 'Flat'
+$btnUninstall.BackColor = [System.Drawing.Color]::FromArgb(192, 57, 43)
+$btnUninstall.ForeColor = [System.Drawing.Color]::White
+
+$logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALEwEAmpwYAAAGq2lUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNy4xLWMwMDAgNzkuYTg3MzFiOSwgMjAyMS8wOS8wOS0wMDozNzozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6Mzk4YTY5ZDMtYzljYS0zYzRhLWE4YTctZjhmYmM2MmYxOWU0IiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjEzNDk3YzZlLWVjNTgtMzM0YS1hZWY2LWFhMWFlODRjNGE0YiIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjMuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTExLTIwVDEzOjU2OjExLTA2OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyNC0xMS0yMFQxNzo1MTo0My0wNjowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MjE3MTEzZS02ZmM1LTM2NDItYjMwNy04YTM0MzdmZjY1ZGQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODIxNzExM2UtNmZjNS0zNjQyLWIzMDctOGEzNDM3ZmY2NWRkIi8+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ4OTAyZGY4LTNjNzQtNzc0MC05YjM1LTBjYjkyODRjYTgyMCIgc3RFdnQ6d2hlbj0iMjAyNC0xMS0yMFQxNzo0NzoyMi0wNjowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIzLjAgKFdpbmRvd3MpIiBzdEV2dDpjaGFuZ2VkPSIvIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9...[TRUNCATED BASE64 POR LONGITUD]</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+</body>
