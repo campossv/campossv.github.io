@@ -255,7 +255,7 @@
         <iframe
           id="odysee-iframe"
           style="width:100%; aspect-ratio:16 / 9;"
-          src="https://odysee.com/$/embed/Administracion-remota-de-software:a?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S&autoplay=false"
+          src="https://odysee.com/%24/embed/Administracion-remota-de-software%3Aa?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S"
           allowfullscreen>
         </iframe>
       </code>
@@ -959,4 +959,29 @@ $logoBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAAAuCAYAAABtRVYBAAAACXBIWXMAAAsTAAALE
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+  <script>
+    document.querySelectorAll('.code-container').forEach(container => {
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copiar';
+
+      const confirmation = document.createElement('div');
+      confirmation.className = 'copy-confirmation';
+      confirmation.textContent = '¡Copiado!';
+
+      container.appendChild(button);
+      container.appendChild(confirmation);
+
+      button.addEventListener('click', () => {
+        const code = container.querySelector('code').textContent;
+        navigator.clipboard.writeText(code);
+
+        confirmation.classList.add('show');
+        setTimeout(() => {
+          confirmation.classList.remove('show');
+        }, 2000);
+      });
+    });
+  </script>
 </body>
