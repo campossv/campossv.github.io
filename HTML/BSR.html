@@ -9,6 +9,7 @@
       padding: 20px;
       background-color: #f0f2f5;
     }
+
     header {
       background-color: #4267b2;
       color: white;
@@ -19,18 +20,22 @@
       align-items: center;
       justify-content: center;
     }
+
     .logo {
       width: 100px;
       height: auto;
       margin-right: 20px;
     }
+
     .header-text {
       text-align: left;
     }
+
     nav {
       background-color: #365899;
       padding: 10px;
     }
+
     nav ul {
       list-style-type: none;
       padding: 0;
@@ -38,9 +43,11 @@
       display: flex;
       justify-content: center;
     }
+
     nav ul li {
       margin: 0 10px;
     }
+
     nav ul li a {
       color: white;
       text-decoration: none;
@@ -48,30 +55,37 @@
       border-radius: 5px;
       transition: background-color 0.3s;
     }
+
     nav ul li a:hover {
       background-color: #4267b2;
     }
+
     main {
       background-color: white;
       padding: 20px;
       border-radius: 0 0 8px 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     h1 {
       margin-top: 0;
     }
+
     h2 {
       color: #4267b2;
     }
+
     .instructions {
       background-color: #e9ebee;
       padding: 15px;
       border-radius: 8px;
       margin-bottom: 20px;
     }
+
     .instructions ol {
       margin-bottom: 0;
     }
+
     .code-block {
       background-color: #f1f3f4;
       border-left: 4px solid #4267b2;
@@ -79,6 +93,7 @@
       margin-bottom: 20px;
       overflow-x: auto;
     }
+
     .button {
       display: inline-block;
       background-color: #4267b2;
@@ -88,26 +103,32 @@
       border-radius: 5px;
       transition: background-color 0.3s;
     }
+
     .button:hover {
       background-color: #365899;
     }
+
     @media (max-width: 600px) {
       header {
         flex-direction: column;
       }
+
       .logo {
         margin-right: 0;
         margin-bottom: 10px;
       }
+
       .header-text {
         text-align: center;
       }
     }
+
     .video-container {
       position: relative;
       width: 100%;
       padding-bottom: 56.25%;
     }
+
     .video-container iframe {
       position: absolute;
       top: 0;
@@ -115,10 +136,12 @@
       width: 100%;
       height: 100%;
     }
+
     .code-container {
       position: relative;
       margin-bottom: 20px;
     }
+
     .copy-button {
       position: absolute;
       top: 5px;
@@ -130,6 +153,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     .copy-confirmation {
       display: none;
       position: absolute;
@@ -140,24 +164,30 @@
       padding: 5px 10px;
       border-radius: 5px;
     }
+
     .copy-confirmation.show {
       display: block;
     }
+
     * {
       scrollbar-width: thin;
       scrollbar-color: #6e8efb #e0e0e0;
     }
+
     *::-webkit-scrollbar {
       width: 22px;
     }
+
     *::-webkit-scrollbar-track {
       background: #e0e0e0;
     }
+
     *::-webkit-scrollbar-thumb {
       background-color: #6e8efb;
       border-radius: 20px;
       border: 3px solid #e0e0e0;
     }
+
     .scroll-container {
       height: 200px;
       overflow-y: scroll;
@@ -166,31 +196,19 @@
     }
   </style>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, shrink-to-fit=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="robots" content="index, follow" />
   <meta property="og:title" content="Buscar software en la red" />
-  <meta
-    name="keywords"
-    content="Buscar software en la red, PowerShell, scripts, formularios, automatización, administración"
-  />
-  <meta
-    name="description"
-    content="Herramienta avanzada en PowerShell con interfaz gráfica para buscar y administrar software instalado en equipos del dominio. Permite búsquedas remotas, instalación desatendida y desinstalación en múltiples equipos."
-  />
+  <meta name="keywords"
+    content="Buscar software en la red, PowerShell, scripts, formularios, automatización, administración" />
+  <meta name="description"
+    content="Herramienta avanzada en PowerShell con interfaz gráfica para buscar y administrar software instalado en equipos del dominio. Permite búsquedas remotas, instalación desatendida y desinstalación en múltiples equipos." />
   <title>Buscar software en la red</title>
   <link rel="shortcut icon" href="./favicon.ico" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
-  />
-  <link
-    rel="stylesheet"
-    href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+  <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css" />
 </head>
+
 <body>
   <header>
     <div class="header-text">
@@ -208,21 +226,31 @@
       <li><a href="#script-completo">Script Completo</a></li>
     </ul>
   </nav>
-  <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
-  target="_blank"
-  ><center>
-    <img
-      src="/assets/Linkedin-Logo-e1660320077673.png"
-      style="width: 25%;"/></center
-></a>
+  <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
+    <center>
+      <img src="/assets/Linkedin-Logo-e1660320077673.png" style="width: 25%;" />
+    </center>
+  </a>
   <main>
     <section id="overview">
       <h2>Descripción General</h2>
       <div class="instructions">
-        <p>Este script de PowerShell proporciona una interfaz gráfica avanzada para buscar software instalado en equipos del dominio. Permite consultar remotamente el registro, proveedores de paquetes y WMI para identificar aplicaciones instaladas, además de ofrecer opciones para instalación desatendida y desinstalación remota.</p>
+        <p>Este script de PowerShell proporciona una interfaz gráfica avanzada para buscar software instalado en equipos
+          del dominio. Permite consultar remotamente el registro, proveedores de paquetes y WMI para identificar
+          aplicaciones instaladas, además de ofrecer opciones para instalación desatendida y desinstalación remota.</p>
       </div>
     </section>
-    <iframe id="odysee-iframe" style="width:100%; aspect-ratio:16 / 9;" src="https://odysee.com/Administracion-remota-de-software:a?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S" allowfullscreen></iframe>
+    <section id="video">
+      <h2>Video demostrativo</h2>
+      <div class="instructions">
+        <p>Puedes ver la demostración completa de la herramienta en Odysee haciendo clic en el siguiente botón:</p>
+        <p>
+          <a class="button"
+            href="https://odysee.com/Administracion-remota-de-software:a?r=8STHz9qP7A74zu6aEAbB66WgzGjgRW8S"
+            target="_blank" rel="noopener">Ver video en Odysee</a>
+        </p>
+      </div>
+    </section>
 
     <section id="functions">
       <h2>Funciones Principales</h2>
@@ -230,22 +258,26 @@
         <h3>Búsqueda remota de software</h3>
         <div class="code-container">
           <h4>Get-InstalledSoftwareRemote</h4>
-          <p>Orquesta la búsqueda de software instalado en un equipo remoto utilizando registro, Get-Package y Win32_Product como último recurso.</p>
+          <p>Orquesta la búsqueda de software instalado en un equipo remoto utilizando registro, Get-Package y
+            Win32_Product como último recurso.</p>
         </div>
         <div class="code-container">
           <h4>Get-RemoteSoftwareFromRegistry / Package / WMI</h4>
-          <p>Funciones auxiliares que extraen la información de software desde el registro, proveedores de paquetes y WMI.</p>
+          <p>Funciones auxiliares que extraen la información de software desde el registro, proveedores de paquetes y
+            WMI.</p>
         </div>
       </div>
       <div class="section">
         <h3>Instalación y desinstalación remota</h3>
         <div class="code-container">
           <h4>Invoke-RemoteInstall</h4>
-          <p>Permite copiar un instalador al equipo remoto y ejecutarlo de forma silenciosa, verificando la instalación mediante el registro.</p>
+          <p>Permite copiar un instalador al equipo remoto y ejecutarlo de forma silenciosa, verificando la instalación
+            mediante el registro.</p>
         </div>
         <div class="code-container">
           <h4>Invoke-RemoteUninstall</h4>
-          <p>Realiza desinstalaciones en cascada usando QuietUninstallString, UninstallString y Win32_Product según disponibilidad.</p>
+          <p>Realiza desinstalaciones en cascada usando QuietUninstallString, UninstallString y Win32_Product según
+            disponibilidad.</p>
         </div>
       </div>
     </section>
@@ -269,7 +301,8 @@
       <div class="instructions">
         <p>Escenario típico:</p>
         <ul>
-          <li>Buscar un software concreto (por ejemplo, "Chrome" o "Office") en un conjunto de servidores o estaciones de trabajo.</li>
+          <li>Buscar un software concreto (por ejemplo, "Chrome" o "Office") en un conjunto de servidores o estaciones
+            de trabajo.</li>
           <li>Ver en qué equipos está instalado y qué versión tienen.</li>
           <li>Exportar los resultados a CSV para documentar el estado de la red.</li>
           <li>Desplegar una nueva versión del software en equipos seleccionados mediante la instalación remota.</li>
@@ -280,7 +313,8 @@
     <section id="script-completo">
       <h2>Script Completo</h2>
       <div class="instructions">
-        <p>A continuación se presenta el script completo de PowerShell para la búsqueda y administración remota de software. Puedes copiar el código completo usando el botón "Copiar" de tu navegador o editor.</p>
+        <p>A continuación se presenta el script completo de PowerShell para la búsqueda y administración remota de
+          software. Puedes copiar el código completo usando el botón "Copiar" de tu navegador o editor.</p>
       </div>
       <div class="code-container">
         <pre><code class="language-powershell">
