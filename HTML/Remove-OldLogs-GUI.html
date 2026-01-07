@@ -1,0 +1,1064 @@
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        header {
+            background-color: #4267b2;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
+
+        .header-text {
+            text-align: left;
+        }
+
+        nav {
+            background-color: #365899;
+            padding: 10px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #4267b2;
+        }
+
+        main {
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        h2 {
+            color: #4267b2;
+        }
+
+        .instructions {
+            background-color: #e9ebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .instructions ol {
+            margin-bottom: 0;
+        }
+
+        .code-block {
+            background-color: #f1f3f4;
+            border-left: 4px solid #4267b2;
+            padding: 15px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #4267b2;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #365899;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+            }
+
+            .logo {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .header-text {
+                text-align: center;
+            }
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .code-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4267b2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .copy-confirmation {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 80px;
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .copy-confirmation.show {
+            display: block;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        *::-webkit-scrollbar {
+            width: 22px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        .scroll-container {
+            height: 200px;
+            overflow-y: scroll;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Limpiador de Logs Antiguos - Remove-OldLogs-GUI" />
+    <meta name="keywords"
+        content="Remove-OldLogs-GUI, PowerShell, scripts, limpieza de logs, automatización, administración, GUI" />
+    <meta name="description"
+        content="Herramienta en PowerShell con interfaz gráfica para buscar y eliminar archivos de log antiguos. Permite búsquedas recursivas, vista previa de archivos y eliminación segura con confirmación." />
+    <title>Limpiador de Logs Antiguos - Remove-OldLogs-GUI</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+    <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css" />
+</head>
+
+<body>
+    <header>
+        <div class="header-text">
+            <h1>🗑️ Limpiador de Logs Antiguos</h1>
+            <p>Herramienta de PowerShell con interfaz gráfica para gestión de archivos de log</p>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Descripción General</a></li>
+            <li><a href="#functions">Funciones</a></li>
+            <li><a href="#usage">Uso</a></li>
+            <li><a href="#examples">Ejemplos</a></li>
+            <li><a href="#script-completo">Script Completo</a></li>
+        </ul>
+    </nav>
+    <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
+        <center>
+            <img src="/assets/Linkedin-Logo-e1660320077673.png" style="width: 25%;" />
+        </center>
+    </a>
+    <main>
+        <section id="overview">
+            <h2>Descripción General</h2>
+            <div class="instructions">
+                <p>Este script de PowerShell proporciona una interfaz gráfica moderna para buscar y eliminar archivos de
+                    log
+                    antiguos de forma segura. Permite búsquedas recursivas en directorios, filtrado por extensión y
+                    antigüedad,
+                    vista previa del contenido de archivos, y eliminación con confirmación. Incluye registro detallado
+                    de todas
+                    las operaciones realizadas.</p>
+            </div>
+        </section>
+
+        <section id="video">
+            <h2>Video demostrativo</h2>
+            <div class="instructions">
+                <p>Puedes ver la demostración completa de la herramienta en YouTube directamente desde esta página o
+                    abriendo el
+                    video en una pestaña nueva.</p>
+                <p>
+                    <a class="button" href="https://www.youtube.com/watch?v=Y-l_owvao84" target="_blank"
+                        rel="noopener">Abrir video en YouTube</a>
+                </p>
+            </div>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/Y-l_owvao84" allowfullscreen>
+                </iframe>
+            </div>
+        </section>
+
+        <section id="functions">
+            <h2>Funciones Principales</h2>
+            <div class="section">
+                <h3>Búsqueda de archivos</h3>
+                <div class="code-container">
+                    <h4>Búsqueda recursiva con filtros</h4>
+                    <p>Permite buscar archivos en un directorio y subdirectorios aplicando filtros por extensión (*.log,
+                        *.txt,
+                        *.bak, *.tmp, *.*) y antigüedad en días. Los resultados se muestran en una tabla con información
+                        detallada
+                        de cada archivo.</p>
+                </div>
+                <div class="code-container">
+                    <h4>Visualización de resultados</h4>
+                    <p>Los archivos encontrados se muestran con código de colores según su antigüedad: rojo para
+                        archivos de más
+                        de 365 días, naranja para más de 180 días. Incluye información de nombre, ruta, tamaño, fecha de
+                        modificación y antigüedad.</p>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Vista previa y gestión</h3>
+                <div class="code-container">
+                    <h4>Vista previa de archivos</h4>
+                    <p>Permite visualizar el contenido de los archivos antes de eliminarlos. Para archivos grandes
+                        (>5MB), ofrece
+                        la opción de cargar solo las primeras 5000 líneas. Incluye navegación entre múltiples archivos
+                        seleccionados.</p>
+                </div>
+                <div class="code-container">
+                    <h4>Eliminación segura</h4>
+                    <p>Elimina archivos seleccionados con confirmación previa mostrando la cantidad de archivos y
+                        espacio a
+                        liberar. Registra todas las operaciones en un archivo de log con timestamp.</p>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Registro de operaciones</h3>
+                <div class="code-container">
+                    <h4>Write-Log</h4>
+                    <p>Función que registra todas las operaciones realizadas (búsquedas, vistas previas, eliminaciones)
+                        en un
+                        archivo de log ubicado en el mismo directorio del script con formato de timestamp.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="usage">
+            <h2>Instrucciones de Uso</h2>
+            <div class="instructions">
+                <ol>
+                    <li>Especificar el directorio donde buscar archivos (por defecto C:\Logs).</li>
+                    <li>Configurar la antigüedad mínima en días (por defecto 30 días).</li>
+                    <li>Seleccionar la extensión de archivo a buscar (*.log, *.txt, *.bak, *.tmp, *.*).</li>
+                    <li>Pulsar "Buscar Archivos" para iniciar la búsqueda recursiva.</li>
+                    <li>Revisar los resultados en la tabla, opcionalmente usar "Vista Previa" para ver el contenido.
+                    </li>
+                    <li>Seleccionar los archivos a eliminar (individualmente o usar "Seleccionar Todo").</li>
+                    <li>Pulsar "Eliminar Archivos" y confirmar la operación.</li>
+                    <li>Revisar el resumen de archivos eliminados y espacio liberado.</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="examples">
+            <h2>Ejemplos de Uso</h2>
+            <div class="instructions">
+                <p>Escenarios típicos:</p>
+                <ul>
+                    <li><strong>Limpieza de logs de aplicación:</strong> Buscar archivos *.log en C:\Logs con más de 90
+                        días de
+                        antigüedad para liberar espacio en disco.</li>
+                    <li><strong>Eliminación de archivos temporales:</strong> Buscar archivos *.tmp en C:\Windows\Temp
+                        con más de
+                        7 días para limpiar archivos temporales del sistema.</li>
+                    <li><strong>Gestión de backups antiguos:</strong> Buscar archivos *.bak en directorios de backup con
+                        más de
+                        180 días para mantener solo backups recientes.</li>
+                    <li><strong>Auditoría antes de eliminar:</strong> Usar la función de vista previa para revisar el
+                        contenido
+                        de archivos de log antes de eliminarlos permanentemente.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="script-completo">
+            <h2>Script Completo</h2>
+            <div class="instructions">
+                <p>A continuación se presenta el script completo de PowerShell para la limpieza de logs antiguos con
+                    interfaz
+                    gráfica. Puedes copiar el código completo usando el botón "Copiar".</p>
+            </div>
+            <div class="code-container" data-copy="true">
+                <pre><code class="language-powershell">Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+$script:foundFiles = @()
+$script:logFile = Join-Path $PSScriptRoot "Remove-OldLogs_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+
+function Write-Log {
+    param([string]$Message, [string]$Level = "INFO")
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "[$timestamp] [$Level] $Message"
+    Add-Content -Path $script:logFile -Value $logMessage
+}
+
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "🗑️ Limpiador de Logs Antiguos"
+$form.Size = New-Object System.Drawing.Size(1000, 700)
+$form.StartPosition = "CenterScreen"
+$form.BackColor = [System.Drawing.Color]::FromArgb(240, 240, 245)
+$form.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+$form.FormBorderStyle = "FixedDialog"
+$form.MaximizeBox = $false
+
+$panelConfig = New-Object System.Windows.Forms.Panel
+$panelConfig.Location = New-Object System.Drawing.Point(10, 10)
+$panelConfig.Size = New-Object System.Drawing.Size(960, 160)
+$panelConfig.BackColor = [System.Drawing.Color]::White
+$panelConfig.BorderStyle = "FixedSingle"
+$form.Controls.Add($panelConfig)
+
+$lblTitle = New-Object System.Windows.Forms.Label
+$lblTitle.Location = New-Object System.Drawing.Point(15, 10)
+$lblTitle.Size = New-Object System.Drawing.Size(400, 30)
+$lblTitle.Text = "⚙️ Configuración de Búsqueda"
+$lblTitle.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
+$lblTitle.ForeColor = [System.Drawing.Color]::FromArgb(41, 128, 185)
+$panelConfig.Controls.Add($lblTitle)
+
+$lblPath = New-Object System.Windows.Forms.Label
+$lblPath.Location = New-Object System.Drawing.Point(15, 50)
+$lblPath.Size = New-Object System.Drawing.Size(120, 20)
+$lblPath.Text = "📁 Directorio:"
+$lblPath.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$panelConfig.Controls.Add($lblPath)
+
+$txtPath = New-Object System.Windows.Forms.TextBox
+$txtPath.Location = New-Object System.Drawing.Point(140, 48)
+$txtPath.Size = New-Object System.Drawing.Size(650, 25)
+$txtPath.Text = "C:\Logs"
+$panelConfig.Controls.Add($txtPath)
+
+$btnBrowse = New-Object System.Windows.Forms.Button
+$btnBrowse.Location = New-Object System.Drawing.Point(800, 46)
+$btnBrowse.Size = New-Object System.Drawing.Size(140, 28)
+$btnBrowse.Text = "🔍 Examinar..."
+$btnBrowse.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+$btnBrowse.ForeColor = [System.Drawing.Color]::White
+$btnBrowse.FlatStyle = "Flat"
+$btnBrowse.FlatAppearance.BorderSize = 0
+$btnBrowse.Cursor = [System.Windows.Forms.Cursors]::Hand
+$panelConfig.Controls.Add($btnBrowse)
+
+$lblDays = New-Object System.Windows.Forms.Label
+$lblDays.Location = New-Object System.Drawing.Point(15, 90)
+$lblDays.Size = New-Object System.Drawing.Size(120, 20)
+$lblDays.Text = "📅 Días antiguos:"
+$lblDays.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$panelConfig.Controls.Add($lblDays)
+
+$numDays = New-Object System.Windows.Forms.NumericUpDown
+$numDays.Location = New-Object System.Drawing.Point(140, 88)
+$numDays.Size = New-Object System.Drawing.Size(100, 25)
+$numDays.Minimum = 1
+$numDays.Maximum = 3650
+$numDays.Value = 30
+$panelConfig.Controls.Add($numDays)
+
+$lblExt = New-Object System.Windows.Forms.Label
+$lblExt.Location = New-Object System.Drawing.Point(270, 90)
+$lblExt.Size = New-Object System.Drawing.Size(100, 20)
+$lblExt.Text = "📄 Extensión:"
+$lblExt.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$panelConfig.Controls.Add($lblExt)
+
+$cmbExtension = New-Object System.Windows.Forms.ComboBox
+$cmbExtension.Location = New-Object System.Drawing.Point(370, 88)
+$cmbExtension.Size = New-Object System.Drawing.Size(150, 25)
+$cmbExtension.DropDownStyle = "DropDownList"
+$cmbExtension.Items.AddRange(@("*.log", "*.txt", "*.bak", "*.tmp", "*.*"))
+$cmbExtension.SelectedIndex = 0
+$panelConfig.Controls.Add($cmbExtension)
+
+$btnSearch = New-Object System.Windows.Forms.Button
+$btnSearch.Location = New-Object System.Drawing.Point(15, 120)
+$btnSearch.Size = New-Object System.Drawing.Size(200, 32)
+$btnSearch.Text = "🔎 Buscar Archivos"
+$btnSearch.BackColor = [System.Drawing.Color]::FromArgb(46, 204, 113)
+$btnSearch.ForeColor = [System.Drawing.Color]::White
+$btnSearch.FlatStyle = "Flat"
+$btnSearch.FlatAppearance.BorderSize = 0
+$btnSearch.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnSearch.Cursor = [System.Windows.Forms.Cursors]::Hand
+$panelConfig.Controls.Add($btnSearch)
+
+$lblStatus = New-Object System.Windows.Forms.Label
+$lblStatus.Location = New-Object System.Drawing.Point(230, 125)
+$lblStatus.Size = New-Object System.Drawing.Size(710, 25)
+$lblStatus.Text = "⏳ Esperando búsqueda..."
+$lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(149, 165, 166)
+$lblStatus.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Italic)
+$panelConfig.Controls.Add($lblStatus)
+
+$panelResults = New-Object System.Windows.Forms.Panel
+$panelResults.Location = New-Object System.Drawing.Point(10, 180)
+$panelResults.Size = New-Object System.Drawing.Size(960, 420)
+$panelResults.BackColor = [System.Drawing.Color]::White
+$panelResults.BorderStyle = "FixedSingle"
+$form.Controls.Add($panelResults)
+
+$lblResultsTitle = New-Object System.Windows.Forms.Label
+$lblResultsTitle.Location = New-Object System.Drawing.Point(15, 10)
+$lblResultsTitle.Size = New-Object System.Drawing.Size(400, 25)
+$lblResultsTitle.Text = "📋 Archivos Encontrados"
+$lblResultsTitle.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$lblResultsTitle.ForeColor = [System.Drawing.Color]::FromArgb(41, 128, 185)
+$panelResults.Controls.Add($lblResultsTitle)
+
+$dgvFiles = New-Object System.Windows.Forms.DataGridView
+$dgvFiles.Location = New-Object System.Drawing.Point(15, 45)
+$dgvFiles.Size = New-Object System.Drawing.Size(930, 320)
+$dgvFiles.BackgroundColor = [System.Drawing.Color]::White
+$dgvFiles.BorderStyle = "None"
+$dgvFiles.AllowUserToAddRows = $false
+$dgvFiles.AllowUserToDeleteRows = $false
+$dgvFiles.ReadOnly = $true
+$dgvFiles.SelectionMode = "FullRowSelect"
+$dgvFiles.MultiSelect = $true
+$dgvFiles.RowHeadersVisible = $false
+$dgvFiles.AutoSizeColumnsMode = "Fill"
+$dgvFiles.AlternatingRowsDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(245, 245, 250)
+$dgvFiles.EnableHeadersVisualStyles = $false
+$dgvFiles.ColumnHeadersDefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(52, 73, 94)
+$dgvFiles.ColumnHeadersDefaultCellStyle.ForeColor = [System.Drawing.Color]::White
+$dgvFiles.ColumnHeadersDefaultCellStyle.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$dgvFiles.ColumnHeadersHeight = 35
+$panelResults.Controls.Add($dgvFiles)
+
+$dgvFiles.ColumnCount = 5
+$dgvFiles.Columns[0].Name = "Nombre"
+$dgvFiles.Columns[0].Width = 250
+$dgvFiles.Columns[1].Name = "Ruta"
+$dgvFiles.Columns[1].Width = 350
+$dgvFiles.Columns[2].Name = "Tamaño"
+$dgvFiles.Columns[2].Width = 100
+$dgvFiles.Columns[3].Name = "Última Modificación"
+$dgvFiles.Columns[3].Width = 150
+$dgvFiles.Columns[4].Name = "Antigüedad (días)"
+$dgvFiles.Columns[4].Width = 120
+
+$lblSummary = New-Object System.Windows.Forms.Label
+$lblSummary.Location = New-Object System.Drawing.Point(15, 375)
+$lblSummary.Size = New-Object System.Drawing.Size(930, 30)
+$lblSummary.Text = "📊 Total: 0 archivos | Tamaño: 0 MB"
+$lblSummary.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$lblSummary.ForeColor = [System.Drawing.Color]::FromArgb(52, 73, 94)
+$panelResults.Controls.Add($lblSummary)
+
+$panelActions = New-Object System.Windows.Forms.Panel
+$panelActions.Location = New-Object System.Drawing.Point(10, 610)
+$panelActions.Size = New-Object System.Drawing.Size(960, 50)
+$form.Controls.Add($panelActions)
+
+$btnDelete = New-Object System.Windows.Forms.Button
+$btnDelete.Location = New-Object System.Drawing.Point(0, 0)
+$btnDelete.Size = New-Object System.Drawing.Size(200, 45)
+$btnDelete.Text = "🗑️ Eliminar Archivos"
+$btnDelete.BackColor = [System.Drawing.Color]::FromArgb(231, 76, 60)
+$btnDelete.ForeColor = [System.Drawing.Color]::White
+$btnDelete.FlatStyle = "Flat"
+$btnDelete.FlatAppearance.BorderSize = 0
+$btnDelete.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$btnDelete.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnDelete.Enabled = $false
+$panelActions.Controls.Add($btnDelete)
+
+$btnSelectAll = New-Object System.Windows.Forms.Button
+$btnSelectAll.Location = New-Object System.Drawing.Point(220, 0)
+$btnSelectAll.Size = New-Object System.Drawing.Size(180, 45)
+$btnSelectAll.Text = "☑️ Seleccionar Todo"
+$btnSelectAll.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+$btnSelectAll.ForeColor = [System.Drawing.Color]::White
+$btnSelectAll.FlatStyle = "Flat"
+$btnSelectAll.FlatAppearance.BorderSize = 0
+$btnSelectAll.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnSelectAll.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnSelectAll.Enabled = $false
+$panelActions.Controls.Add($btnSelectAll)
+
+$btnDeselectAll = New-Object System.Windows.Forms.Button
+$btnDeselectAll.Location = New-Object System.Drawing.Point(420, 0)
+$btnDeselectAll.Size = New-Object System.Drawing.Size(180, 45)
+$btnDeselectAll.Text = "☐ Deseleccionar Todo"
+$btnDeselectAll.BackColor = [System.Drawing.Color]::FromArgb(149, 165, 166)
+$btnDeselectAll.ForeColor = [System.Drawing.Color]::White
+$btnDeselectAll.FlatStyle = "Flat"
+$btnDeselectAll.FlatAppearance.BorderSize = 0
+$btnDeselectAll.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnDeselectAll.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnDeselectAll.Enabled = $false
+$panelActions.Controls.Add($btnDeselectAll)
+
+$btnPreview = New-Object System.Windows.Forms.Button
+$btnPreview.Location = New-Object System.Drawing.Point(620, 0)
+$btnPreview.Size = New-Object System.Drawing.Size(180, 45)
+$btnPreview.Text = "👁️ Vista Previa"
+$btnPreview.BackColor = [System.Drawing.Color]::FromArgb(155, 89, 182)
+$btnPreview.ForeColor = [System.Drawing.Color]::White
+$btnPreview.FlatStyle = "Flat"
+$btnPreview.FlatAppearance.BorderSize = 0
+$btnPreview.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+$btnPreview.Cursor = [System.Windows.Forms.Cursors]::Hand
+$btnPreview.Enabled = $false
+$panelActions.Controls.Add($btnPreview)
+
+$btnClose = New-Object System.Windows.Forms.Button
+$btnClose.Location = New-Object System.Drawing.Point(820, 0)
+$btnClose.Size = New-Object System.Drawing.Size(140, 45)
+$btnClose.Text = "❌ Cerrar"
+$btnClose.BackColor = [System.Drawing.Color]::FromArgb(127, 140, 141)
+$btnClose.ForeColor = [System.Drawing.Color]::White
+$btnClose.FlatStyle = "Flat"
+$btnClose.FlatAppearance.BorderSize = 0
+$btnClose.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
+$btnClose.Cursor = [System.Windows.Forms.Cursors]::Hand
+$panelActions.Controls.Add($btnClose)
+
+$btnBrowse.Add_Click({
+        $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+        $folderBrowser.Description = "Seleccione el directorio de logs"
+        $folderBrowser.SelectedPath = $txtPath.Text
+    
+        if ($folderBrowser.ShowDialog() -eq "OK") {
+            $txtPath.Text = $folderBrowser.SelectedPath
+        }
+    })
+
+$btnSearch.Add_Click({
+        $dgvFiles.Rows.Clear()
+        $script:foundFiles = @()
+    
+        $path = $txtPath.Text
+        $days = $numDays.Value
+        $extension = $cmbExtension.SelectedItem
+    
+        if (-not (Test-Path $path)) {
+            [System.Windows.Forms.MessageBox]::Show(
+                "El directorio especificado no existe.",
+                "Error",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Error
+            )
+            return
+        }
+    
+        $lblStatus.Text = "🔍 Buscando archivos..."
+        $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(243, 156, 18)
+        $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+        $btnSearch.Enabled = $false
+        $form.Refresh()
+    
+        try {
+            $dateLimit = (Get-Date).AddDays(-$days)
+            Write-Log "Iniciando búsqueda en: $path | Días: $days | Extensión: $extension"
+        
+            $files = Get-ChildItem -Path $path -Filter $extension -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.LastWriteTime -lt $dateLimit }
+        
+            $script:foundFiles = $files
+        
+            if ($files.Count -eq 0) {
+                $lblStatus.Text = "✅ No se encontraron archivos para eliminar"
+                $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(46, 204, 113)
+                $lblSummary.Text = "📊 Total: 0 archivos | Tamaño: 0 MB"
+                $btnDelete.Enabled = $false
+                $btnSelectAll.Enabled = $false
+                $btnDeselectAll.Enabled = $false
+            }
+            else {
+                foreach ($file in $files) {
+                    $fileAge = (New-TimeSpan -Start $file.LastWriteTime -End (Get-Date)).Days
+                    $fileSizeKB = [math]::Round($file.Length / 1KB, 2)
+                
+                    $row = $dgvFiles.Rows.Add(
+                        $file.Name,
+                        $file.DirectoryName,
+                        "$fileSizeKB KB",
+                        $file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                        $fileAge
+                    )
+                
+                    if ($fileAge -gt 365) {
+                        $dgvFiles.Rows[$row].DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(255, 230, 230)
+                    }
+                    elseif ($fileAge -gt 180) {
+                        $dgvFiles.Rows[$row].DefaultCellStyle.BackColor = [System.Drawing.Color]::FromArgb(255, 245, 230)
+                    }
+                }
+            
+                $totalSize = ($files | Measure-Object -Property Length -Sum).Sum
+                $totalSizeMB = [math]::Round($totalSize / 1MB, 2)
+            
+                $lblStatus.Text = "✅ Búsqueda completada - $($files.Count) archivo(s) encontrado(s)"
+                $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(46, 204, 113)
+                $lblSummary.Text = "📊 Total: $($files.Count) archivos | Tamaño: $totalSizeMB MB"
+            
+                $btnDelete.Enabled = $true
+                $btnSelectAll.Enabled = $true
+                $btnDeselectAll.Enabled = $true
+                $btnPreview.Enabled = $true
+            
+                Write-Log "Búsqueda completada: $($files.Count) archivos encontrados ($totalSizeMB MB)"
+            }
+        }
+        catch {
+            $lblStatus.Text = "❌ Error durante la búsqueda"
+            $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(231, 76, 60)
+            Write-Log "Error en búsqueda: $($_.Exception.Message)" "ERROR"
+            [System.Windows.Forms.MessageBox]::Show(
+                "Error durante la búsqueda: $($_.Exception.Message)",
+                "Error",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Error
+            )
+        }
+        finally {
+            $form.Cursor = [System.Windows.Forms.Cursors]::Default
+            $btnSearch.Enabled = $true
+        }
+    })
+
+$btnSelectAll.Add_Click({
+        $dgvFiles.SelectAll()
+    })
+
+$btnDeselectAll.Add_Click({
+        $dgvFiles.ClearSelection()
+    })
+
+$btnPreview.Add_Click({
+        if ($dgvFiles.SelectedRows.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show(
+                "Por favor seleccione un archivo para ver su contenido.",
+                "Información",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
+            return
+        }
+    
+        $selectedRow = $dgvFiles.SelectedRows[0]
+        $fileName = $selectedRow.Cells[0].Value
+        $filePath = $selectedRow.Cells[1].Value
+        $fullPath = Join-Path $filePath $fileName
+    
+        $previewForm = New-Object System.Windows.Forms.Form
+        $previewForm.Text = "👁️ Vista Previa - $fileName"
+        $previewForm.Size = New-Object System.Drawing.Size(900, 700)
+        $previewForm.StartPosition = "CenterScreen"
+        $previewForm.BackColor = [System.Drawing.Color]::FromArgb(240, 240, 245)
+        $previewForm.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+    
+        $panelInfo = New-Object System.Windows.Forms.Panel
+        $panelInfo.Location = New-Object System.Drawing.Point(10, 10)
+        $panelInfo.Size = New-Object System.Drawing.Size(860, 80)
+        $panelInfo.BackColor = [System.Drawing.Color]::White
+        $panelInfo.BorderStyle = "FixedSingle"
+        $previewForm.Controls.Add($panelInfo)
+    
+        $fileInfo = Get-Item $fullPath -ErrorAction SilentlyContinue
+        if ($fileInfo) {
+            $lblFileInfo = New-Object System.Windows.Forms.Label
+            $lblFileInfo.Location = New-Object System.Drawing.Point(15, 10)
+            $lblFileInfo.Size = New-Object System.Drawing.Size(830, 60)
+            $lblFileInfo.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+            $infoText = "📄 Archivo: $($fileInfo.Name)`n"
+            $infoText += "📁 Ruta: $($fileInfo.DirectoryName)`n"
+            $infoText += "📊 Tamaño: $([math]::Round($fileInfo.Length / 1KB, 2)) KB | "
+            $infoText += "📅 Modificado: $($fileInfo.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss'))"
+            $lblFileInfo.Text = $infoText
+            $panelInfo.Controls.Add($lblFileInfo)
+        }
+    
+        $txtPreview = New-Object System.Windows.Forms.TextBox
+        $txtPreview.Location = New-Object System.Drawing.Point(10, 100)
+        $txtPreview.Size = New-Object System.Drawing.Size(860, 500)
+        $txtPreview.Multiline = $true
+        $txtPreview.ScrollBars = "Both"
+        $txtPreview.ReadOnly = $true
+        $txtPreview.Font = New-Object System.Drawing.Font("Consolas", 9)
+        $txtPreview.BackColor = [System.Drawing.Color]::FromArgb(250, 250, 250)
+        $txtPreview.WordWrap = $false
+        $previewForm.Controls.Add($txtPreview)
+    
+        try {
+            $fileSize = (Get-Item $fullPath).Length
+        
+            if ($fileSize -gt 5MB) {
+                $result = [System.Windows.Forms.MessageBox]::Show(
+                    "El archivo es muy grande ($([math]::Round($fileSize / 1MB, 2)) MB).`n`n¿Desea cargar solo las primeras 5000 líneas?",
+                    "Archivo Grande",
+                    [System.Windows.Forms.MessageBoxButtons]::YesNo,
+                    [System.Windows.Forms.MessageBoxIcon]::Question
+                )
+            
+                if ($result -eq "Yes") {
+                    $content = Get-Content $fullPath -TotalCount 5000 -ErrorAction Stop
+                    $txtPreview.Lines = $content
+                    $txtPreview.Text += "`n`n... [Archivo truncado - mostrando primeras 5000 líneas] ..."
+                }
+                else {
+                    $previewForm.Close()
+                    return
+                }
+            }
+            else {
+                $txtPreview.Text = "⏳ Cargando contenido..."
+                $previewForm.Refresh()
+            
+                $content = Get-Content $fullPath -Raw -ErrorAction Stop
+                $txtPreview.Text = $content
+            }
+        
+            Write-Log "Vista previa abierta: $fullPath"
+        }
+        catch {
+            $txtPreview.Text = "❌ Error al cargar el archivo:`n`n$($_.Exception.Message)"
+            Write-Log "Error al abrir vista previa de '$fullPath': $($_.Exception.Message)" "ERROR"
+        }
+    
+        if ($dgvFiles.SelectedRows.Count -gt 1) {
+            $panelNav = New-Object System.Windows.Forms.Panel
+            $panelNav.Location = New-Object System.Drawing.Point(10, 610)
+            $panelNav.Size = New-Object System.Drawing.Size(860, 45)
+            $previewForm.Controls.Add($panelNav)
+        
+            $script:currentPreviewIndex = 0
+            $script:selectedFiles = @()
+        
+            foreach ($row in $dgvFiles.SelectedRows) {
+                $script:selectedFiles += @{
+                    Name = $row.Cells[0].Value
+                    Path = $row.Cells[1].Value
+                }
+            }
+        
+            $lblNavInfo = New-Object System.Windows.Forms.Label
+            $lblNavInfo.Location = New-Object System.Drawing.Point(10, 12)
+            $lblNavInfo.Size = New-Object System.Drawing.Size(300, 25)
+            $lblNavInfo.Text = "Archivo 1 de $($script:selectedFiles.Count)"
+            $lblNavInfo.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+            $panelNav.Controls.Add($lblNavInfo)
+        
+            $btnPrev = New-Object System.Windows.Forms.Button
+            $btnPrev.Location = New-Object System.Drawing.Point(320, 5)
+            $btnPrev.Size = New-Object System.Drawing.Size(120, 35)
+            $btnPrev.Text = "⬅️ Anterior"
+            $btnPrev.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+            $btnPrev.ForeColor = [System.Drawing.Color]::White
+            $btnPrev.FlatStyle = "Flat"
+            $btnPrev.Enabled = $false
+            $panelNav.Controls.Add($btnPrev)
+        
+            $btnNext = New-Object System.Windows.Forms.Button
+            $btnNext.Location = New-Object System.Drawing.Point(450, 5)
+            $btnNext.Size = New-Object System.Drawing.Size(120, 35)
+            $btnNext.Text = "Siguiente ➡️"
+            $btnNext.BackColor = [System.Drawing.Color]::FromArgb(52, 152, 219)
+            $btnNext.ForeColor = [System.Drawing.Color]::White
+            $btnNext.FlatStyle = "Flat"
+            $btnNext.Enabled = ($script:selectedFiles.Count -gt 1)
+            $panelNav.Controls.Add($btnNext)
+        
+            $loadFilePreview = {
+                param($index)
+            
+                $file = $script:selectedFiles[$index]
+                $fullPath = Join-Path $file.Path $file.Name
+            
+                $previewForm.Text = "👁️ Vista Previa - $($file.Name)"
+                $lblNavInfo.Text = "Archivo $($index + 1) de $($script:selectedFiles.Count)"
+            
+                $fileInfo = Get-Item $fullPath -ErrorAction SilentlyContinue
+                if ($fileInfo) {
+                    $infoText = "📄 Archivo: $($fileInfo.Name)`n"
+                    $infoText += "📁 Ruta: $($fileInfo.DirectoryName)`n"
+                    $infoText += "📊 Tamaño: $([math]::Round($fileInfo.Length / 1KB, 2)) KB | "
+                    $infoText += "📅 Modificado: $($fileInfo.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss'))"
+                    $lblFileInfo.Text = $infoText
+                }
+            
+                try {
+                    $fileSize = (Get-Item $fullPath).Length
+                
+                    if ($fileSize -gt 5MB) {
+                        $content = Get-Content $fullPath -TotalCount 5000 -ErrorAction Stop
+                        $txtPreview.Lines = $content
+                        $txtPreview.Text += "`n`n... [Archivo truncado - mostrando primeras 5000 líneas] ..."
+                    }
+                    else {
+                        $content = Get-Content $fullPath -Raw -ErrorAction Stop
+                        $txtPreview.Text = $content
+                    }
+                }
+                catch {
+                    $txtPreview.Text = "❌ Error al cargar el archivo:`n`n$($_.Exception.Message)"
+                }
+            
+                $btnPrev.Enabled = ($index -gt 0)
+                $btnNext.Enabled = ($index -lt ($script:selectedFiles.Count - 1))
+            }
+        
+            $btnPrev.Add_Click({
+                    if ($script:currentPreviewIndex -gt 0) {
+                        $script:currentPreviewIndex--
+                        & $loadFilePreview $script:currentPreviewIndex
+                    }
+                })
+        
+            $btnNext.Add_Click({
+                    if ($script:currentPreviewIndex -lt ($script:selectedFiles.Count - 1)) {
+                        $script:currentPreviewIndex++
+                        & $loadFilePreview $script:currentPreviewIndex
+                    }
+                })
+        }
+    
+        $btnClosePreview = New-Object System.Windows.Forms.Button
+        $btnClosePreview.Location = New-Object System.Drawing.Point(730, 610)
+        $btnClosePreview.Size = New-Object System.Drawing.Size(140, 45)
+        $btnClosePreview.Text = "❌ Cerrar"
+        $btnClosePreview.BackColor = [System.Drawing.Color]::FromArgb(127, 140, 141)
+        $btnClosePreview.ForeColor = [System.Drawing.Color]::White
+        $btnClosePreview.FlatStyle = "Flat"
+        $btnClosePreview.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+        $btnClosePreview.Add_Click({ $previewForm.Close() })
+        $previewForm.Controls.Add($btnClosePreview)
+    
+        [void]$previewForm.ShowDialog()
+    })
+
+$btnDelete.Add_Click({
+        if ($dgvFiles.SelectedRows.Count -eq 0) {
+            [System.Windows.Forms.MessageBox]::Show(
+                "Por favor seleccione al menos un archivo para eliminar.",
+                "Información",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
+            return
+        }
+    
+        $selectedCount = $dgvFiles.SelectedRows.Count
+        $selectedSize = 0
+    
+        foreach ($row in $dgvFiles.SelectedRows) {
+            $fileName = $row.Cells[0].Value
+            $file = $script:foundFiles | Where-Object { $_.Name -eq $fileName }
+            if ($file) {
+                $selectedSize += $file.Length
+            }
+        }
+    
+        $selectedSizeMB = [math]::Round($selectedSize / 1MB, 2)
+    
+        $result = [System.Windows.Forms.MessageBox]::Show(
+            "¿Está seguro de que desea eliminar $selectedCount archivo(s)?`n`nEspacio a liberar: $selectedSizeMB MB`n`n⚠️ Esta acción no se puede deshacer.",
+            "Confirmar Eliminación",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+    
+        if ($result -eq "Yes") {
+            $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+            $btnDelete.Enabled = $false
+            $lblStatus.Text = "🗑️ Eliminando archivos..."
+            $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(231, 76, 60)
+            $form.Refresh()
+        
+            $deletedCount = 0
+            $errorCount = 0
+            $deletedSize = 0
+        
+            $rowsToRemove = @()
+        
+            foreach ($row in $dgvFiles.SelectedRows) {
+                $fileName = $row.Cells[0].Value
+                $filePath = $row.Cells[1].Value
+                $fullPath = Join-Path $filePath $fileName
+            
+                try {
+                    $file = Get-Item $fullPath -ErrorAction Stop
+                    Remove-Item -Path $fullPath -Force -ErrorAction Stop
+                    $deletedCount++
+                    $deletedSize += $file.Length
+                    $rowsToRemove += $row
+                    Write-Log "Eliminado: $fullPath"
+                }
+                catch {
+                    $errorCount++
+                    Write-Log "Error al eliminar '$fullPath': $($_.Exception.Message)" "ERROR"
+                }
+            }
+        
+            foreach ($row in $rowsToRemove) {
+                $dgvFiles.Rows.Remove($row)
+            }
+        
+            $deletedSizeMB = [math]::Round($deletedSize / 1MB, 2)
+        
+            $form.Cursor = [System.Windows.Forms.Cursors]::Default
+            $btnDelete.Enabled = $true
+        
+            $message = "✅ Eliminación completada`n`n"
+            $message += "Archivos eliminados: $deletedCount`n"
+            $message += "Errores: $errorCount`n"
+            $message += "Espacio liberado: $deletedSizeMB MB"
+        
+            [System.Windows.Forms.MessageBox]::Show(
+                $message,
+                "Proceso Completado",
+                [System.Windows.Forms.MessageBoxButtons]::OK,
+                [System.Windows.Forms.MessageBoxIcon]::Information
+            )
+        
+            $lblStatus.Text = "✅ Eliminación completada - $deletedCount archivo(s) eliminado(s)"
+            $lblStatus.ForeColor = [System.Drawing.Color]::FromArgb(46, 204, 113)
+        
+            $remainingCount = $dgvFiles.Rows.Count
+            if ($remainingCount -eq 0) {
+                $lblSummary.Text = "📊 Total: 0 archivos | Tamaño: 0 MB"
+                $btnDelete.Enabled = $false
+                $btnSelectAll.Enabled = $false
+                $btnDeselectAll.Enabled = $false
+            }
+            else {
+                $remainingSize = 0
+                foreach ($row in $dgvFiles.Rows) {
+                    $fileName = $row.Cells[0].Value
+                    $file = $script:foundFiles | Where-Object { $_.Name -eq $fileName }
+                    if ($file) {
+                        $remainingSize += $file.Length
+                    }
+                }
+                $remainingSizeMB = [math]::Round($remainingSize / 1MB, 2)
+                $lblSummary.Text = "📊 Total: $remainingCount archivos | Tamaño: $remainingSizeMB MB"
+            }
+        
+            Write-Log "Eliminación completada: $deletedCount archivos ($deletedSizeMB MB) | Errores: $errorCount"
+        }
+    })
+
+$btnClose.Add_Click({
+        $form.Close()
+    })
+
+Write-Log "Iniciando GUI de limpieza de logs"
+[void]$form.ShowDialog()
+Write-Log "GUI cerrada"
+</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script>
+        document.querySelectorAll('.code-container[data-copy="true"]').forEach(container => {
+
+            const codeElement = container.querySelector('code');
+            if (!codeElement) {
+                return;
+            }
+
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = 'Copiar';
+
+            const confirmation = document.createElement('div');
+            confirmation.className = 'copy-confirmation';
+            confirmation.textContent = '¡Copiado!';
+
+            container.appendChild(button);
+            container.appendChild(confirmation);
+
+            button.addEventListener('click', () => {
+                const code = codeElement.textContent;
+                navigator.clipboard.writeText(code);
+
+                confirmation.classList.add('show');
+                setTimeout(() => {
+                    confirmation.classList.remove('show');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+
+</html>
