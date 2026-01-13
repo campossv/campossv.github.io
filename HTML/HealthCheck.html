@@ -1,2414 +1,474 @@
 <head>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f0f2f5;
-      }
-      header {
-        background-color: #4267b2;
-        color: white;
-        text-align: center;
-        padding: 1rem;
-        border-radius: 8px 8px 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .logo {
-        width: 100px;
-        height: auto;
-        margin-right: 20px;
-      }
-      .header-text {
-        text-align: left;
-      }
-      nav {
-        background-color: #365899;
-        padding: 10px;
-      }
-      nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-      }
-      nav ul li {
-        margin: 0 10px;
-      }
-      nav ul li a {
-        color: white;
-        text-decoration: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      nav ul li a:hover {
-        background-color: #4267b2;
-      }
-      main {
-        background-color: white;
-        padding: 20px;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        margin-top: 0;
-      }
-      h2 {
-        color: #4267b2;
-      }
-      .instructions {
-        background-color: #e9ebee;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
-      .instructions ol {
-        margin-bottom: 0;
-      }
-      .code-block {
-        background-color: #f1f3f4;
-        border-left: 4px solid #4267b2;
-        padding: 15px;
-        margin-bottom: 20px;
-        overflow-x: auto;
-      }
-      .button {
-        display: inline-block;
-        background-color: #4267b2;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-      }
-      .button:hover {
-        background-color: #365899;
-      }
-      @media (max-width: 600px) {
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
         header {
-          flex-direction: column;
+            background-color: #4267b2;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .logo {
-          margin-right: 0;
-          margin-bottom: 10px;
+
+        nav {
+            background-color: #365899;
+            padding: 10px;
         }
-        .header-text {
-          text-align: center;
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-      }
-      .video-container {
-        position: relative;
-        width: 100%;
-        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-      }
-      .video-container iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-      }
-      .code-container {
-        position: relative;
-        margin-bottom: 20px;
-      }
-      
-      /* Estilo para los contenedores de código con scroll */
-      .code-container pre {
-        max-height: 400px;
-        overflow-y: auto;
-        margin-bottom: 10px;
-      }
-      .copy-button {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background-color: #4267b2;
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .copy-confirmation {
-        opacity: 0;
-        position: absolute;
-        top: 5px;
-        right: 80px;
-        background-color: #4caf50;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        transition: opacity 0.3s ease;
-      }
-      .copy-confirmation.show {
-        opacity: 1;
-      }
-      /* Estilo global para la barra de desplazamiento */
-      * {
-        scrollbar-width: thin;
-        scrollbar-color: #6e8efb #e0e0e0;
-      }
-  
-      /* Webkit browsers like Chrome and Safari */
-      *::-webkit-scrollbar {
-        width: 22px;
-      }
-  
-      *::-webkit-scrollbar-track {
-        background: #e0e0e0;
-      }
-  
-      *::-webkit-scrollbar-thumb {
-        background-color: #6e8efb;
-        border-radius: 20px;
-        border: 3px solid #e0e0e0;
-      }
-  
-      /* Contenedor de ejemplo */
-      .scroll-container {
-        height: 200px;
-        overflow-y: scroll;
-        padding: 20px;
-        border: 1px solid #ccc;
-      }
-  
-      .linkedin-logo {
-        width: 25%;
-      }
+
+        nav ul li {
+            margin: 0 10px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        nav ul li a:hover {
+            background-color: #4267b2;
+        }
+
+        main {
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        h2 {
+            color: #4267b2;
+        }
+
+        .instructions {
+            background-color: #e9ebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .code-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .code-container pre {
+            max-height: 420px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #4267b2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .copy-confirmation {
+            opacity: 0;
+            position: absolute;
+            top: 5px;
+            right: 80px;
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-confirmation.show {
+            opacity: 1;
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #6e8efb #e0e0e0;
+        }
+
+        *::-webkit-scrollbar {
+            width: 22px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background-color: #6e8efb;
+            border-radius: 20px;
+            border: 3px solid #e0e0e0;
+        }
+
+        .linkedin-logo {
+            width: 25%;
+        }
+
+        .requirements-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .requirements-table td,
+        .requirements-table th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .requirements-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .requirements-table th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4caf50;
+            color: white;
+        }
     </style>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="robots" content="index, follow" />
     <meta property="og:title" content="Automatización con PowerShell" />
-    <meta
-      name="keywords"
-      content="PowerShell, scripts, formularios, automatización, administración"
-    />
-    <meta
-      name="description"
-      content="Descubre scripts avanzados de PowerShell con formularios para automatizar tareas administrativas. Optimiza la gestión de sistemas, mejora la productividad, aplica la automatizacion y simplifica procesos con nuestras soluciones prácticas y eficientes."
-    />
+    <meta name="keywords" content="PowerShell, health check, Windows Server, auditoría, JSON, HTML" />
+    <meta name="description"
+        content="Documentación del script HealthCheck.ps1: auditoría de salud Windows, reporte HTML y salidas JSON." />
     <title>Scripts de Vladi</title>
     <link rel="shortcut icon" href="./favicon.ico" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css"
-    />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+    <link rel="stylesheet" href="./assets/vendor/bootstrap-icons/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-  </head>
-  <body>
+</head>
+
+<body>
     <header>
-      <section id="overview">
-        <h1>Health Check de Windows Server</h1>
-      </section>
-      
-    </header>
-    <nav>
-      <ul>
-        <li><a href="#overview">Descripción General</a></li>
-        <li><a href="#funciones">Funciones</a></li>
-        <li><a href="#ejemplos-uso">Uso</a></li>
-        <li><a href="#Script completo">Script Completo</a></li>
-      </ul>
-    </nav>
-    <center>
-      <div class="vertical-align">
-        <a
-          href="https://www.linkedin.com/in/vladimir-campos-830b83328/"
-          target="_blank"
-        >
-          <img
-            src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png"
-            class="linkedin-logo"
-          />
-        </a>
-      </div>
-    </center>
-    <main>
-      <p>
-        Este script PowerShell realiza un análisis completo de la salud del sistema, recopilando métricas de rendimiento, logs de eventos, información de seguridad y generando informes detallados en múltiples formatos. Está diseñado para ejecutarse con privilegios de administrador y proporciona una visión integral del estado del servidor o estación de trabajo.
-        Genera informes en HTML, JSON, CSV o Excel para facilitar el análisis y la documentación.
-      </p>
-      <div class="video-container">
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/Rd9wEocyRZU?autoplay=1&mute=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      </div><br>
-      <section class="code-container">
-        <section id="funciones">
-          <h2>📋 Requerimientos</h2>
-          <table class="requirements-table">
-            <thead>
-              <tr>
-                <th>Componente</th>
-                <th>Requisito</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Sistema Operativo</td>
-                <td>Windows 10/11, Windows Server 2016+</td>
-              </tr>
-              <tr>
-                <td>PowerShell</td>
-                <td>Versión 5.1 o superior (recomendado PowerShell 7+)</td>
-              </tr>
-              <tr>
-                <td>Permisos</td>
-                <td>Ejecución como Administrador (requerido para acceder a logs y WMI)</td>
-              </tr>
-              <tr>
-                <td>Módulos adicionales</td>
-                <td>Algunas funciones requieren: ImportExcel, Pester (para pruebas)</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <style>
-            .requirements-table {
-              border-collapse: collapse;
-              width: 100%;
-            }
-
-            .requirements-table td, th {
-              border: 1px solid #ddd;
-              padding: 8px;
-            }
-
-            .requirements-table tr:nth-child(even) {
-              background-color: #f2f2f2;
-            }
-
-            .requirements-table th {
-              padding-top: 12px;
-              padding-bottom: 12px;
-              text-align: left;
-              background-color: #4CAF50;
-              color: white;
-            }
-          </style>
-          
+        <section id="overview">
+            <h1>HealthCheck.ps1 (Documentación del script)</h1>
         </section>
-      </section>
-      <section class="code-container">
-        <section id="funciones">
-          <h2>Funciones Principales</h2></section>
-          <ul>
-            <li>Get-InformacionSistema</li>
-            <li>Get-MetricasRendimiento</li>
-            <li>Get-LogsEventos</li>
-            <li>Get-AnalisisConfiabilidad</li>
-            <li>Get-VerificacionCumplimiento</li>
-            <li>Get-AnalisisPermisos</li>
-            <li>Get-AuditoriaSoftware</li>
-          </ul>
-          </p>
-          <section class="code-container">
-            <h2>Parámetros del Script</h2>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Descripción General</a></li>
+            <li><a href="#parametros">Parámetros</a></li>
+            <li><a href="#salidas">Salidas</a></li>
+            <li><a href="#ejemplos">Ejemplos</a></li>
+            <li><a href="#funciones">Funciones clave</a></li>
+            <li><a href="#snippets">Snippets</a></li>
+            <li><a href="#script-completo">Script completo</a></li>
+        </ul>
+    </nav>
+
+    <center>
+        <div class="vertical-align">
+            <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
+                <img src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png" class="linkedin-logo" />
+            </a>
+        </div>
+    </center>
+
+    <main>
+        <p>
+            <b>HealthCheck.ps1</b> realiza una auditoría de salud sobre Windows (server o workstation) y genera un
+            <b>reporte HTML</b> junto con múltiples archivos <b>JSON</b> para integración y análisis automatizado.
+            Se recomienda ejecutarlo como Administrador para poder leer eventos de seguridad, hotfixes, etc.
+        </p>
+
+        <section id="parametros" class="instructions">
+            <h2>Parámetros</h2>
             <table class="requirements-table">
-              <thead>
-                <tr>
-                  <th>Parámetro</th>
-                  <th>Descripción</th>
-                  <th>Valores Permitidos</th>
-                  <th>Valor por Defecto</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>SalidaArchivo</td>
-                  <td>Ruta donde se guardarán los informes generados</td>
-                  <td>Cualquier ruta válida</td>
-                  <td>"C:\InformesSalud"</td>
-                </tr>
-                <tr>
-                  <td>DiasLogs</td>
-                  <td>Número de días hacia atrás para analizar logs</td>
-                  <td>Número entero positivo</td>
-                  <td>15</td>
-                </tr>
-                <tr>
-                  <td>FormatoExportar</td>
-                  <td>Formato de exportación del informe</td>
-                  <td>HTML, JSON, CSV, EXCEL</td>
-                  <td>HTML</td>
-                </tr>
-                <tr>
-                  <td>ParchesFaltantes</td>
-                  <td>Revisa parches faltantes</td>
-                  <td>Switch (true/false)</td>
-                  <td>$false</td>
-                </tr>
-                <tr>
-                  <td>RevisarServicioTerceros</td>
-                  <td>Revisa servicios de terceros</td>
-                  <td>Switch (true/false)</td>
-                  <td>$false</td>
-                </tr>
-                <tr>
-                  <td>AnalisisSeguridad</td>
-                  <td>Realiza análisis de seguridad</td>
-                  <td>Switch (true/false)</td>
-                  <td>$true</td>
-                </tr>
-                <tr>
-                  <td>VerificarCumplimiento</td>
-                  <td>Verifica cumplimiento con estándares</td>
-                  <td>Switch (true/false)</td>
-                  <td>$true</td>
-                </tr>
-              </tbody>
+                <thead>
+                    <tr>
+                        <th>Parámetro</th>
+                        <th>Descripción</th>
+                        <th>Default</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RutaOrigen</td>
+                        <td>Carpeta donde se guardará el reporte y los datos</td>
+                        <td>".\\"</td>
+                    </tr>
+                    <tr>
+                        <td>DIASAtras</td>
+                        <td>Días hacia atrás para eventos y hotfixes</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td>RutaSoftInstalado</td>
+                        <td>Ruta a un JSON de software instalado externo (si se desea)</td>
+                        <td>(vacío)</td>
+                    </tr>
+                    <tr>
+                        <td>ExportJson</td>
+                        <td>Exporta datasets adicionales en JSON en la carpeta de salida</td>
+                        <td>False</td>
+                    </tr>
+                    <tr>
+                        <td>EnableLog</td>
+                        <td>Habilita logging a archivo (carpeta logs dentro de RutaOrigen)</td>
+                        <td>True</td>
+                    </tr>
+                    <tr>
+                        <td>ExportGpResultHtml</td>
+                        <td>Genera gpresult.html (informe de GPO aplicado)</td>
+                        <td>True</td>
+                    </tr>
+                    <tr>
+                        <td>ParallelDiagnostics</td>
+                        <td>Ejecuta diagnósticos en paralelo (Start-Job). Si falla, hace fallback secuencial.</td>
+                        <td>True</td>
+                    </tr>
+                    <tr>
+                        <td>EnableGpResultXmlDetails</td>
+                        <td>Habilita detalles XML para gpresult (más granularidad)</td>
+                        <td>False</td>
+                    </tr>
+                </tbody>
             </table>
         </section>
+
+        <section id="salidas" class="instructions">
+            <h2>Salidas generadas</h2>
+            <p>
+                En <b>RutaOrigen</b> se genera un HTML con timestamp (por ejemplo
+                <code>HealthCheck_YYYYMMDD_HHMMSS.html</code>).
+                Cuando <b>ExportJson</b> está activo, también exporta múltiples archivos JSON (por ejemplo
+                <code>informacion_computadora.json</code>, <code>estado_cpu.json</code>,
+                <code>resumen_salud.json</code>, etc.).
+            </p>
+            <ul>
+                <li><b>Reporte HTML:</b> resumen + tablas + métricas (generado por
+                    <code>New-HealthCheckHtmlReport</code>)
+                </li>
+                <li><b>JSON:</b> datasets listos para consumir en automatización / SIEM / inventario</li>
+                <li><b>Logs:</b> archivo <code>logs/HealthCheck_YYYYMMDD_HHMMSS.log</code> cuando <code>EnableLog</code>
+                    está activo</li>
+                <li><b>GPO:</b> <code>gpresult.html</code> cuando <code>ExportGpResultHtml</code> está activo</li>
+            </ul>
         </section>
-        <br>
-        <section class="code-container">
-          <h3>Get-InformacionSistema</h3>
-          <p>
-            <b>Propósito:</b> Recopila información básica del sistema.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Hashtable con:
+
+        <section id="ejemplos" class="instructions">
+            <h2>Ejemplos de uso</h2>
+            <div class="code-container">
+                <pre><code class="language-powershell"># Ejecución básica (salida en carpeta actual)
+.\\HealthCheck.ps1
+
+# Definir carpeta de salida y rango de días
+.\\HealthCheck.ps1 -RutaOrigen "C:\\Temp\\Health" -DIASAtras 30
+
+# Exportar datasets JSON + deshabilitar modo paralelo
+.\\HealthCheck.ps1 -RutaOrigen "C:\\Temp\\Health" -ExportJson -ParallelDiagnostics:$false
+
+# Usar un JSON de software externo
+.\\HealthCheck.ps1 -RutaOrigen "C:\\Temp\\Health" -RutaSoftInstalado "C:\\Temp\\software_instalado.json"</code></pre>
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
+        </section>
+
+        <section id="funciones" class="instructions">
+            <h2>Funciones clave (resumen)</h2>
             <ul>
-              <li>Nombre del servidor</li>
-              <li>Dirección IP</li>
-              <li>Información del SO (nombre, versión, build)</li>
-              <li>Información del hardware (procesador, memoria, fabricante)</li>
-              <li>Tiempo de actividad desde el último reinicio</li>
-              <li>Información de dominio/workgroup</li>
+                <li><b>Ensure-Folder:</b> valida/crea la carpeta de salida (<code>RutaOrigen</code>).</li>
+                <li><b>Write-HealthLog + Inicializar-HealthLog:</b> logging con niveles y rotación de logs.</li>
+                <li><b>Format-JsonOutput:</b> convierte objetos a JSON compacto y formatea arrays para que cada objeto
+                    quede por línea.</li>
+                <li><b>Invoke-DiagnosticJob:</b> wrapper para ejecutar diagnósticos en paralelo con timeout + fallback
+                    secuencial.</li>
+                <li><b>New-HealthCheckHtmlReport:</b> constructor del reporte HTML (dashboard, tablas filtrables, etc.).
+                </li>
             </ul>
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <div class="code-container">
-              <pre><code id="get-informacionsistema-code" class="language-powershell">Cargando código...</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-informacionsistema-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-MetricasRendimiento">
-      <div class="code-container">
-          <h3>Get-MetricasRendimiento</h3>
-          <p>
-            <b>Propósito:</b> Recopila métricas de rendimiento de los subsistemas principales (CPU, memoria, disco y red).
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Hashtable con métricas detalladas de:
-            <ul>
-              <li>Uso de CPU y cola de procesos</li>
-              <li>Uso de memoria física y virtual</li>
-              <li>Espacio en disco y tiempos de respuesta</li>
-              <li>Tráfico y errores de red</li>
-            </ul>
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-metricasrendimiento-code" class="language-powershell">Cargando código...</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-metricasrendimiento-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-LogsEventos">
-      <div class="code-container">
-          <h3>Get-LogsEventos</h3>
-          <p>
-            <b>Propósito:</b> Recopila logs de eventos del sistema, aplicación y seguridad.
-            <br>
-            <b>Parámetros: Dias: </b>Número de días hacia atrás para buscar logs
-            <br>
-            <b>Retorna:</b> Hashtable con:
-            <ul>
-              <li>Logs del sistema (errores y advertencias)</li>
-              <li>Logs de aplicación (errores y advertencias)</li>
-              <li>Eventos de seguridad (logins fallidos, cambios de cuenta)</li>
-            </ul>
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-logseventos-code" class="language-powershell">Cargando código...
-    param([int]$Dias)
+        </section>
 
-    try {
-        Write-Progress -Activity "Recopilando logs de los 3 tipos principales" -PercentComplete 25
+        <section id="snippets">
+            <h2>Snippets del script</h2>
 
-        $fechaInicio = (Get-Date).AddDays(-$Dias)
-        Write-Host "   Período de logs: desde $($fechaInicio) hasta $(Get-Date)" -ForegroundColor Yellow
+            <h3>Bloque de parámetros</h3>
+            <div class="code-container">
+                <pre><code class="language-powershell">[CmdletBinding()]
+param(
+  [string]$RutaOrigen = ".\\",
+  [int]$DIASAtras = 90,
+  [string]$RutaSoftInstalado,
+  [switch]$ExportJson,
+  [switch]$EnableLog = $true,
+  [switch]$ExportGpResultHtml = $true,
+  [switch]$ParallelDiagnostics = $true,
+  [switch]$EnableGpResultXmlDetails = $false
+)</code></pre>
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
 
-        Write-Host "   Recopilando logs del Sistema..." -ForegroundColor Yellow
-        $logsSistema = Get-WinEvent -FilterHashtable @{
-            LogName = 'System'
-            Level = 1,2,3
-            StartTime = $fechaInicio
-        } -MaxEvents 200 -ErrorAction SilentlyContinue |
-        Select-Object TimeCreated, LevelDisplayName, ProviderName, Id,
-                     @{Name="Message";Expression={$_.Message.Substring(0,[Math]::Min(300,$_.Message.Length))}}
-
-        Write-Host "   Recopilando logs de Aplicación..." -ForegroundColor Yellow
-        $logsAplicacion = Get-WinEvent -FilterHashtable @{
-            LogName = 'Application'
-            Level = 1,2,3
-            StartTime = $fechaInicio
-        } -MaxEvents 200 -ErrorAction SilentlyContinue |
-        Select-Object TimeCreated, LevelDisplayName, ProviderName, Id,
-                     @{Name="Message";Expression={$_.Message.Substring(0,[Math]::Min(300,$_.Message.Length))}}
-
-        Write-Host "   Recopilando logs de Seguridad..." -ForegroundColor Yellow
-        try {
-            $eventosSeguridad = Get-WinEvent -FilterHashtable @{
-                LogName = 'Security'
-                ID = 4624, 4625, 4634, 4647, 4648, 4740, 4767, 4771, 4776, 4616, 4720, 4722, 4724, 4738
-                StartTime = $fechaInicio
-            } -MaxEvents 150 -ErrorAction Stop
-
-            Write-Host "   Se encontraron $($eventosSeguridad.Count) eventos de seguridad" -ForegroundColor Yellow
-
-            $logsSeguridad = $eventosSeguridad | ForEach-Object {
-                $evento = $_
-                $cuenta = "N/A"
-                $ip = "N/A"
-
-                try { $cuenta = if ($evento.Properties.Count -gt 5) { $evento.Properties[5].Value } elseif ($evento.Properties.Count -gt 1) { $evento.Properties[1].Value }
-                    if ([string]::IsNullOrEmpty($cuenta)) {
-                        for ($i = 0; $i -lt [Math]::Min(10, $evento.Properties.Count); $i++) {
-                            if (![string]::IsNullOrEmpty($evento.Properties[$i].Value)) { $cuenta = $evento.Properties[$i].Value; break }
-                        }
-                    }
-                } catch { $cuenta = "No disponible" }
-
-                $ip = if ($evento.Properties.Count -gt 19) { $evento.Properties[19].Value } elseif ($evento.Properties.Count -gt 9) { $evento.Properties[9].Value }
-
-                try { $rawMessage = $evento.Message; if ($rawMessage.Length -gt 150) { $rawMessage = $rawMessage.Substring(0, 150) + "..." }
-                } catch { $rawMessage = "[No disponible]" }
-
-                $tipoEvento = switch ($evento.Id) {
-                    4625 { "Login Fallido" }
-                    4648 { "Login Explícito" }
-                    4771 { "Kerberos Fallido" }
-                    4776 { "Validación" }
-                    4740 { "Cuenta Bloqueada" }
-                    4767 { "Desbloqueada" }
-                    4624 { "Login" }
-                    4634 { "Logout" }
-                    4647 { "Logout Usuario" }
-                    4616 { "Cambio hora" }
-                    4720 { "Cuenta creada" }
-                    4722 { "Cuenta habilitada" }
-                    4724 { "Cambio pwd" }
-                    4738 { "Cambio cuenta" }
-                    default { "ID:$($evento.Id)" }
-                }
-
-                [PSCustomObject]@{TimeCreated=$evento.TimeCreated;Id=$evento.Id;Account=$cuenta;SourceIP=$ip;EventType=$tipoEvento;RawMessage=$rawMessage}
-            }
-        } catch {
-            Write-Host "   Error al obtener logs de seguridad: $_" -ForegroundColor Red
-            $logsSeguridad = @()
-        }
-
-        Write-Host "   Total eventos encontrados - Sistema: $($logsSistema.Count), Aplicación: $($logsAplicacion.Count), Seguridad: $($logsSeguridad.Count)" -ForegroundColor Yellow
-
-        return @{
-            LogsSistema = $logsSistema
-            LogsAplicacion = $logsAplicacion
-            LogsSeguridad = $logsSeguridad
-        }
-    } catch {
-        Write-Warning "Error al obtener logs de eventos: $_"
-        return @{ Error = $_.Exception.Message }
-    }
+            <h3>Ensure-Folder</h3>
+            <div class="code-container">
+                <pre><code class="language-powershell">function Ensure-Folder {
+  param([string]$Path)
+  if (-not $Path) { throw "RutaOrigen no puede ser vacío o nulo." }
+  if (-not (Test-Path -LiteralPath $Path)) {
+    New-Item -ItemType Directory -Path $Path -Force | Out-Null
+  }
 }</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-logseventos-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-AnalisisConfiabilidad">
-      <div class="code-container">
-          <h3>Get-AnalisisConfiabilidad</h3>
-          <p>
-            <b>Propósito:</b> Analiza la confiabilidad del sistema y eventos críticos.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Estadísticas de estabilidad y eventos de confiabilidad.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-analisisconfiabilidad-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Analizando confiabilidad del sistema" -PercentComplete 35
-        Write-Host "   Analizando registros de confiabilidad..." -ForegroundColor Yellow
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
 
-        $datos = @{}
+            <h3>Write-HealthLog (logging con niveles)</h3>
+            <div class="code-container">
+                <pre><code class="language-powershell">function Write-HealthLog {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Message,
 
-        try {
-            $reliabilityRecords = Get-CimInstance -ClassName Win32_ReliabilityRecords -ErrorAction SilentlyContinue |
-                                 Where-Object { $_.TimeGenerated -gt (Get-Date).AddDays(-30) } |
-                                 Sort-Object TimeGenerated -Descending |
-                                 Select-Object -First 100
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('INFO', 'WARNING', 'ERROR', 'DEBUG', 'SUCCESS')]
+    [string]$Level = 'INFO',
 
-            if ($reliabilityRecords) {
-                Write-Host "   Se encontraron $($reliabilityRecords.Count) registros de confiabilidad" -ForegroundColor Yellow
+    [Parameter(Mandatory = $false)]
+    [System.Management.Automation.ErrorRecord]$ErrorRecord = $null
+  )
 
-                $eventosConfiabilidad = $reliabilityRecords | ForEach-Object {
-                    $tipoEvento = switch ($_.EventIdentifier) {
-                        1001 { "Inicio de aplicación" }
-                        1002 { "Fallo de aplicación" }
-                        1003 { "Cuelgue de aplicación" }
-                        1004 { "Instalación exitosa" }
-                        1005 { "Fallo de instalación" }
-                        1006 { "Inicio del sistema" }
-                        1007 { "Apagado del sistema" }
-                        1008 { "Fallo del sistema" }
-                        default { "Evento ID: $($_.EventIdentifier)" }
-                    }
+  if (-not $Script:LogFile) { return }
 
-                    [PSCustomObject]@{
-                        Fecha = $_.TimeGenerated
-                        TipoEvento = $tipoEvento
-                        Fuente = $_.SourceName
-                        Descripcion = if ($_.Message) { $_.Message.Substring(0, [Math]::Min(200, $_.Message.Length)) } else { "N/A" }
-                        EventID = $_.EventIdentifier
-                        Criticidad = switch ($_.EventIdentifier) {
-                            { $_ -in @(1002, 1003, 1005, 1008) } { "Alto" }
-                            { $_ -in @(1001, 1004, 1006, 1007) } { "Normal" }
-                            default { "Medio" }
-                        }
-                    }
-                }
+  try {
+    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff'
+    $logEntry = "[$timestamp] [$Level] $Message"
+    Add-Content -Path $Script:LogFile -Value $logEntry -Encoding UTF8 -ErrorAction SilentlyContinue
 
-                $datos.EventosConfiabilidad = $eventosConfiabilidad
-
-                $fallosAplicacion = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1002, 1003) }).Count
-                $fallosSistema = ($eventosConfiabilidad | Where-Object { $_.EventID -eq 1008 }).Count
-                $reinicios = ($eventosConfiabilidad | Where-Object { $_.EventID -in @(1006, 1007) }).Count
-                $datos.EstadisticasEstabilidad = @{
-                    FallosAplicacion = $fallosAplicacion
-                    FallosSistema = $fallosSistema
-                    ReiniciosDetectados = $reinicios
-                    TotalEventos = $eventosConfiabilidad.Count
-                    PeriodoAnalisis = "Últimos 30 días"
-                    IndiceEstabilidad = switch ($true) {
-                        { $fallosSistema -gt 5 -or $fallosAplicacion -gt 20 } { "Baja" }
-                        { $fallosSistema -gt 2 -or $fallosAplicacion -gt 10 } { "Media" }
-                        default { "Alta" }
-                    }
-                }
-
-                $tendenciasSemana = $eventosConfiabilidad |
-                    Group-Object { (Get-Date $_.Fecha).ToString("yyyy-MM-dd") } |
-                    Sort-Object Name -Descending |
-                    Select-Object -First 7 |
-                    ForEach-Object {
-                        $fallosDia = ($_.Group | Where-Object { $_.Criticidad -eq "Alto" }).Count
-                        [PSCustomObject]@{
-                            Fecha = $_.Name
-                            TotalEventos = $_.Count
-                            EventosCriticos = $fallosDia
-                            Estabilidad = if ($fallosDia -eq 0) { "Estable" } elseif ($fallosDia -lt 3) { "Moderada" } else { "Inestable" }
-                        }
-                    }
-
-                $datos.TendenciasSemanales = $tendenciasSemana
-
-            } else {
-                Write-Host "   No se encontraron registros de confiabilidad o no están disponibles" -ForegroundColor Yellow
-                $datos.EventosConfiabilidad = @()
-                $datos.EstadisticasEstabilidad = @{ Error = "No hay datos de confiabilidad disponibles" }
-                $datos.TendenciasSemanales = @()
-            }
-
-        } catch {
-            Write-Host "   Error al acceder a registros de confiabilidad: $_" -ForegroundColor Red
-
-            try {
-                Write-Host "   Intentando método alternativo con Event Log..." -ForegroundColor Yellow
-                $eventosAlternativos = Get-WinEvent -FilterHashtable @{
-                    LogName = 'System'
-                    Level = 1,2
-                    StartTime = (Get-Date).AddDays(-7)
-                } -MaxEvents 50 -ErrorAction SilentlyContinue |
-                Where-Object { $_.Id -in @(1001, 1074, 6005, 6006, 6008, 6009, 6013) } |
-                ForEach-Object {
-                    [PSCustomObject]@{
-                        Fecha = $_.TimeCreated
-                        TipoEvento = switch ($_.Id) {
-                            1074 { "Apagado del sistema" }
-                            6005 { "Inicio del servicio Event Log" }
-                            6006 { "Parada del servicio Event Log" }
-                            6008 { "Apagado inesperado" }
-                            6009 { "Información de versión del procesador" }
-                            6013 { "Tiempo de actividad del sistema" }
-                            default { "Evento del sistema" }
-                        }
-                        EventID = $_.Id
-                        Fuente = $_.ProviderName
-                        Criticidad = if ($_.Id -eq 6008) { "Alto" } else { "Normal" }
-                    }
-                }
-
-                $datos.EventosConfiabilidad = $eventosAlternativos
-                $datos.EstadisticasEstabilidad = @{
-                    Metodo = "Event Log alternativo"
-                    ApagadosInesperados = ($eventosAlternativos | Where-Object { $_.EventID -eq 6008 }).Count
-                    TotalEventos = $eventosAlternativos.Count
-                    PeriodoAnalisis = "Últimos 7 días"
-                }
-
-            } catch {
-                $datos.EventosConfiabilidad = @()
-                $datos.EstadisticasEstabilidad = @{ Error = "No se pudo obtener información de confiabilidad: $_" }
-            }
-        }
-
-        return $datos
-
-    } catch {
-        Write-Warning "Error en análisis de confiabilidad: $_"
-        return @{ Error = $_.Exception.Message }
+    switch ($Level) {
+      'ERROR' { Write-Host $Message -ForegroundColor Red }
+      'WARNING' { Write-Host $Message -ForegroundColor Yellow }
+      'SUCCESS' { Write-Host $Message -ForegroundColor Green }
+      'DEBUG' { Write-Verbose $Message }
+      default { Write-Host $Message -ForegroundColor Cyan }
     }
+  }
+  catch {
+    Write-Warning "Error escribiendo al log: $($_.Exception.Message)"
+  }
 }</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-analisisconfiabilidad-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-DiagnosticoHardwareAvanzado">
-      <div class="code-container">
-          <h3>Get-DiagnosticoHardwareAvanzado</h3>
-          <p>
-            <b>Propósito:</b> Realiza diagnóstico avanzado del hardware.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Estado SMART de discos, temperaturas, baterías y otros componentes.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-diagnosticohardwareavanzado-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Realizando diagnóstico avanzado de hardware" -PercentComplete 45
-        Write-Host "   Analizando hardware avanzado..." -ForegroundColor Yellow
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
 
-        $datos = @{}
+            <h3>Invoke-DiagnosticJob (paralelismo con fallback)</h3>
+            <div class="code-container">
+                <pre><code class="language-powershell">function Invoke-DiagnosticJob {
+  param(
+    [Parameter(Mandatory = $true)][string]$Name,
+    [Parameter(Mandatory = $true)][scriptblock]$JobScript,
+    [Parameter(Mandatory = $false)][object[]]$ArgumentList = @(),
+    [Parameter(Mandatory = $true)][scriptblock]$FallbackScript,
+    [Parameter(Mandatory = $false)][int]$TimeoutSec = 900
+  )
 
-        Write-Host "   Verificando estado SMART de discos..." -ForegroundColor Yellow
-        try {
-            $discosSMART = Get-CimInstance -ClassName Win32_DiskDrive -ErrorAction SilentlyContinue | ForEach-Object {
-                $disco = $_
-                $smartData = $null
+  if (-not $ParallelDiagnostics) {
+    return &amp; $FallbackScript
+  }
 
-                try {
-
-                    $smartData = Get-CimInstance -ClassName MSStorageDriver_FailurePredictStatus -Namespace "root\wmi" -ErrorAction SilentlyContinue |
-                                Where-Object { $_.InstanceName -like "*$($disco.PNPDeviceID)*" }
-
-                    if (-not $smartData) {
-
-                        $smartData = Get-CimInstance -ClassName Win32_DiskDrive -ErrorAction SilentlyContinue |
-                                    Where-Object { $_.DeviceID -eq $disco.DeviceID } |
-                                    ForEach-Object {
-                                        [PSCustomObject]@{
-                                            PredictFailure = $false
-                                            Reason = "Datos SMART no disponibles"
-                                        }
-                                    }
-                    }
-                } catch {
-                    $smartData = [PSCustomObject]@{
-                        PredictFailure = $null
-                        Reason = "Error al acceder a SMART: $_"
-                    }
-                }
-
-                [PSCustomObject]@{
-                    Modelo = $disco.Model
-                    NumeroSerie = $disco.SerialNumber
-                    TamanoGB = [math]::Round($disco.Size / 1GB, 2)
-                    Interfaz = $disco.InterfaceType
-                    EstadoSMART = if ($smartData.PredictFailure -eq $true) { "FALLO PREDICHO" }
-                                 elseif ($smartData.PredictFailure -eq $false) { "Saludable" }
-                                 else { "No disponible" }
-                    DetallesSMART = $smartData.Reason
-                    Particiones = (Get-CimInstance -ClassName Win32_DiskPartition -ErrorAction SilentlyContinue |
-                                  Where-Object { $_.DiskIndex -eq $disco.Index }).Count
-                    Estado = switch ($smartData.PredictFailure) {
-                        $true { "Crítico" }
-                        $false { "Normal" }
-                        default { "Desconocido" }
-                    }
-                }
-            }
-
-            $datos.DiscosSMART = $discosSMART
-
-        } catch {
-            Write-Host "   Error al obtener datos SMART: $_" -ForegroundColor Red
-            $datos.DiscosSMART = @{ Error = "No se pudo obtener información SMART: $_" }
-        }
-
-        Write-Host "   Verificando temperaturas de componentes..." -ForegroundColor Yellow
-        try {
-            $temperaturas = @()
-
-            $tempCPU = Get-CimInstance -ClassName Win32_PerfRawData_Counters_ThermalZoneInformation -ErrorAction SilentlyContinue |
-                      Where-Object { $_.Name -like "*CPU*" -or $_.Name -like "*Processor*" } |
-                      ForEach-Object {
-                          $tempKelvin = $_.Temperature
-                          $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) {
-                              [math]::Round(($tempKelvin / 10) - 273.15, 1)
-                          } else { $null }
-
-                          [PSCustomObject]@{
-                              Componente = "CPU - $($_.Name)"
-                              TemperaturaC = $tempCelsius
-                              Estado = if ($tempCelsius -gt 80) { "Crítico" }
-                                      elseif ($tempCelsius -gt 70) { "Alto" }
-                                      elseif ($tempCelsius -gt 0) { "Normal" }
-                                      else { "No disponible" }
-                          }
-                      }
-
-            if ($tempCPU) { $temperaturas += $tempCPU }
-
-            try {
-                $wmiTemp = Get-CimInstance -ClassName MSAcpi_ThermalZoneTemperature -Namespace "root\wmi" -ErrorAction SilentlyContinue |
-                          ForEach-Object {
-                              $tempKelvin = $_.CurrentTemperature
-                              $tempCelsius = if ($tempKelvin -and $tempKelvin -gt 0) {
-                                  [math]::Round(($tempKelvin / 10) - 273.15, 1)
-                              } else { $null }
-
-                              [PSCustomObject]@{
-                                  Componente = "Zona Térmica - $($_.InstanceName)"
-                                  TemperaturaC = $tempCelsius
-                                  Estado = if ($tempCelsius -gt 80) { "Crítico" }
-                                          elseif ($tempCelsius -gt 70) { "Alto" }
-                                          elseif ($tempCelsius -gt 0) { "Normal" }
-                                          else { "No disponible" }
-                              }
-                          }
-
-                if ($wmiTemp) { $temperaturas += $wmiTemp }
-
-            } catch {
-                Write-Host "   Método WMI para temperaturas no disponible" -ForegroundColor Yellow
-            }
-
-            if ($temperaturas.Count -eq 0) {
-                $temperaturas = @([PSCustomObject]@{
-                    Componente = "Sistema"
-                    TemperaturaC = $null
-                    Estado = "Sensores de temperatura no disponibles"
-                })
-            }
-
-            $datos.Temperaturas = $temperaturas
-
-        } catch {
-            Write-Host "   Error al obtener temperaturas: $_" -ForegroundColor Red
-            $datos.Temperaturas = @{ Error = "No se pudo obtener información de temperatura: $_" }
-        }
-
-        Write-Host "   Verificando estado de la batería..." -ForegroundColor Yellow
-        try {
-            $baterias = Get-CimInstance -ClassName Win32_Battery -ErrorAction SilentlyContinue
-
-            if ($baterias) {
-                $estadoBaterias = $baterias | ForEach-Object {
-                    $bateria = $_
-
-                    $batteryStatus = Get-CimInstance -ClassName BatteryStatus -Namespace "root\wmi" -ErrorAction SilentlyContinue |
-                                    Where-Object { $_.InstanceName -like "*$($bateria.DeviceID)*" }
-
-                    $estadoCarga = switch ($bateria.BatteryStatus) {
-                        1 { "Desconocido" }
-                        2 { "Cargando" }
-                        3 { "Descargando" }
-                        4 { "Crítico" }
-                        5 { "Bajo" }
-                        6 { "Cargando y Alto" }
-                        7 { "Cargando y Bajo" }
-                        8 { "Cargando y Crítico" }
-                        9 { "Indefinido" }
-                        10 { "Parcialmente Cargado" }
-                        11 { "Completamente Cargado" }
-                        default { "Estado $($bateria.BatteryStatus)" }
-                    }
-
-                    [PSCustomObject]@{
-                        Nombre = $bateria.Name
-                        Fabricante = $bateria.Manufacturer
-                        EstadoCarga = $estadoCarga
-                        PorcentajeCarga = $bateria.EstimatedChargeRemaining
-                        TiempoRestante = if ($bateria.EstimatedRunTime -and $bateria.EstimatedRunTime -ne 71582788) {
-                            "$([math]::Round($bateria.EstimatedRunTime / 60, 1)) horas"
-                        } else { "Calculando..." }
-                        CapacidadDiseño = if ($bateria.DesignCapacity) { "$($bateria.DesignCapacity) mWh" } else { "N/A" }
-                        CapacidadCompleta = if ($bateria.FullChargeCapacity) { "$($bateria.FullChargeCapacity) mWh" } else { "N/A" }
-                        SaludBateria = if ($bateria.DesignCapacity -and $bateria.FullChargeCapacity) {
-                            $salud = [math]::Round(($bateria.FullChargeCapacity / $bateria.DesignCapacity) * 100, 1)
-                            "$salud%"
-                        } else { "No disponible" }
-                        Estado = switch ($true) {
-                            { $bateria.BatteryStatus -in @(4, 8) } { "Crítico" }
-                            { $bateria.BatteryStatus -in @(5, 7) } { "Bajo" }
-                            { $bateria.EstimatedChargeRemaining -lt 20 } { "Advertencia" }
-                            default { "Normal" }
-                        }
-                    }
-                }
-
-                $datos.Baterias = $estadoBaterias
-
-            } else {
-                $datos.Baterias = @([PSCustomObject]@{
-                    Estado = "No se detectaron baterías (sistema de escritorio)"
-                })
-            }
-
-        } catch {
-            Write-Host "   Error al obtener estado de batería: $_" -ForegroundColor Red
-            $datos.Baterias = @{ Error = "No se pudo obtener información de batería: $_" }
-        }
-
-        Write-Host "   Recopilando información adicional de hardware..." -ForegroundColor Yellow
-        try {
-            $memoriaFisica = Get-CimInstance -ClassName Win32_PhysicalMemory -ErrorAction SilentlyContinue | ForEach-Object {
-                [PSCustomObject]@{
-                    Ubicacion = $_.DeviceLocator
-                    Capacidad = "$([math]::Round($_.Capacity / 1GB, 2)) GB"
-                    Velocidad = "$($_.Speed) MHz"
-                    Fabricante = $_.Manufacturer
-                    NumeroSerie = $_.SerialNumber
-                    TipoMemoria = switch ($_.MemoryType) {
-                        20 { "DDR" }
-                        21 { "DDR2" }
-                        22 { "DDR2 FB-DIMM" }
-                        24 { "DDR3" }
-                        26 { "DDR4" }
-                        default { "Tipo $($_.MemoryType)" }
-                    }
-                }
-            }
-
-            $datos.MemoriaFisica = $memoriaFisica
-
-            $ventiladores = Get-CimInstance -ClassName Win32_Fan -ErrorAction SilentlyContinue | ForEach-Object {
-                [PSCustomObject]@{
-                    Nombre = $_.Name
-                    Descripcion = $_.Description
-                    Estado = switch ($_.Status) {
-                        "OK" { "Normal" }
-                        "Error" { "Error" }
-                        "Degraded" { "Degradado" }
-                        default { $_.Status }
-                    }
-                    Activo = $_.ActiveCooling
-                }
-            }
-
-            if ($ventiladores.Count -eq 0) {
-                $ventiladores = @([PSCustomObject]@{
-                    Estado = "No se detectaron ventiladores o información no disponible"
-                })
-            }
-
-            $datos.Ventiladores = $ventiladores
-
-        } catch {
-            Write-Host "   Error al obtener información adicional de hardware: $_" -ForegroundColor Red
-            $datos.MemoriaFisica = @{ Error = "No disponible" }
-            $datos.Ventiladores = @{ Error = "No disponible" }
-        }
-
-        return $datos
-
-    } catch {
-        Write-Warning "Error en diagnóstico de hardware avanzado: $_"
-        return @{ Error = $_.Exception.Message }
+  $job = $null
+  try {
+    $job = Start-Job -Name $Name -ScriptBlock $JobScript -ArgumentList $ArgumentList
+    $completed = Wait-Job -Job $job -Timeout $TimeoutSec
+    if (-not $completed) {
+      try { Stop-Job -Job $job -Force | Out-Null } catch { }
+      throw "Timeout en job '$Name' (${TimeoutSec}s)"
     }
-}</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-diagnosticohardwareavanzado-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-AnalisisRolesServidor">
-      <div class="code-container">
-          <h3>Get-AnalisisRolesServidor</h3>
-          <p>
-            <b>Propósito:</b> Analiza roles y características del servidor (si es aplicable).
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Información sobre roles instalados y su estado.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-analisisrolesservidor-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Analizando roles y características del servidor" -PercentComplete 55
-        Write-Host "   Analizando roles de Windows Server..." -ForegroundColor Yellow
 
-        $datos = @{}
-
-        $os = Get-CimInstance -ClassName Win32_OperatingSystem
-        $esServidor = $os.ProductType -eq 2 -or $os.ProductType -eq 3 -or $os.Caption -like "*Server*"
-
-        if (-not $esServidor) {
-            Write-Host "   Sistema detectado como cliente Windows, no servidor" -ForegroundColor Yellow
-            return @{
-                TipoSistema = "Cliente Windows"
-                EsServidor = $false
-                Mensaje = "Este sistema no es Windows Server. Análisis de roles no aplicable."
-            }
-        }
-
-        Write-Host "   Sistema Windows Server detectado, analizando roles..." -ForegroundColor Yellow
-        $datos.EsServidor = $true
-        $datos.TipoSistema = "Windows Server"
-
-        try {
-            Write-Host "   Obteniendo características mediante DISM..." -ForegroundColor Yellow
-            $dismFeatures = dism /online /get-features /format:table | Out-String
-
-            $caracteristicasHabilitadas = @()
-            $lineas = $dismFeatures -split "`n" | Where-Object { $_ -match "Enabled" }
-
-            foreach ($linea in $lineas) {
-                if ($linea -match "^([^\|]+)\|.*Enabled") {
-                    $nombreCaracteristica = $matches[1].Trim()
-                    if ($nombreCaracteristica -and $nombreCaracteristica -ne "Feature Name") {
-                        $caracteristicasHabilitadas += $nombreCaracteristica
-                    }
-                }
-            }
-
-            $datos.CaracteristicasDISM = $caracteristicasHabilitadas
-
-        } catch {
-            Write-Host "   Error al usar DISM: $_" -ForegroundColor Red
-            $datos.CaracteristicasDISM = @("Error al obtener características via DISM")
-        }
-
-        Write-Host "   Analizando servicios de roles específicos..." -ForegroundColor Yellow
-        $rolesDetectados = @()
-
-        $addsService = Get-Service -Name "NTDS" -ErrorAction SilentlyContinue
-        if ($addsService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "Active Directory Domain Services"
-                Servicio = "NTDS"
-                Estado = $addsService.Status
-                TipoInicio = $addsService.StartType
-                Descripcion = "Controlador de dominio Active Directory"
-                Critico = $true
-            }
-        }
-
-        $dnsService = Get-Service -Name "DNS" -ErrorAction SilentlyContinue
-        if ($dnsService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "DNS Server"
-                Servicio = "DNS"
-                Estado = $dnsService.Status
-                TipoInicio = $dnsService.StartType
-                Descripcion = "Servidor DNS"
-                Critico = $true
-            }
-        }
-
-        $dhcpService = Get-Service -Name "DHCPServer" -ErrorAction SilentlyContinue
-        if ($dhcpService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "DHCP Server"
-                Servicio = "DHCPServer"
-                Estado = $dhcpService.Status
-                TipoInicio = $dhcpService.StartType
-                Descripcion = "Servidor DHCP"
-                Critico = $false
-            }
-        }
-
-        $iisService = Get-Service -Name "W3SVC" -ErrorAction SilentlyContinue
-        if ($iisService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "Web Server (IIS)"
-                Servicio = "W3SVC"
-                Estado = $iisService.Status
-                TipoInicio = $iisService.StartType
-                Descripcion = "Servidor web IIS"
-                Critico = $false
-            }
-
-            try {
-                $iisInfo = Get-CimInstance -ClassName Win32_Service -Filter "Name='W3SVC'" -ErrorAction SilentlyContinue
-                $sitiosIIS = @()
-
-                if (Get-Command "Get-IISSite" -ErrorAction SilentlyContinue) {
-                    $sitiosIIS = Get-IISSite | ForEach-Object {
-                        [PSCustomObject]@{
-                            Nombre = $_.Name
-                            Estado = $_.State
-                            Puerto = ($_.Bindings | ForEach-Object { $_.EndPoint.Port }) -join ", "
-                            RutaFisica = $_.PhysicalPath
-                        }
-                    }
-                } else {
-
-                    try {
-                        $appcmdPath = "$env:SystemRoot\System32\inetsrv\appcmd.exe"
-                        if (Test-Path $appcmdPath) {
-                            $sitiosOutput = & $appcmdPath list sites
-                            $sitiosIIS = $sitiosOutput | ForEach-Object {
-                                if ($_ -match 'SITE "([^"]+)" \$\$id:(\d+),bindings:([^,]+),state:(\w+)\$\$') {
-                                    [PSCustomObject]@{
-                                        Nombre = $matches[1]
-                                        ID = $matches[2]
-                                        Bindings = $matches[3]
-                                        Estado = $matches[4]
-                                    }
-                                }
-                            }
-                        }
-                    } catch {
-                        $sitiosIIS = @([PSCustomObject]@{ Info = "No se pudo obtener información de sitios IIS" })
-                    }
-                }
-
-                $datos.SitiosIIS = $sitiosIIS
-
-            } catch {
-                $datos.SitiosIIS = @{ Error = "Error al obtener información de IIS: $_" }
-            }
-        }
-
-        $lanmanService = Get-Service -Name "LanmanServer" -ErrorAction SilentlyContinue
-        if ($lanmanService -and $lanmanService.Status -eq "Running") {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "File and Storage Services"
-                Servicio = "LanmanServer"
-                Estado = $lanmanService.Status
-                TipoInicio = $lanmanService.StartType
-                Descripcion = "Servicios de archivos y almacenamiento"
-                Critico = $false
-            }
-        }
-
-        $spoolerService = Get-Service -Name "Spooler" -ErrorAction SilentlyContinue
-        if ($spoolerService -and $spoolerService.Status -eq "Running") {
-
-            $impresorasCompartidas = Get-CimInstance -ClassName Win32_Printer -ErrorAction SilentlyContinue |
-                                    Where-Object { $_.Shared -eq $true }
-
-            if ($impresorasCompartidas) {
-                $rolesDetectados += [PSCustomObject]@{
-                    Rol = "Print and Document Services"
-                    Servicio = "Spooler"
-                    Estado = $spoolerService.Status
-                    TipoInicio = $spoolerService.StartType
-                    Descripcion = "Servicios de impresión y documentos"
-                    Critico = $false
-                }
-            }
-        }
-
-        $termService = Get-Service -Name "TermService" -ErrorAction SilentlyContinue
-        if ($termService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "Remote Desktop Services"
-                Servicio = "TermService"
-                Estado = $termService.Status
-                TipoInicio = $termService.StartType
-                Descripcion = "Servicios de escritorio remoto"
-                Critico = $false
-            }
-        }
-
-        $wsusService = Get-Service -Name "WsusService" -ErrorAction SilentlyContinue
-        if ($wsusService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "Windows Server Update Services"
-                Servicio = "WsusService"
-                Estado = $wsusService.Status
-                TipoInicio = $wsusService.StartType
-                Descripcion = "Servidor WSUS"
-                Critico = $false
-            }
-        }
-
-        $hypervService = Get-Service -Name "vmms" -ErrorAction SilentlyContinue
-        if ($hypervService) {
-            $rolesDetectados += [PSCustomObject]@{
-                Rol = "Hyper-V"
-                Servicio = "vmms"
-                Estado = $hypervService.Status
-                TipoInicio = $hypervService.StartType
-                Descripcion = "Plataforma de virtualización Hyper-V"
-                Critico = $false
-            }
-
-            try {
-                if (Get-Command "Get-VM" -ErrorAction SilentlyContinue) {
-                    $vms = Get-VM -ErrorAction SilentlyContinue | ForEach-Object {
-                        [PSCustomObject]@{
-                            Nombre = $_.Name
-                            Estado = $_.State
-                            CPUs = $_.ProcessorCount
-                            MemoriaGB = [math]::Round($_.MemoryAssigned / 1GB, 2)
-                            TiempoActividad = if ($_.Uptime) { $_.Uptime.ToString() } else { "N/A" }
-                        }
-                    }
-                    $datos.MaquinasVirtuales = $vms
-                } else {
-                    $datos.MaquinasVirtuales = @{ Info = "Cmdlets de Hyper-V no disponibles" }
-                }
-            } catch {
-                $datos.MaquinasVirtuales = @{ Error = "Error al obtener VMs: $_" }
-            }
-        }
-
-        $datos.RolesDetectados = $rolesDetectados
-
-        Write-Host "   Recopilando información adicional del servidor..." -ForegroundColor Yellow
-
-        try {
-            $dominioInfo = Get-CimInstance -ClassName Win32_ComputerSystem
-            $datos.InformacionDominio = @{
-                ParteDominio = $dominioInfo.PartOfDomain
-                Dominio = $dominioInfo.Domain
-                Workgroup = $dominioInfo.Workgroup
-                Rol = switch ($dominioInfo.DomainRole) {
-                    0 { "Standalone Workstation" }
-                    1 { "Member Workstation" }
-                    2 { "Standalone Server" }
-                    3 { "Member Server" }
-                    4 { "Backup Domain Controller" }
-                    5 { "Primary Domain Controller" }
-                    default { "Desconocido ($($dominioInfo.DomainRole))" }
-                }
-            }
-        } catch {
-            $datos.InformacionDominio = @{ Error = "No se pudo obtener información de dominio" }
-        }
-
-        try {
-            $caracteristicasWindows = Get-WindowsFeature -ErrorAction SilentlyContinue |
-                                     Where-Object { $_.InstallState -eq "Installed" } |
-                                     Select-Object Name, DisplayName, InstallState |
-                                     Sort-Object DisplayName
-
-            if ($caracteristicasWindows) {
-                $datos.CaracteristicasWindows = $caracteristicasWindows
-            } else {
-
-                $datos.CaracteristicasWindows = @{ Info = "Get-WindowsFeature no disponible en esta versión" }
-            }
-        } catch {
-            $datos.CaracteristicasWindows = @{ Error = "Error al obtener características de Windows: $_" }
-        }
-
-        $rolesCriticos = $rolesDetectados | Where-Object { $_.Critico -eq $true }
-        $rolesDetenidos = $rolesDetectados | Where-Object { $_.Estado -ne "Running" }
-
-        $datos.ResumenRoles = @{
-            TotalRoles = $rolesDetectados.Count
-            RolesCriticos = $rolesCriticos.Count
-            RolesDetenidos = $rolesDetenidos.Count
-            EstadoGeneral = if ($rolesDetenidos.Count -eq 0) { "Todos los roles funcionando" }
-                           elseif ($rolesDetenidos.Count -eq 1) { "1 rol detenido" }
-                           else { "$($rolesDetenidos.Count) roles detenidos" }
-        }
-
-        return $datos
-
-    } catch {
-        Write-Warning "Error en análisis de roles del servidor: $_"
-        return @{ Error = $_.Exception.Message }
+    $data = Receive-Job -Job $job -ErrorAction Stop
+    return $data
+  }
+  catch {
+    Write-Host "[Parallel] Job '$Name' falló, usando modo secuencial: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    Write-HealthLog "Job '$Name' falló, usando modo secuencial: $($_.Exception.Message)" -Level WARNING -ErrorRecord $_
+    return &amp; $FallbackScript
+  }
+  finally {
+    if ($job) {
+      try { Remove-Job -Job $job -Force -ErrorAction SilentlyContinue | Out-Null } catch { }
     }
+  }
 }</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-analisisrolesservidor-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-AnalisisPoliticasGrupo">
-      <div class="code-container">
-          <h3>Get-AnalisisPoliticasGrupo</h3>
-          <p>
-            <b>Propósito:</b> Analiza políticas de grupo aplicadas.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> GPOs aplicadas y configuración de políticas locales.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-analisispoliticasgrupo-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Analizando políticas de grupo aplicadas" -PercentComplete 60
-        Write-Host "   Analizando políticas de grupo (GPO)..." -ForegroundColor Yellow
-
-        $datos = @{}
-
-        try {
-
-            $computerSystem = Get-CimInstance -ClassName Win32_ComputerSystem
-            if (-not $computerSystem.PartOfDomain) {
-                Write-Host "   Sistema no está en dominio, análisis GPO limitado" -ForegroundColor Yellow
-                return @{
-                    EnDominio = $false
-                    Mensaje = "El sistema no está unido a un dominio. Análisis de GPO no aplicable."
-                    PoliticasLocales = Get-AnalisisPoliticasLocales
-                }
-            }
-
-            Write-Host "   Sistema en dominio detectado, analizando GPOs..." -ForegroundColor Yellow
-            $datos.EnDominio = $true
-
-            $gpresultOutput = gpresult /r /scope:computer 2>$null
-            $gpresultUser = gpresult /r /scope:user 2>$null
-
-            $gpoComputer = @()
-            $gpoUser = @()
-
-            if ($gpresultOutput) {
-                $inGPOSection = $false
-                foreach ($line in $gpresultOutput) {
-                    if ($line -match "Applied Group Policy Objects") {
-                        $inGPOSection = $true
-                        continue
-                    }
-                    if ($inGPOSection -and $line.Trim() -ne "" -and $line -notmatch "^-+$") {
-                        if ($line -match "The following GPOs were not applied") {
-                            break
-                        }
-                        $gpoName = $line.Trim()
-                        if ($gpoName -and $gpoName -ne "None") {
-                            $gpoComputer += [PSCustomObject]@{
-                                Nombre = $gpoName
-                                Tipo = "Equipo"
-                                Estado = "Aplicada"
-                            }
-                        }
-                    }
-                }
-            }
-
-            if ($gpresultUser) {
-                $inGPOSection = $false
-                foreach ($line in $gpresultUser) {
-                    if ($line -match "Applied Group Policy Objects") {
-                        $inGPOSection = $true
-                        continue
-                    }
-                    if ($inGPOSection -and $line.Trim() -ne "" -and $line -notmatch "^-+$") {
-                        if ($line -match "The following GPOs were not applied") {
-                            break
-                        }
-                        $gpoName = $line.Trim()
-                        if ($gpoName -and $gpoName -ne "None") {
-                            $gpoUser += [PSCustomObject]@{
-                                Nombre = $gpoName
-                                Tipo = "Usuario"
-                                Estado = "Aplicada"
-                            }
-                        }
-                    }
-                }
-            }
-
-            $datos.GPOsEquipo = $gpoComputer
-            $datos.GPOsUsuario = $gpoUser
-
-            try {
-                Write-Host "   Obteniendo detalles de configuración GPO..." -ForegroundColor Yellow
-                $gpresultDetailed = gpresult /v /scope:computer 2>$null
-
-                $configuracionesSeguridad = @()
-                $configuracionesRed = @()
-                $configuracionesAuditoria = @()
-
-                if ($gpresultDetailed) {
-                    $currentSection = ""
-                    foreach ($line in $gpresultDetailed) {
-
-                        if ($line -match "Security Settings") {
-                            $currentSection = "Security"
-                        } elseif ($line -match "Network") {
-                            $currentSection = "Network"
-                        } elseif ($line -match "Audit") {
-                            $currentSection = "Audit"
-                        }
-
-                        if ($line -match "^\s+(.+):\s+(.+)$") {
-                            $setting = $matches[1].Trim()
-                            $value = $matches[2].Trim()
-
-                            $configObj = [PSCustomObject]@{
-                                Configuracion = $setting
-                                Valor = $value
-                                Seccion = $currentSection
-                            }
-
-                            switch ($currentSection) {
-                                "Security" { $configuracionesSeguridad += $configObj }
-                                "Network" { $configuracionesRed += $configObj }
-                                "Audit" { $configuracionesAuditoria += $configObj }
-                            }
-                        }
-                    }
-                }
-
-                $datos.ConfiguracionesSeguridad = $configuracionesSeguridad
-                $datos.ConfiguracionesRed = $configuracionesRed
-                $datos.ConfiguracionesAuditoria = $configuracionesAuditoria
-
-            } catch {
-                Write-Host "   Error al obtener detalles de GPO: $_" -ForegroundColor Red
-                $datos.ConfiguracionesSeguridad = @()
-                $datos.ConfiguracionesRed = @()
-                $datos.ConfiguracionesAuditoria = @()
-            }
-
-            try {
-                $gpoUpdateInfo = gpresult /r | Select-String "Last time Group Policy was applied"
-                if ($gpoUpdateInfo) {
-                    $datos.UltimaActualizacionGPO = $gpoUpdateInfo.ToString().Split(":")[1].Trim()
-                } else {
-                    $datos.UltimaActualizacionGPO = "No disponible"
-                }
-            } catch {
-                $datos.UltimaActualizacionGPO = "Error al obtener fecha"
-            }
-
-        } catch {
-            Write-Host "   Error al analizar GPOs: $_" -ForegroundColor Red
-            $datos.Error = "Error al obtener información de GPO: $_"
-        }
-
-        $datos.PoliticasLocales = Get-AnalisisPoliticasLocales
-
-        return $datos
-
-    } catch {
-        Write-Warning "Error en análisis de políticas de grupo: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-analisispoliticasgrupo-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-VerificacionCumplimiento">
-      <div class="code-container">
-          <h3>Get-VerificacionCumplimiento</h3>
-          <p>
-            <b>Propósito:</b> Verifica cumplimiento con estándares CIS Benchmarks.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Resultados de verificaciones de cumplimiento.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-verificacioncumplimiento-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Verificando cumplimiento con estándares de seguridad" -PercentComplete 65
-        Write-Host "   Verificando cumplimiento con CIS Benchmarks..." -ForegroundColor Yellow
-
-        $verificaciones = @()
-
-        Write-Host "   Verificando políticas de contraseña..." -ForegroundColor Yellow
-
-        $passwordPolicy = net accounts 2>$null
-        $minPasswordLength = 0
-        $maxPasswordAge = 0
-        $minPasswordAge = 0
-        $passwordComplexity = $false
-
-        if ($passwordPolicy) {
-            foreach ($line in $passwordPolicy) {
-                if ($line -match "Minimum password length:\s*(\d+)") {
-                    $minPasswordLength = [int]$matches[1]
-                } elseif ($line -match "Maximum password age \$\$days\$\$:\s*(\d+)") {
-                    $maxPasswordAge = [int]$matches[1]
-                } elseif ($line -match "Minimum password age \$\$days\$\$:\s*(\d+)") {
-                    $minPasswordAge = [int]$matches[1]
-                }
-            }
-        }
-
-        try {
-            $secpol = secedit /export /cfg "$env:TEMP\secpol_check.cfg" 2>$null
-            if (Test-Path "$env:TEMP\secpol_check.cfg") {
-                $secpolContent = Get-Content "$env:TEMP\secpol_check.cfg"
-                $complexityLine = $secpolContent | Where-Object { $_ -match "PasswordComplexity" }
-                if ($complexityLine -and $complexityLine -match "=\s*1") {
-                    $passwordComplexity = $true
-                }
-                Remove-Item "$env:TEMP\secpol_check.cfg" -Force -ErrorAction SilentlyContinue
-            }
-        } catch {}
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.1.1"
-            Descripcion = "Enforce password history: 24 or more passwords remembered"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "Verificar manualmente"
-            Recomendacion = "24 o más contraseñas"
-            Cumple = "Pendiente"
-            Criticidad = "Media"
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.1.2"
-            Descripcion = "Maximum password age: 365 or fewer days"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "$maxPasswordAge días"
-            Recomendacion = "365 días o menos"
-            Cumple = if ($maxPasswordAge -le 365 -and $maxPasswordAge -gt 0) { "Sí" } else { "No" }
-            Criticidad = "Media"
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.1.3"
-            Descripcion = "Minimum password age: 1 or more days"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "$minPasswordAge días"
-            Recomendacion = "1 día o más"
-            Cumple = if ($minPasswordAge -ge 1) { "Sí" } else { "No" }
-            Criticidad = "Baja"
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.1.4"
-            Descripcion = "Minimum password length: 14 or more characters"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = "$minPasswordLength caracteres"
-            Recomendacion = "14 caracteres o más"
-            Cumple = if ($minPasswordLength -ge 14) { "Sí" } else { "No" }
-            Criticidad = "Alta"
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.1.5"
-            Descripcion = "Password must meet complexity requirements"
-            Categoria = "Políticas de Contraseña"
-            EstadoActual = if ($passwordComplexity) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Habilitado"
-            Cumple = if ($passwordComplexity) { "Sí" } else { "No" }
-            Criticidad = "Alta"
-        }
-
-        Write-Host "   Verificando políticas de bloqueo de cuenta..." -ForegroundColor Yellow
-
-        $lockoutThreshold = 0
-        $lockoutDuration = 0
-
-        if ($passwordPolicy) {
-            foreach ($line in $passwordPolicy) {
-                if ($line -match "Lockout threshold:\s*(\d+)") {
-                    $lockoutThreshold = [int]$matches[1]
-                } elseif ($line -match "Lockout duration \$\$minutes\$\$:\s*(\d+)") {
-                    $lockoutDuration = [int]$matches[1]
-                }
-            }
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.2.1"
-            Descripcion = "Account lockout threshold: 5 or fewer invalid attempts"
-            Categoria = "Políticas de Bloqueo"
-            EstadoActual = if ($lockoutThreshold -eq 0) { "Sin bloqueo" } else { "$lockoutThreshold intentos" }
-            Recomendacion = "5 intentos o menos"
-            Cumple = if ($lockoutThreshold -gt 0 -and $lockoutThreshold -le 5) { "Sí" } else { "No" }
-            Criticidad = "Media"
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-1.2.2"
-            Descripcion = "Account lockout duration: 15 or more minutes"
-            Categoria = "Políticas de Bloqueo"
-            EstadoActual = "$lockoutDuration minutos"
-            Recomendacion = "15 minutos o más"
-            Cumple = if ($lockoutDuration -ge 15) { "Sí" } else { "No" }
-            Criticidad = "Media"
-        }
-
-        Write-Host "   Verificando servicios y características de seguridad..." -ForegroundColor Yellow
-
-        $defenderStatus = Get-MpComputerStatus -ErrorAction SilentlyContinue
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-18.9.39.1"
-            Descripcion = "Windows Defender Antivirus: Real-time protection enabled"
-            Categoria = "Antivirus"
-            EstadoActual = if ($defenderStatus -and $defenderStatus.RealTimeProtectionEnabled) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Habilitado"
-            Cumple = if ($defenderStatus -and $defenderStatus.RealTimeProtectionEnabled) { "Sí" } else { "No" }
-            Criticidad = "Alta"
-        }
-
-        $firewallProfiles = Get-NetFirewallProfile -ErrorAction SilentlyContinue
-        foreach ($profile in $firewallProfiles) {
-            $verificaciones += [PSCustomObject]@{
-                ID = "CIS-9.1.$($profile.Name)"
-                Descripcion = "Windows Firewall: $($profile.Name) profile enabled"
-                Categoria = "Firewall"
-                EstadoActual = if ($profile.Enabled) { "Habilitado" } else { "Deshabilitado" }
-                Recomendacion = "Habilitado"
-                Cumple = if ($profile.Enabled) { "Sí" } else { "No" }
-                Criticidad = "Alta"
-            }
-        }
-
-        $uacSettings = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -ErrorAction SilentlyContinue
-        $uacEnabled = $uacSettings.EnableLUA -eq 1
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-2.3.17.1"
-            Descripcion = "User Account Control: Admin Approval Mode for Built-in Administrator"
-            Categoria = "Control de Acceso"
-            EstadoActual = if ($uacEnabled) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Habilitado"
-            Cumple = if ($uacEnabled) { "Sí" } else { "No" }
-            Criticidad = "Alta"
-        }
-
-        Write-Host "   Verificando configuración de auditoría..." -ForegroundColor Yellow
-
-        $auditCategories = @(
-            @{ Name = "Logon/Logoff"; ID = "CIS-17.1" },
-            @{ Name = "Account Management"; ID = "CIS-17.2" },
-            @{ Name = "Privilege Use"; ID = "CIS-17.3" },
-            @{ Name = "System"; ID = "CIS-17.4" }
-        )
-
-        try {
-            $auditPol = auditpol /get /category:* 2>$null
-            foreach ($category in $auditCategories) {
-                $auditEnabled = $false
-                if ($auditPol) {
-                    $categorySection = $auditPol | Select-String -Pattern $category.Name -Context 0,10
-                    if ($categorySection -and $categorySection.ToString() -match "(Success and Failure|Success|Failure)") {
-                        $auditEnabled = $true
-                    }
-                }
-
-                $verificaciones += [PSCustomObject]@{
-                    ID = $category.ID
-                    Descripcion = "Audit $($category.Name) events"
-                    Categoria = "Auditoría"
-                    EstadoActual = if ($auditEnabled) { "Configurado" } else { "No configurado" }
-                    Recomendacion = "Success and Failure"
-                    Cumple = if ($auditEnabled) { "Sí" } else { "No" }
-                    Criticidad = "Media"
-                }
-            }
-        } catch {
-            Write-Host "   Error al verificar auditoría: $_" -ForegroundColor Red
-        }
-
-        Write-Host "   Verificando configuraciones del registro..." -ForegroundColor Yellow
-
-        $smbv1Enabled = $false
-        try {
-            $smbv1Feature = Get-WindowsOptionalFeature -Online -FeatureName "SMB1Protocol" -ErrorAction SilentlyContinue
-            $smbv1Enabled = $smbv1Feature -and $smbv1Feature.State -eq "Enabled"
-        } catch {
-
-            $smbv1Reg = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\mrxsmb10" -Name "Start" -ErrorAction SilentlyContinue
-            $smbv1Enabled = $smbv1Reg -and $smbv1Reg.Start -ne 4
-        }
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-18.3.1"
-            Descripcion = "SMB v1 protocol disabled"
-            Categoria = "Protocolos de Red"
-            EstadoActual = if ($smbv1Enabled) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Deshabilitado"
-            Cumple = if (-not $smbv1Enabled) { "Sí" } else { "No" }
-            Criticidad = "Alta"
-        }
-
-        $rdpEnabled = $false
-        try {
-            $rdpSetting = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -Name "fDenyTSConnections" -ErrorAction SilentlyContinue
-            $rdpEnabled = $rdpSetting -and $rdpSetting.fDenyTSConnections -eq 0
-        } catch {}
-
-        $verificaciones += [PSCustomObject]@{
-            ID = "CIS-18.9.48.3.1"
-            Descripcion = "Remote Desktop connections security"
-            Categoria = "Acceso Remoto"
-            EstadoActual = if ($rdpEnabled) { "Habilitado" } else { "Deshabilitado" }
-            Recomendacion = "Configurado según necesidad"
-            Cumple = "Revisar"
-            Criticidad = "Media"
-        }
-
-        $totalVerificaciones = $verificaciones.Count
-        $cumpleCompleto = ($verificaciones | Where-Object { $_.Cumple -eq "Sí" }).Count
-        $noCumple = ($verificaciones | Where-Object { $_.Cumple -eq "No" }).Count
-        $pendienteRevision = ($verificaciones | Where-Object { $_.Cumple -in @("Pendiente", "Revisar") }).Count
-
-        $porcentajeCumplimiento = if ($totalVerificaciones -gt 0) {
-            [math]::Round(($cumpleCompleto / $totalVerificaciones) * 100, 1)
-        } else { 0 }
-
-        $resumenCumplimiento = @{
-            TotalVerificaciones = $totalVerificaciones
-            Cumple = $cumpleCompleto
-            NoCumple = $noCumple
-            PendienteRevision = $pendienteRevision
-            PorcentajeCumplimiento = $porcentajeCumplimiento
-            NivelCumplimiento = switch ($porcentajeCumplimiento) {
-                { $_ -ge 90 } { "Excelente" }
-                { $_ -ge 80 } { "Bueno" }
-                { $_ -ge 70 } { "Aceptable" }
-                { $_ -ge 60 } { "Mejorable" }
-                default { "Deficiente" }
-            }
-        }
-
-        return @{
-            Verificaciones = $verificaciones
-            ResumenCumplimiento = $resumenCumplimiento
-        }
-
-    } catch {
-        Write-Warning "Error en verificación de cumplimiento: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-verificacioncumplimiento-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-AnalisisPermisos">
-      <div class="code-container">
-          <h3>Get-AnalisisPermisos</h3>
-          <p>
-            <b>Propósito:</b> Analiza permisos de carpetas sensibles.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Análisis de permisos y carpetas con problemas.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-analisispermisos-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Analizando permisos de carpetas sensibles" -PercentComplete 70
-        Write-Host "   Analizando permisos de carpetas sensibles..." -ForegroundColor Yellow
-
-        $analisisPermisos = @()
-
-        $carpetasSensibles = @(
-            @{ Ruta = "C:\Windows\System32"; Descripcion = "Archivos del sistema Windows" },
-            @{ Ruta = "C:\Windows\SysWOW64"; Descripcion = "Archivos del sistema Windows (32-bit)" },
-            @{ Ruta = "C:\Program Files"; Descripcion = "Programas instalados" },
-            @{ Ruta = "C:\Program Files (x86)"; Descripcion = "Programas instalados (32-bit)" },
-            @{ Ruta = "C:\Windows\Temp"; Descripcion = "Archivos temporales del sistema" },
-            @{ Ruta = "C:\ProgramData"; Descripcion = "Datos de aplicaciones" },
-            @{ Ruta = "C:\Users\Public"; Descripcion = "Carpeta pública de usuarios" },
-            @{ Ruta = "C:\inetpub"; Descripcion = "Sitios web IIS" }
-        )
-
-        try {
-            $carpetasCompartidas = Get-SmbShare -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne "IPC$" -and $_.Name -ne "ADMIN$" -and $_.Name -notlike "*$" }
-            foreach ($share in $carpetasCompartidas) {
-                $carpetasSensibles += @{ Ruta = $share.Path; Descripcion = "Carpeta compartida: $($share.Name)" }
-            }
-        } catch {
-            Write-Host "   No se pudieron obtener carpetas compartidas" -ForegroundColor Yellow
-        }
-
-        foreach ($carpeta in $carpetasSensibles) {
-            try {
-                if (Test-Path $carpeta.Ruta) {
-                    Write-Host "   Analizando: $($carpeta.Ruta)" -ForegroundColor Yellow
-
-                    $acl = Get-Acl $carpeta.Ruta -ErrorAction SilentlyContinue
-
-                    if ($acl) {
-                        $permisosProblematicos = @()
-                        $permisosNormales = @()
-
-                        foreach ($access in $acl.Access) {
-                            $usuario = $access.IdentityReference.Value
-                            $permisos = $access.FileSystemRights.ToString()
-                            $tipo = $access.AccessControlType.ToString()
-                            $herencia = $access.IsInherited
-
-                            $esProblematico = $false
-                            $razon = ""
-
-                            if ($usuario -match "(Everyone|Users|Authenticated Users)" -and $tipo -eq "Allow") {
-                                if ($permisos -match "(FullControl|Modify|Write)" -and $carpeta.Ruta -match "(System32|Program Files|Windows)") {
-                                    $esProblematico = $true
-                                    $razon = "Permisos excesivos para grupo amplio en carpeta del sistema"
-                                }
-                            }
-
-                            if ($permisos -match "(Write|Modify|FullControl)" -and $tipo -eq "Allow" -and $carpeta.Ruta -match "(System32|SysWOW64)") {
-                                if ($usuario -notmatch "(SYSTEM|Administrators|TrustedInstaller)") {
-                                    $esProblematico = $true
-                                    $razon = "Permisos de escritura en carpeta crítica del sistema"
-                                }
-                            }
-
-                            if ($carpeta.Ruta -match "Temp" -and $permisos -match "FullControl" -and $usuario -match "Everyone") {
-                                $esProblematico = $true
-                                $razon = "Control total para Everyone en carpeta temporal"
-                            }
-
-                            $permisoObj = [PSCustomObject]@{
-                                Usuario = $usuario
-                                Permisos = $permisos
-                                Tipo = $tipo
-                                Heredado = $herencia
-                                Problematico = $esProblematico
-                                Razon = $razon
-                            }
-
-                            if ($esProblematico) {
-                                $permisosProblematicos += $permisoObj
-                            } else {
-                                $permisosNormales += $permisoObj
-                            }
-                        }
-
-                        $analisisPermisos += [PSCustomObject]@{
-                            Ruta = $carpeta.Ruta
-                            Descripcion = $carpeta.Descripcion
-                            Propietario = $acl.Owner
-                            PermisosProblematicos = $permisosProblematicos
-                            PermisosNormales = $permisosNormales
-                            TotalPermisos = $acl.Access.Count
-                            PermisosProblematicosCount = $permisosProblematicos.Count
-                            Estado = if ($permisosProblematicos.Count -eq 0) { "Normal" }
-                                    elseif ($permisosProblematicos.Count -le 2) { "Advertencia" }
-                                    else { "Crítico" }
-                        }
-                    }
-                } else {
-                    Write-Host "   Carpeta no existe: $($carpeta.Ruta)" -ForegroundColor Gray
-                }
-            } catch {
-                Write-Host "   Error al analizar $($carpeta.Ruta): $_" -ForegroundColor Red
-                $analisisPermisos += [PSCustomObject]@{
-                    Ruta = $carpeta.Ruta
-                    Descripcion = $carpeta.Descripcion
-                    Error = $_.Exception.Message
-                    Estado = "Error"
-                }
-            }
-        }
-
-        $totalCarpetas = $analisisPermisos.Count
-        $carpetasConProblemas = ($analisisPermisos | Where-Object { $_.Estado -in @("Advertencia", "Crítico") }).Count
-        $carpetasCriticas = ($analisisPermisos | Where-Object { $_.Estado -eq "Crítico" }).Count
-
-        $resumenPermisos = @{
-            TotalCarpetasAnalizadas = $totalCarpetas
-            CarpetasConProblemas = $carpetasConProblemas
-            CarpetasCriticas = $carpetasCriticas
-            CarpetasNormales = $totalCarpetas - $carpetasConProblemas
-            PorcentajeSeguras = if ($totalCarpetas -gt 0) {
-                [math]::Round((($totalCarpetas - $carpetasConProblemas) / $totalCarpetas) * 100, 1)
-            } else { 0 }
-            NivelSeguridad = switch ($carpetasCriticas) {
-                0 { if ($carpetasConProblemas -eq 0) { "Excelente" } else { "Bueno" } }
-                { $_ -le 2 } { "Aceptable" }
-                default { "Deficiente" }
-            }
-        }
-
-        return @{
-            AnalisisPermisos = $analisisPermisos
-            ResumenPermisos = $resumenPermisos
-        }
-
-    } catch {
-        Write-Warning "Error en análisis de permisos: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-analisispermisos-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-<br>
-      <section id="Get-AuditoriaSoftware">
-      <div class="code-container">
-          <h3>Get-AuditoriaSoftware</h3>
-          <p>
-            <b>Propósito:</b> Realiza auditoría de software instalado.
-            <br>
-            <b>Parámetros:</b> Ninguno
-            <br>
-            <b>Retorna:</b> Lista de software instalado y problemas detectados.
-            <br>
-            <b>Código relevante:</b>
-          </p>
-          <pre><code id="get-auditoriasoftware-code" class="language-powershell">Cargando código...
-    try {
-        Write-Progress -Activity "Realizando auditoría de software instalado" -PercentComplete 75
-        Write-Host "   Auditando software instalado..." -ForegroundColor Yellow
-
-        $softwareInstalado = @()
-        $softwareProblematico = @()
-
-        Write-Host "   Obteniendo lista de software instalado..." -ForegroundColor Yellow
-
-        $registryPaths = @(
-            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*",
-            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
-        )
-
-        foreach ($path in $registryPaths) {
-            try {
-                $installedSoftware = Get-ItemProperty $path -ErrorAction SilentlyContinue |
-                                   Where-Object { $_.DisplayName -and $_.DisplayName -notmatch "^(KB|Update for)" }
-
-                foreach ($software in $installedSoftware) {
-                    $nombre = $software.DisplayName
-                    $version = $software.DisplayVersion
-                    $fabricante = $software.Publisher
-                    $fechaInstalacion = $software.InstallDate
-                    $tamaño = $software.EstimatedSize
-
-                    $fechaInstalacionFormateada = "No disponible"
-                    if ($fechaInstalacion -and $fechaInstalacion -match "^\d{8}$") {
-                        try {
-                            $fechaInstalacionFormateada = [DateTime]::ParseExact($fechaInstalacion, "yyyyMMdd", $null).ToString("dd/MM/yyyy")
-                        } catch {}
-                    }
-
-                    $tamañoMB = if ($tamaño) { [math]::Round($tamaño / 1024, 2) } else { 0 }
-
-                    $softwareInstalado += [PSCustomObject]@{
-                        Nombre = $nombre
-                        Version = $version
-                        Fabricante = $fabricante
-                        FechaInstalacion = $fechaInstalacionFormateada
-                        TamañoMB = $tamañoMB
-                        RegistryPath = $software.PSPath
-                    }
-                }
-            } catch {
-                Write-Host "   Error al leer registro: $_" -ForegroundColor Red
-            }
-        }
-
-        $softwareInstalado = $softwareInstalado | Sort-Object Nombre, Version | Get-Unique -AsString
-
-        Write-Host "   Se encontraron $($softwareInstalado.Count) programas instalados" -ForegroundColor Yellow
-
-        Write-Host "   Identificando software problemático..." -ForegroundColor Yellow
-
-        $softwareProblemas = @(
-            @{ Nombre = "Adobe Flash Player"; Razon = "Software descontinuado y vulnerable"; Criticidad = "Alta" },
-            @{ Nombre = "Java"; VersionMinima = "8.0.300"; Razon = "Versiones antiguas de Java son vulnerables"; Criticidad = "Alta" },
-            @{ Nombre = "Adobe Reader"; VersionMinima = "2021.0"; Razon = "Versiones antiguas tienen vulnerabilidades"; Criticidad = "Media" },
-            @{ Nombre = "VLC media player"; VersionMinima = "3.0.16"; Razon = "Versiones antiguas pueden tener vulnerabilidades"; Criticidad = "Baja" },
-            @{ Nombre = "WinRAR"; VersionMinima = "6.0"; Razon = "Versiones antiguas tienen vulnerabilidades conocidas"; Criticidad = "Media" },
-            @{ Nombre = "7-Zip"; VersionMinima = "21.0"; Razon = "Versiones antiguas pueden ser vulnerables"; Criticidad = "Baja" },
-            @{ Nombre = "Google Chrome"; Razon = "Verificar que esté actualizado"; Criticidad = "Media" },
-            @{ Nombre = "Mozilla Firefox"; Razon = "Verificar que esté actualizado"; Criticidad = "Media" },
-            @{ Nombre = "Internet Explorer"; Razon = "Navegador descontinuado"; Criticidad = "Alta" }
-        )
-
-        $softwareSinSoporte = @(
-            "Windows XP", "Windows Vista", "Windows 7", "Office 2010", "Office 2013",
-            "Adobe Flash", "Internet Explorer", "Silverlight"
-        )
-
-        foreach ($software in $softwareInstalado) {
-            $problemas = @()
-
-            foreach ($problema in $softwareProblemas) {
-                if ($software.Nombre -like "*$($problema.Nombre)*") {
-                    if ($problema.VersionMinima) {
-
-                        $versionActual = $software.Version
-                        if ($versionActual) {
-                            try {
-                                $versionActualNum = [Version]$versionActual.Split(' ')[0]
-                                $versionMinimaNum = [Version]$problema.VersionMinima
-
-                                if ($versionActualNum -lt $versionMinimaNum) {
-                                    $problemas += @{
-                                        Tipo = "Versión desactualizada"
-                                        Descripcion = $problema.Razon
-                                        Criticidad = $problema.Criticidad
-                                        Recomendacion = "Actualizar a versión $($problema.VersionMinima) o superior"
-                                    }
-                                }
-                            } catch {
-                                $problemas += @{
-                                    Tipo = "Verificación de versión"
-                                    Descripcion = "No se pudo verificar la versión automáticamente"
-                                    Criticidad = "Baja"
-                                    Recomendacion = "Verificar manualmente la versión"
-                                }
-                            }
-                        }
-                    } else {
-                        $problemas += @{
-                            Tipo = "Software problemático"
-                            Descripcion = $problema.Razon
-                            Criticidad = $problema.Criticidad
-                            Recomendacion = "Considerar desinstalar o reemplazar"
-                        }
-                    }
-                }
-            }
-
-            foreach ($sinSoporte in $softwareSinSoporte) {
-                if ($software.Nombre -like "*$sinSoporte*") {
-                    $problemas += @{
-                        Tipo = "Sin soporte"
-                        Descripcion = "Software sin soporte del fabricante"
-                        Criticidad = "Alta"
-                        Recomendacion = "Migrar a versión soportada"
-                    }
-                }
-            }
-
-            if ($software.FechaInstalacion -ne "No disponible") {
-                try {
-                    $fechaInstalacion = [DateTime]::ParseExact($software.FechaInstalacion, "dd/MM/yyyy", $null)
-                    $añosAntiguedad = ((Get-Date) - $fechaInstalacion).Days / 365
-
-                    if ($añosAntiguedad -gt 5) {
-                        $problemas += @{
-                            Tipo = "Software muy antiguo"
-                            Descripcion = "Instalado hace más de 5 años"
-                            Criticidad = "Baja"
-                            Recomendacion = "Verificar si hay actualizaciones disponibles"
-                        }
-                    }
-                } catch {}
-            }
-
-            if (-not $software.Fabricante -or $software.Fabricante -eq "") {
-                $problemas += @{
-                    Tipo = "Fabricante desconocido"
-                    Descripcion = "Software sin información del fabricante"
-                    Criticidad = "Media"
-                    Recomendacion = "Verificar la legitimidad del software"
-                }
-            }
-
-            if ($problemas.Count -gt 0) {
-                $softwareProblematico += [PSCustomObject]@{
-                    Nombre = $software.Nombre
-                    Version = $software.Version
-                    Fabricante = $software.Fabricante
-                    FechaInstalacion = $software.FechaInstalacion
-                    Problemas = $problemas
-                    CriticidadMaxima = ($problemas | ForEach-Object { $_.Criticidad } | Sort-Object {
-                        switch ($_) { "Alta" { 3 } "Media" { 2 } "Baja" { 1 } default { 0 } }
-                    } -Descending)[0]
-                }
-            }
-        }
-
-        Write-Host "   Analizando navegadores y plugins..." -ForegroundColor Yellow
-
-        $navegadores = $softwareInstalado | Where-Object {
-            $_.Nombre -match "(Chrome|Firefox|Edge|Internet Explorer|Opera|Safari)"
-        }
-
-        $totalSoftware = $softwareInstalado.Count
-        $softwareConProblemas = $softwareProblematico.Count
-        $softwareCritico = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Alta" }).Count
-        $softwareMedia = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Media" }).Count
-        $softwareBaja = ($softwareProblematico | Where-Object { $_.CriticidadMaxima -eq "Baja" }).Count
-
-        $resumenAuditoria = @{
-            TotalSoftwareInstalado = $totalSoftware
-            SoftwareConProblemas = $softwareConProblemas
-            SoftwareCritico = $softwareCritico
-            SoftwareRiesgoMedio = $softwareMedia
-            SoftwareRiesgoBajo = $softwareBaja
-            SoftwareSeguro = $totalSoftware - $softwareConProblemas
-            PorcentajeSeguro = if ($totalSoftware -gt 0) {
-                [math]::Round((($totalSoftware - $softwareConProblemas) / $totalSoftware) * 100, 1)
-            } else { 0 }
-            NivelRiesgo = switch ($softwareCritico) {
-                0 { if ($softwareMedia -eq 0) { "Bajo" } else { "Medio" } }
-                { $_ -le 2 } { "Medio" }
-                default { "Alto" }
-            }
-        }
-
-        return @{
-            SoftwareInstalado = $softwareInstalado
-            SoftwareProblematico = $softwareProblematico
-            Navegadores = $navegadores
-            ResumenAuditoria = $resumenAuditoria
-        }
-
-    } catch {
-        Write-Warning "Error en auditoría de software: $_"
-        return @{ Error = $_.Exception.Message }
-    }
-}</code></pre>
-      <button class="copy-button" onclick="copyCodeFromElement('get-auditoriasoftware-code')" aria-label="Copiar código">Copiar</button>
-      <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
-      </div>
-      </section>
-    </section>
-<br>
-<section id="Generate-CompleteHTML">
-    <div class="code-container">
-        <h3>Generate-CompleteHTML</h3>
-        <p>
-          <b>Propósito:</b> Genera informe HTML completo con todos los datos recopilados.
-          <br>
-          <b>Parámetros:</b> Todos los objetos de datos recopilados por las funciones anteriores.
-          <br>
-          <b>Retorna:</b> Contenido HTML del informe.
-        </p>
-</div>
-    </section>
-    <br>
-    <section id="Script completo">
-        <div class="code-container">
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
+            </div>
+        </section>
+
+        <section id="script-completo">
             <h2>Script completo</h2>
             <p>
-              <b>Código:</b>
+                Este bloque carga automáticamente el contenido real de <b>MisScripts\HealthCheck.ps1</b>.
             </p>
-            <div class="script-preview">
-              <pre><code id="script-preview" class="language-powershell"></code></pre>
-              <div class="editor-buttons">
-                <button id="copy-script" class="editor-button">Copiar</button>
-                <button id="save-script" class="editor-button">Guardar</button>
-                <span id="editor-message" class="editor-message"></span>
-              </div>
-            </div>
-            <style>
-              .script-editor-container {
-                margin: 20px 0;
-                width: 100%;
-              }
-              .script-editor {
-                width: 100%;
-                padding: 10px;
-                font-family: 'Consolas', 'Courier New', monospace;
-                font-size: 14px;
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                background-color: #f8f8f8;
-                color: #333;
-                resize: vertical;
-              }
-              .editor-buttons {
-                margin-top: 10px;
-                display: flex;
-                gap: 10px;
-                align-items: center;
-              }
-              .editor-button {
-                padding: 8px 16px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: bold;
-              }
-              .editor-button:hover {
-                background-color: #45a049;
-              }
-              .editor-message {
-                margin-left: 10px;
-                color: #4CAF50;
-                font-weight: bold;
-                opacity: 0;
-                transition: opacity 0.3s;
-              }
-              .script-preview {
-                margin-top: 20px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                padding: 10px;
-                background-color: #f9f9f9;
-                max-height: 500px;
-                overflow-y: auto;
-              }
-            </style>
-            <script>
-              document.addEventListener('DOMContentLoaded', function() {
-                const scriptPreview = document.getElementById('script-preview');
-                const copyButton = document.getElementById('copy-script');
-                const saveButton = document.getElementById('save-script');
-                const editorMessage = document.getElementById('editor-message');
-                
-                // Cargar el script completo desde archivo externo
-                let scriptContent = '';
-                
-                // Función para cargar el script desde un archivo
-                async function loadScript() {
-                  try {
-                    const response = await fetch('../MisScripts/HealthCheck.ps1');
-                    if (!response.ok) {
-                      throw new Error(`Error al cargar el script: ${response.status}`);
-                    }
-                    scriptContent = await response.text();
-                    // Mostrar el script en la vista previa
-                    document.getElementById('script-preview').textContent = scriptContent;
-                    Prism.highlightElement(document.getElementById('script-preview'));
-                  } catch (error) {
-                    console.error('Error al cargar el script:', error);
-                    document.getElementById('script-preview').textContent = 'Error al cargar el script. Por favor, inténtelo de nuevo más tarde.';
-                    showMessage('Error al cargar el script', true);
-                  }
-                }
-                
-                // Cargar el script inmediatamente
-                loadScript();
-                
-                // Mostrar el script en la vista previa
-                scriptPreview.textContent = scriptContent;
-                Prism.highlightElement(scriptPreview);
-                
-                // Copiar el código
-                copyButton.addEventListener('click', function() {
-                  const tempTextarea = document.createElement('textarea');
-                  tempTextarea.value = scriptContent;
-                  document.body.appendChild(tempTextarea);
-                  tempTextarea.select();
-                  document.execCommand('copy');
-                  document.body.removeChild(tempTextarea);
-                  showMessage('¡Código copiado!');
-                });
-                
-                // Guardar el código
-                saveButton.addEventListener('click', function() {
-                  const blob = new Blob([scriptContent], {type: 'text/plain'});
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'Health-Check.ps1';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                  showMessage('¡Archivo guardado!');
-                });
-                
-                // Mostrar mensaje
-                function showMessage(msg, isError = false) {
-                  editorMessage.textContent = msg;
-                  editorMessage.style.opacity = '1';
-                  editorMessage.style.color = isError ? '#f44336' : '#4CAF50';
-                  setTimeout(() => {
-                    editorMessage.style.opacity = '0';
-                  }, 3000);
-                }
-                
-                // No necesitamos localStorage ya que el script se carga directamente
-              });
-            </script>
-        </div>
-    </section>
-        <br>
-        <section id="ejemplos-uso">
             <div class="code-container">
-                <h2>Ejemplo de Uso</h2>
-                <h3>Ejecución</h3>
-                <pre><code class="language-powershell">.\Health-Check.ps1 -SalidaArchivo "C:\Informes" -DiasLogs 7 -FormatoExportar HTML -AnalisisSeguridad $true</code></pre>
-                <p>Este comando generará un informe completo que incluye:</p>
-                <ul>
-                    <li>7 días de logs de eventos</li>
-                    <li>Verificación de parches faltantes</li>
-                    <li>Análisis de servicios de terceros</li>
-                    <li>Auditoría de seguridad completa</li>
-                    <li>Verificación de cumplimiento con estándares</li>
-                    <li>Informe en formato HTML</li>
-                </ul>
-            </div>
-        </section>
-        <br> 
-        <section id="notas-adicionales">
-            <div class="code-container">
-                <h2>Notas Adicionales</h2>
-                <ul>
-                    <li>El script requiere ejecución con privilegios de administrador para acceder a toda la información del sistema.</li>
-                    <li>Para sistemas con UAC habilitado, ejecutar PowerShell "Como administrador".</li>
-                    <li>El informe HTML generado incluye gráficos y secciones interactivas para mejor visualización.</li>
-                    <li>El tiempo de ejecución puede variar dependiendo del sistema y la cantidad de datos a analizar.</li>
-                </ul>
-            </div>
-        </section>
-        <br>
-        <section id="casos-uso">
-            <div class="code-container">
-                <h2>Casos de Uso</h2>
-                <h3>Monitoreo de Salud del Sistema Regular</h3>
-                <ul>
-                    <li>Ejecución programada para generar informes periódicos</li>
-                    <li>Identificación de problemas de rendimiento (CPU, memoria, disco)</li>
-                    <li>Detección temprana de fallos hardware</li>
-                </ul>
-                <h3>Investigación de Incidentes</h3>
-                <ul>
-                    <li>Análisis de logs de eventos para troubleshooting</li>
-                    <li>Revisión de intentos de acceso no autorizados</li>
-                    <li>Identificación de procesos maliciosos</li>
-                </ul>
-                <h3>Auditoría de Seguridad</h3>
-                <ul>
-                    <li>Verificación de cumplimiento con estándares CIS</li>
-                    <li>Análisis de permisos en carpetas sensibles</li>
-                    <li>Revisión de configuración de seguridad (firewall, UAC)</li>
-                </ul>
-                <h3>Planificación de Capacidad</h3>
-                <ul>
-                    <li>Análisis de tendencias de uso de recursos</li>
-                    <li>Identificación de necesidades de actualización</li>
-                    <li>Optimización de configuración del sistema</li>
-                </ul>
-                <h3>Documentación del Sistema</h3>
-                <ul>
-                    <li>Inventario de software instalado</li>
-                    <li>Configuración de red y servicios</li>
-                    <li>Especificaciones técnicas del hardware</li>
-                </ul>
+                <pre><code id="healthcheckps1-full" class="language-powershell">Cargando script...</code></pre>
+                <button class="copy-button" onclick="copyCode(this)" aria-label="Copiar código">Copiar</button>
+                <div class="copy-confirmation" aria-live="polite">¡Copiado!</div>
             </div>
         </section>
     </main>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
-      <script src="script.js"></script>
-      
-      <script>
-        // Función para copiar código desde un elemento específico
-        function copyCodeFromElement(elementId) {
-          const codeElement = document.getElementById(elementId);
-          if (codeElement) {
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = codeElement.textContent;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-            
-            // Buscar el elemento de confirmación más cercano
-            const container = codeElement.closest('.code-container');
-            if (container) {
-              const confirmation = container.querySelector('.copy-confirmation');
-              if (confirmation) {
-                confirmation.classList.add('show');
-                setTimeout(() => {
-                  confirmation.classList.remove('show');
-                }, 2000);
-              }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script>
+        (function () {
+            var el = document.getElementById('healthcheckps1-full');
+            if (!el) {
+                return;
             }
-          }
-        }
-        
-        // Función para cargar fragmentos de código desde archivos externos
-        async function loadCodeSnippet(elementId, filePath, functionName) {
-          try {
-            const response = await fetch(filePath);
-            if (!response.ok) {
-              throw new Error(`Error al cargar el fragmento: ${response.status}`);
-            }
-            const fullScript = await response.text();
-            let codeContent = fullScript;
-            
-            // Si se especifica un nombre de función, extraer solo esa función
-            if (functionName) {
-              const functionRegex = new RegExp(`function ${functionName}[\s\S]*?^}`, 'm');
-              const match = fullScript.match(functionRegex);
-              if (match) {
-                codeContent = match[0];
-              }
-            }
-            
-            // Mostrar el código en el elemento correspondiente
-            const codeElement = document.getElementById(elementId);
-            if (codeElement) {
-              codeElement.textContent = codeContent;
-              Prism.highlightElement(codeElement);
-            }
-            return codeContent;
-          } catch (error) {
-            console.error(`Error al cargar el fragmento ${functionName}:`, error);
-            const codeElement = document.getElementById(elementId);
-            if (codeElement) {
-              codeElement.textContent = `Error al cargar el fragmento de código: ${error.message}`;
-            }
-            return null;
-          }
-        }
-        
-        // Función para cargar el script completo
-        async function loadScript() {
-          try {
-            const response = await fetch('../MisScripts/Health-Check.ps1');
-            if (!response.ok) {
-              throw new Error(`Error al cargar el script: ${response.status}`);
-            }
-            const scriptContent = await response.text();
-            // Mostrar el script en la vista previa
-            const scriptPreview = document.getElementById('script-preview');
-            if (scriptPreview) {
-              scriptPreview.textContent = scriptContent;
-              Prism.highlightElement(scriptPreview);
-            }
-          } catch (error) {
-            console.error('Error al cargar el script:', error);
-            const scriptPreview = document.getElementById('script-preview');
-            if (scriptPreview) {
-              scriptPreview.textContent = 'Error al cargar el script. Por favor, inténtelo de nuevo más tarde.';
-            }
-          }
-        }
-        
-        // Cargar todos los fragmentos de código cuando se cargue la página
-        document.addEventListener('DOMContentLoaded', function() {
-          // Cargar el script completo
-          loadScript();
-          
-          // Cargar los fragmentos individuales
-          loadCodeSnippet('get-informacionsistema-code', '../MisScripts/Get-InformacionSistema.ps1', 'Get-InformacionSistema');
-          loadCodeSnippet('get-metricasrendimiento-code', '../MisScripts/Get-MetricasRendimiento.ps1', 'Get-MetricasRendimiento');
-          loadCodeSnippet('get-logseventos-code', '../MisScripts/Get-LogsEventos.ps1', 'Get-LogsEventos');
-          loadCodeSnippet('get-analisisconfiabilidad-code', '../MisScripts/Get-AnalisisConfiabilidad.ps1', 'Get-AnalisisConfiabilidad');
-          loadCodeSnippet('get-diagnosticohardwareavanzado-code', '../MisScripts/Get-DiagnosticoHardwareAvanzado.ps1', 'Get-DiagnosticoHardwareAvanzado');
-          loadCodeSnippet('get-analisisrolesservidor-code', '../MisScripts/Get-AnalisisRolesServidor.ps1', 'Get-AnalisisRolesServidor');
-          loadCodeSnippet('get-analisispoliticasgrupo-code', '../MisScripts/Get-AnalisisPoliticasGrupo.ps1', 'Get-AnalisisPoliticasGrupo');
-          loadCodeSnippet('get-verificacioncumplimiento-code', '../MisScripts/Get-VerificacionCumplimiento.ps1', 'Get-VerificacionCumplimiento');
-          loadCodeSnippet('get-analisispermisos-code', '../MisScripts/Get-AnalisisPermisos.ps1', 'Get-AnalisisPermisos');
-          loadCodeSnippet('get-auditoriasoftware-code', '../MisScripts/Get-AuditoriaSoftware.ps1', 'Get-AuditoriaSoftware');
-        });
-      </script>
-      </body>
-  
+
+            fetch('../MisScripts/HealthCheck.ps1')
+                .then(function (r) {
+                    if (!r.ok) {
+                        throw new Error('HTTP ' + r.status);
+                    }
+                    return r.text();
+                })
+                .then(function (txt) {
+                    el.textContent = txt;
+                    if (window.Prism && Prism.highlightElement) {
+                        Prism.highlightElement(el);
+                    }
+                })
+                .catch(function (e) {
+                    el.textContent = 'No se pudo cargar el script completo: ' + (e && e.message ? e.message : e);
+                });
+        })();
+    </script>
+    <script src="script.js"></script>
+</body>
