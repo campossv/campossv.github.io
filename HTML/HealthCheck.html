@@ -21,6 +21,12 @@
             justify-content: center;
         }
 
+        header #overview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         nav {
             background-color: #365899;
             padding: 10px;
@@ -191,6 +197,7 @@
 <body>
     <header>
         <section id="overview">
+            <img id="headerLogo" alt="Logo" style="height:60px; margin-right:12px;" />
             <h1>HealthCheck.ps1 (Documentación del script)</h1>
         </section>
     </header>
@@ -210,7 +217,7 @@
     <center>
         <div class="vertical-align">
             <a href="https://www.linkedin.com/in/vladimir-campos-830b83328/" target="_blank">
-                <img src="https://campossv.github.io/assets/Linkedin-Logo-e1660320077673.png" class="linkedin-logo" />
+                <img src="../assets/Linkedin-Logo-e1660320077673.png" class="linkedin-logo" />
             </a>
         </div>
     </center>
@@ -466,6 +473,34 @@ param(
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-powershell.min.js"></script>
+    <script>
+        (function () {
+            var img = document.getElementById('headerLogo');
+            if (!img) {
+                return;
+            }
+
+            fetch('../MisScripts/HealthCheck.ps1')
+                .then(function (r) {
+                    if (!r.ok) {
+                        throw new Error('HTTP ' + r.status);
+                    }
+                    return r.text();
+                })
+                .then(function (txt) {
+                    var m = txt.match(/\$HeaderLogoBase64\s*=\s*\"([\s\S]*?)\"/);
+                    if (!m || !m[1]) {
+                        throw new Error('No se encontró $HeaderLogoBase64 en el script');
+                    }
+
+                    var b64 = m[1].replace(/\s+/g, '');
+                    img.src = 'data:image/png;base64,' + b64;
+                })
+                .catch(function () {
+                    img.style.display = 'none';
+                });
+        })();
+    </script>
     <script>
         (function () {
             var el = document.getElementById('healthcheckps1-full');
