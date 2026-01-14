@@ -24,7 +24,7 @@ param(
   [string]$RutaOrigen = ".\",
   [int]$DIASAtras = 90,
   [string]$RutaSoftInstalado,
-  [switch]$ExportJson,
+  [switch]$ExportJson = $true,
   [switch]$EnableLog = $true,
   [switch]$ExportGpResultHtml = $true,
   [switch]$ParallelDiagnostics = $true,
@@ -690,6 +690,7 @@ function New-HealthCheckHtmlReport {
             <option value='Error'>Error</option>
             <option value='Warning'>Warning</option>
           </select>
+          <button class='btn' onclick="exportTableCsv('tblEvents','resumen_eventos.csv')">Exportar CSV</button>
           <span class='counter' id='cntEvents'></span>
         </div>
         $eventsTable
@@ -813,6 +814,44 @@ function New-HealthCheckHtmlReport {
           var c = q(cntId);
           if(c) c.textContent = visible + ' filas';
         }
+      };
+
+      window.exportTableCsv = function(tableId, filename){
+        var table = q(tableId);
+        if(!table) return;
+        var rows = table.querySelectorAll('tr');
+        if(!rows || !rows.length) return;
+
+        function esc(v){
+          if(v === null || v === undefined) return '';
+          var s = String(v);
+          if(/[\r\n",]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+          return s;
+        }
+
+        var lines = [];
+        for(var i=0;i<rows.length;i++){
+          if(rows[i].style && rows[i].style.display === 'none') continue;
+          var cells = rows[i].querySelectorAll('th,td');
+          if(!cells || !cells.length) continue;
+          var line = [];
+          for(var j=0;j<cells.length;j++){
+            var t = (cells[j].innerText || cells[j].textContent || '').trim();
+            line.push(esc(t));
+          }
+          lines.push(line.join(','));
+        }
+
+        var csv = lines.join('\r\n');
+        var blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename || (tableId + '.csv');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       };
 
       function buildPublisherFilter(){
